@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <title>diagnosis</title>
+    <script src='freedom-for-chrome-for-uproxy.js' data-manifest='freedom.json'>
+      {
+        "debug": false,
+        "strongIsolation": true
+      }
+    </script>
+    <script src='main.js'></script>
+  </head>
+  <body style="overflow: scroll;">
+    Plain Text<br>
+    <div id='plain_text'></div>
+    Cipher Text<br>
+    <div id='cipher_text'></div>
+
+    <hr/>
+    <button id='get-log-btn'>Get Log</button>
+    <br>
+    <div id='log' style='height:500px; overflow:scroll'>
+    </div>
+  </body>
+</html>

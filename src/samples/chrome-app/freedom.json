@@ -1,0 +1,22 @@
+{
+  "name": "e2e sample chromeapp",
+  "description": "A sample chromeapp to show e2e usage",
+  "app": {
+    "script": [
+      "freedom.js"
+    ]
+  },
+  "dependencies": {
+    "e2e": {
+      "api": "e2e",
+      "url": "end-to-end/freedom.json"
+    },
+    "Logger": {
+      "api": "Logger",
+      "url": "logger/logger.json"
+    }
+  },
+  "permissions": [
+    "core.storage"
+  ]
+}

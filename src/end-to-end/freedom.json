@@ -1,0 +1,57 @@
+{
+  "name": "e2e",
+  "description": "End-to-end Freedom manifest",
+  "app": {
+    "script": [
+      "end-to-end.compiled.js",
+      "googstorage.js",
+      "e2e.js"
+    ]
+  },
+  "constraints": {
+    "isolation": "never"
+  },
+  "provides" : [
+    "e2e"
+  ],
+  "api": {
+    "e2e": {
+      "setup": {
+        "type": "method",
+        "value": []
+      },
+      "importKey": {
+        "type": "method",
+        "value": ["string"],
+        "ret": ["array", "string"]
+      },
+      "searchPrivateKey": {
+        "type": "method",
+        "value": ["string"],
+        "ret": ["array", "string"]
+      },
+      "searchPublicKey": {
+        "type": "method",
+        "value": ["string"],
+        "ret": ["array", "string"]
+      },
+      "doEncryption": {
+        "type": "method",
+        "value": ["string", "string"],
+        "ret": "string" 
+      },
+      "doDecryption": {
+        "type": "method",
+        "value": ["string"],
+        "ret": "string" 
+      }
+    }
+  },
+
+  "dependencies": {
+  },
+  "permissions": [
+    "core.storage"
+  ]
+}
+
