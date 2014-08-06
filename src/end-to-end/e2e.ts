@@ -60,6 +60,12 @@ module E2eModule {
           });
     }
 
+    public testSetup = () : Promise<void> => {
+      // this function has the side-effect to setup the keyright storage. 
+      pgpContext.setKeyRingPassphrase('');
+      return Promise.resolve<void>();
+    }
+
     public importKey = (keyStr: string) : Promise<string[]> => {
       return new Promise<string[]>(function(F, R) {
         pgpContext.importKey((str, f) => { f(''); }, keyStr).addCallback(F);

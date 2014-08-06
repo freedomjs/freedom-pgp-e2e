@@ -1,6 +1,15 @@
 TaskManager = require('uproxy-lib/tools/taskmanager');
 Rule = require('uproxy-lib/tools/common-grunt-rules');
 
+FILES = {
+  jasmine_helpers: [
+    # Help Jasmine's PhantomJS understand promises.
+    'node_modules/es6-promise/dist/promise-*.js',
+    '!node_modules/es6-promise/dist/promise-*amd.js',
+    '!node_modules/es6-promise/dist/promise-*.min.js'
+  ]
+};
+
 module.exports = (grunt) ->
 
   grunt.initConfig {
@@ -62,15 +71,26 @@ module.exports = (grunt) ->
         } ]
       },
 
-      es6Promise: { files: [ {
+      es6Promise: { 
+        files: [ {
           expand: true, cwd: 'node_modules/es6-promise/dist/'
           src: ['**']
           dest: 'build/third_party/typings/es6-promise/' 
           onlyIf: 'modified'
         } ] },
 
-      # Copy any JavaScript from the third_party directory
-      e2eCompiledJavaScript: { files: [ {
+      jasmineAsPromised: {
+       files: [ {
+         expand: true
+         cwd: 'node_modules/jasmine-as-promised/src'
+         src: ['**']
+         dest: 'build/third_party/jasmine-as-promised/' 
+         onlyIf: 'modified'
+       } ] },
+      
+      # Copy compiled end-to-end code.
+      e2eCompiledJavaScript: { 
+        files: [ {
           src: ['end-to-end.build/build/library/end-to-end.compiled.js']
           dest: 'build/end-to-end/end-to-end.compiled.js'
           onlyIf: 'modified'
@@ -113,6 +133,19 @@ module.exports = (grunt) ->
       sampleChromeApp: Rule.typescriptSrc('samples/chrome-app')
     } # typescript
 
+    jasmine: {
+      e2e: {
+        src: FILES.jasmine_helpers.concat([
+          'build/end-to-end/end-to-end.compiled.js',
+          'build/end-to-end/e2e.js'
+          # 'build/thirdparty/jasmine-as-promised/jasmine-as-promised.js'
+          ])
+        options: { 
+          specs : 'build/end-to-end/*.spec.js' 
+        }
+      }
+    } # jasmine
+
     clean: ['build/**']
   }  # grunt.initConfig
 
@@ -122,6 +155,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-typescript'
   grunt.loadNpmTasks 'grunt-env'
   grunt.loadNpmTasks 'grunt-contrib-symlink'
+  grunt.loadNpmTasks 'grunt-contrib-jasmine'
 
   #-------------------------------------------------------------------------
   # Define the tasks
@@ -139,7 +173,6 @@ module.exports = (grunt) ->
 
     # Copy all source modules non-ts files
     'copy:endToEnd'
-
   ]
 
   taskManager.add 'endToEnd', [
@@ -157,7 +190,9 @@ module.exports = (grunt) ->
   ]
 
   taskManager.add 'test', [
+    'copy:jasmineAsPromised'
     'build'
+    'jasmine'
   ]
 
   taskManager.add 'default', [
