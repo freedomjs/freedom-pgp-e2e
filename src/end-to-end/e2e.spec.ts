@@ -2,21 +2,6 @@
 /// <reference path="../third_party/typings/es6-promise/es6-promise.d.ts" />
 /// <reference path='../third_party/typings/jasmine/jasmine.d.ts' />
 
-/*
-declare module e2e.async {
-  class Result<T> {
-    addCallback(f: (T: any) => void) : e2e.async.Result<T>;
-    addErrback(f: (e: Error) => void) : e2e.async.Result<T>;
-
-    callback() : void;
-
-    // TODO: how to replace any? static member can not reference 'T'.
-    //static getValue(result: Result<T>) : T;
-    static getValue(result: any) : any;
-  }
-}*/
-
-
 describe("e2eImp", function() {
   var e2eImp = new E2eModule.E2eImp('');
 
