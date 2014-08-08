@@ -137,8 +137,9 @@ module.exports = (grunt) ->
       e2e: {
         src: FILES.jasmine_helpers.concat([
           'build/end-to-end/end-to-end.compiled.js',
+          'build/end-to-end/test_mock.js',
+          'build/end-to-end/googstorage_mock.js'
           'build/end-to-end/e2e.js'
-          # 'build/thirdparty/jasmine-as-promised/jasmine-as-promised.js'
           ])
         options: { 
           specs : 'build/end-to-end/*.spec.js' 

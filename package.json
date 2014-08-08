@@ -19,7 +19,6 @@
     "uproxy-lib": "^7.0.1",
     "freedom": "~0.5.0",
     "grunt-contrib-jasmine": "^0.6.4",
-    "jasmine-as-promised": "^0.0.8",
     "es6-promise": "^1.0.0"
   },
   "scripts": {

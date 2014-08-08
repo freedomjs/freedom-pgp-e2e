@@ -3,8 +3,8 @@
   "description": "End-to-end Freedom manifest",
   "app": {
     "script": [
-      "end-to-end.compiled.js",
-      "googstorage.js",
+      "end-to-end.js",
+      "googstorage_mock.js",
       "e2e.js"
     ]
   },

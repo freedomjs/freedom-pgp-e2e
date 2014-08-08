@@ -2,8 +2,23 @@
 /// <reference path="../third_party/typings/es6-promise/es6-promise.d.ts" />
 /// <reference path='../third_party/typings/jasmine/jasmine.d.ts' />
 
-describe("e2e", function() {
-  var e2e = new E2eModule.E2eImp('');
+/*
+declare module e2e.async {
+  class Result<T> {
+    addCallback(f: (T: any) => void) : e2e.async.Result<T>;
+    addErrback(f: (e: Error) => void) : e2e.async.Result<T>;
+
+    callback() : void;
+
+    // TODO: how to replace any? static member can not reference 'T'.
+    //static getValue(result: Result<T>) : T;
+    static getValue(result: any) : any;
+  }
+}*/
+
+
+describe("e2eImp", function() {
+  var e2eImp = new E2eModule.E2eImp('');
 
   var publicKeyStr : string = 
     '-----BEGIN PGP PUBLIC KEY BLOCK-----\n' +
@@ -53,48 +68,51 @@ describe("e2e", function() {
   });
 
   it('test importKey with public key', (done) => {
-    e2e.testSetup()
+    e2eImp.testSetup()
     .then(() => {
       console.log('start to import key');
-      return e2e.importKey(publicKeyStr);
+      return e2eImp.importKey(publicKeyStr);
     })
     .then(() => {
-      return e2e.searchPublicKey('<quantsword@gmail.com>');
+      console.log('start to searchPublicKey');
+      return e2eImp.searchPublicKey('<quantsword@gmail.com>');
     })
-    .then((keys: string[]) => {
+    .then((keys: any[]) => {
       expect(keys.length).toEqual(1);
-      expect(keys[0]).toEqual('<quantsword@gmail.com>');
+      expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
     })
-    .catch((e: Error) => {}).then(done);
+    .catch((e: Error) => { console.log('error happend, ' + e);}) 
+    .then(done);
   });
 
-  it('test importKey with private key', function() {
-    e2e.testSetup()
+  it('test importKey with private key', function(done) {
+    e2eImp.testSetup()
     .then(() => {
-      return e2e.importKey(privateKeyStr)
+      return e2eImp.importKey(privateKeyStr)
     })
     .then(() => {
-      return e2e.searchPrivateKey('<quantsword@gmail.com>');
+      return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
     })
-    .then((keys: string[]) => {
+    .then((keys: any[]) => {
       expect(keys.length).toEqual(1);
-      expect(keys[0]).toEqual('<quantsword@gmail.com>');
+      expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
     })
-    ;
+    .catch((e: Error) => { console.log('error happend, ' + e);}) 
+    .then(done);
   });
   
   it('encrypt and decrypt', (done) => {
-    e2e.testSetup()
+    e2eImp.testSetup()
     .then(() => {
-      return e2e.doEncryption('123412341234', publicKeyStr);
+      return e2eImp.doEncryption('123412341234', publicKeyStr);
     })
     .then((cipherText: string) => {
-      return e2e.importKey(privateKeyStr).then(() => {
-        return e2e.doDecryption(cipherText);
+      return e2eImp.importKey(privateKeyStr).then(() => {
+        return e2eImp.doDecryption(cipherText);
       });
     })
     .then((newText: string) => {
-      expect(newText).toEqual('123412341234--');
+      expect(newText).toEqual('123412341234');
     }).then(done);
   });
 

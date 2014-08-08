@@ -7,11 +7,11 @@ interface DecryptResult {
 
 declare module e2e.async {
   class Result<T> {
-    addCallback(f: (T: any) => void) : e2e.async.Result<T>;
+    addCallback(f: (a: T) => void) : e2e.async.Result<T>;
     addErrback(f: (e: Error) => void) : e2e.async.Result<T>;
 
     // TODO: how to replace any? static member can not reference 'T'.
-    //static getValue(result: Result<T>) : T;
+    //static getValue(result: e2e.async.Result<T>) : T;
     static getValue(result: any) : any;
   }
 }
@@ -53,6 +53,10 @@ module E2eModule {
     }
 
     public setup = () : Promise<void> => {
+      // this function has the side-effect to setup the keyright storage. 
+      pgpContext.setKeyRingPassphrase('');
+      return Promise.resolve<void>();
+
       return goog.storage.mechanism.HTML5LocalStorage.prepareFreedom()
           .then(() => {
             // this function has the side-effect to setup the keyright storage. 
@@ -68,7 +72,10 @@ module E2eModule {
 
     public importKey = (keyStr: string) : Promise<string[]> => {
       return new Promise<string[]>(function(F, R) {
-        pgpContext.importKey((str, f) => { f(''); }, keyStr).addCallback(F);
+        //pgpContext.importKey((str, f) => { f(''); }, keyStr).addCallback(F);
+        pgpContext.importKey((str, f) => { f(''); }, keyStr)
+        //.addErrback((e: Error) => { console.log('import error' + e); R(e);})
+        .addCallback(F);
       });
     }
 
@@ -80,7 +87,7 @@ module E2eModule {
 
     public searchPublicKey = (uid: string) : Promise<any[]> => {
       return new Promise(function(F, R) {
-        pgpContext.searchPrivateKey(uid).addCallback(F);
+        pgpContext.searchPublicKey(uid).addCallback(F);
       });
     }
 
