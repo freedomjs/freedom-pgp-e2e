@@ -1,8 +1,24 @@
 /// <reference path='../freedom-declarations/freedom.d.ts' />
 /// <reference path="../third_party/typings/es6-promise/es6-promise.d.ts" />
 
-interface DecryptResult {
-  decrypt : { data: number[];} ;
+interface PgpKey {
+  subKeys : any[];
+  uids: string[];
+  key: any;
+  serialized: number[];
+}
+
+interface PgpDecryptResult {
+  decrypt : { data: number[];};
+  verify  : {
+    success : PgpKey[];
+    failure : PgpKey[];
+  }
+}
+
+interface VerifyDecryptResult {
+  data: string;
+  signedBy: string[];
 }
 
 declare module e2e.async {
@@ -36,11 +52,14 @@ declare module e2e.openpgp {
 
     searchPrivateKey(uid: string) : e2e.async.Result<any[]>;
 
-    encryptSign(plaintext: string, options: any [], keys: any [], 
-                passphrase: string) : e2e.async.Result<string>;
+    encryptSign(plaintext: string, 
+                options: any [], 
+                encryptionKeys: any [], 
+                passphrases: string[],
+                signatureKey?: any) : e2e.async.Result<string>;
 
-    verifyDecrypt(passphraseCallback: any, encryptedMessage: string) :
-        e2e.async.Result<DecryptResult>;
+    verifyDecrypt(passphraseCallback: any,
+                  encryptedMessage: string) : e2e.async.Result<PgpDecryptResult>;
   }
 }
 
@@ -88,13 +107,32 @@ module E2eModule {
       });
     }
 
-    public doEncryption = (plaintext: string, publicKey: string) : Promise<string> => {
+    public doEncryption = (plaintext: string,
+                           publicKey: string) : Promise<string> => {
       var result: any = e2e.async.Result.getValue(
           pgpContext.importKey((str, f) => { f(''); }, publicKey));
       var keys = e2e.async.Result.getValue(
         pgpContext.searchPublicKey(result[0]));
       return new Promise<string>(function(F, R) {
-          pgpContext.encryptSign(plaintext, [], keys, '')
+          pgpContext.encryptSign(plaintext, [], keys, [])
+              .addCallback(F).addErrback(R);
+        });
+    }
+
+    public encryptSign = (plaintext: string, 
+                          encryptKey: string,
+                          signatureKey: string) : Promise<string> => {
+      var importResult: any = e2e.async.Result.getValue(
+          pgpContext.importKey((str, f) => { f(''); }, encryptKey));
+      var keys: any[] = e2e.async.Result.getValue(
+          pgpContext.searchPublicKey(importResult[0]));
+      var importResult2: any = e2e.async.Result.getValue(
+          pgpContext.importKey((str, f) => { f(''); }, signatureKey));
+      var signKey: any = e2e.async.Result.getValue(
+          pgpContext.searchPrivateKey(importResult2[0]))[0];
+      
+      return new Promise<string>(function(F, R) {
+          pgpContext.encryptSign(plaintext, [], keys, [], signKey)
               .addCallback(F).addErrback(R);
         });
     }
@@ -104,7 +142,22 @@ module E2eModule {
           pgpContext.verifyDecrypt(
               () => { return ''; }, // passphrase callback
               ciphertext)
-          .addCallback((r: DecryptResult) => {F(array2str(r.decrypt.data)); })
+          .addCallback((r: PgpDecryptResult) => {F(array2str(r.decrypt.data));})
+          .addErrback(R);
+        });
+    }
+
+    public verifyDecrypt = (ciphertext: string) 
+        : Promise<VerifyDecryptResult> => {
+      return new Promise(function(F, R) {
+          pgpContext.verifyDecrypt(
+              () => { return ''; }, // passphrase callback
+              ciphertext)
+          .addCallback((r: PgpDecryptResult) => {
+            F({
+              data: array2str(r.decrypt.data),
+              signedBy: r.verify.success[0].uids} ); 
+          })
           .addErrback(R);
         });
     }

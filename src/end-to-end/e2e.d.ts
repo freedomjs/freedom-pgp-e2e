@@ -2,6 +2,13 @@
 
 // This is the interface that a module that has logger as a dependency gets to
 // use.
+
+interface VerifyDecryptResult {
+  data: string;
+  signedBy: string[];
+}
+
+
 interface E2eProvider {
   setup() : Promise<void>;
   importKey(keyStr: string) : Promise<string[]>;
@@ -9,6 +16,10 @@ interface E2eProvider {
   searchPublicKey(uid: string) : Promise<string[]>;
   doEncryption(plaintext: string, publicKey: string) : Promise<string>;
   doDecryption(ciphertext: string) : Promise<string>;
+
+  encryptSign(plaintext: string, encryptKey: string, signatureKey: string) : Promise<string>;
+
+  verifyDecrypt(ciphertext: string) : Promise<VerifyDecryptResult>;
 
   providePromises(provider: Object) : void;
 }
