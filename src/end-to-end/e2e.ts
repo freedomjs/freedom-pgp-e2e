@@ -72,10 +72,7 @@ module E2eModule {
 
     public importKey = (keyStr: string) : Promise<string[]> => {
       return new Promise<string[]>(function(F, R) {
-        //pgpContext.importKey((str, f) => { f(''); }, keyStr).addCallback(F);
-        pgpContext.importKey((str, f) => { f(''); }, keyStr)
-        //.addErrback((e: Error) => { console.log('import error' + e); R(e);})
-        .addCallback(F);
+        pgpContext.importKey((str, f) => { f(''); }, keyStr).addCallback(F);
       });
     }
 
@@ -98,11 +95,7 @@ module E2eModule {
         pgpContext.searchPublicKey(result[0]));
       return new Promise<string>(function(F, R) {
           pgpContext.encryptSign(plaintext, [], keys, '')
-              .addCallback(F)
-              .addErrback((e: Error) => {
-                console.log('!!! encrypion error: ' + e);
-                R;
-              });
+              .addCallback(F).addErrback(R);
         });
     }
 
@@ -111,12 +104,8 @@ module E2eModule {
           pgpContext.verifyDecrypt(
               () => { return ''; }, // passphrase callback
               ciphertext)
-          .addCallback((r: DecryptResult) => {
-            F(array2str(r.decrypt.data)); })
-          .addErrback((e: Error) => {
-                console.log('!!! encrypion error: ' + e);
-                R;
-              });
+          .addCallback((r: DecryptResult) => {F(array2str(r.decrypt.data)); })
+          .addErrback(R);
         });
     }
   }
