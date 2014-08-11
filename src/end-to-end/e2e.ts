@@ -48,9 +48,9 @@ declare module e2e.openpgp {
               keyStr: string) : e2e.async.Result<string[]>;
 
     // We don't need to know how key is being represented, thus use any here.
-    searchPublicKey(uid: string) : e2e.async.Result<any[]>;
+    searchPublicKey(uid: string) : e2e.async.Result<PgpKey[]>;
 
-    searchPrivateKey(uid: string) : e2e.async.Result<any[]>;
+    searchPrivateKey(uid: string) : e2e.async.Result<PgpKey[]>;
 
     encryptSign(plaintext: string, 
                 options: any [], 
@@ -58,7 +58,7 @@ declare module e2e.openpgp {
                 passphrases: string[],
                 signatureKey?: PgpKey) : e2e.async.Result<string>;
 
-    verifyDecrypt(passphraseCallback: any,
+    verifyDecrypt(passphraseCallback: PassphraseCallbackFunc,
                   encryptedMessage: string) : e2e.async.Result<PgpDecryptResult>;
   }
 }
@@ -95,13 +95,13 @@ module E2eModule {
       });
     }
 
-    public searchPrivateKey = (uid: string) : Promise<any[]> => {
+    public searchPrivateKey = (uid: string) : Promise<PgpKey[]> => {
       return new Promise(function(F, R) {
         pgpContext.searchPrivateKey(uid).addCallback(F);
       });
     }
 
-    public searchPublicKey = (uid: string) : Promise<any[]> => {
+    public searchPublicKey = (uid: string) : Promise<PgpKey[]> => {
       return new Promise(function(F, R) {
         pgpContext.searchPublicKey(uid).addCallback(F);
       });

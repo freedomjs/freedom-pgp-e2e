@@ -3,6 +3,13 @@
 // This is the interface that a module that has logger as a dependency gets to
 // use.
 
+interface PgpKey {
+  subKeys : any[];
+  uids: string[];
+  key: any;
+  serialized: number[];
+}
+
 interface VerifyDecryptResult {
   data: string;
   signedBy: string[];
@@ -12,8 +19,8 @@ interface VerifyDecryptResult {
 interface E2eProvider {
   setup() : Promise<void>;
   importKey(keyStr: string) : Promise<string[]>;
-  searchPrivateKey(uid: string) : Promise<string[]>;
-  searchPublicKey(uid: string) : Promise<string[]>;
+  searchPrivateKey(uid: string) : Promise<PgpKey[]>;
+  searchPublicKey(uid: string) : Promise<PgpKey[]>;
   doEncryption(plaintext: string, publicKey: string) : Promise<string>;
   doDecryption(ciphertext: string) : Promise<string>;
 
