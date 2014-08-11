@@ -54,9 +54,9 @@ declare module e2e.openpgp {
 
     encryptSign(plaintext: string, 
                 options: any [], 
-                encryptionKeys: any [], 
+                encryptionKeys: PgpKey [], 
                 passphrases: string[],
-                signatureKey?: any) : e2e.async.Result<string>;
+                signatureKey?: PgpKey) : e2e.async.Result<string>;
 
     verifyDecrypt(passphraseCallback: any,
                   encryptedMessage: string) : e2e.async.Result<PgpDecryptResult>;
@@ -109,9 +109,9 @@ module E2eModule {
 
     public doEncryption = (plaintext: string,
                            publicKey: string) : Promise<string> => {
-      var result: any = e2e.async.Result.getValue(
+      var result: string[] = e2e.async.Result.getValue(
           pgpContext.importKey((str, f) => { f(''); }, publicKey));
-      var keys = e2e.async.Result.getValue(
+      var keys: PgpKey[] = e2e.async.Result.getValue(
         pgpContext.searchPublicKey(result[0]));
       return new Promise<string>(function(F, R) {
           pgpContext.encryptSign(plaintext, [], keys, [])
@@ -122,13 +122,13 @@ module E2eModule {
     public encryptSign = (plaintext: string, 
                           encryptKey: string,
                           signatureKey: string) : Promise<string> => {
-      var importResult: any = e2e.async.Result.getValue(
+      var importResult: string[] = e2e.async.Result.getValue(
           pgpContext.importKey((str, f) => { f(''); }, encryptKey));
-      var keys: any[] = e2e.async.Result.getValue(
+      var keys: PgpKey[] = e2e.async.Result.getValue(
           pgpContext.searchPublicKey(importResult[0]));
-      var importResult2: any = e2e.async.Result.getValue(
+      var importResult2: string[] = e2e.async.Result.getValue(
           pgpContext.importKey((str, f) => { f(''); }, signatureKey));
-      var signKey: any = e2e.async.Result.getValue(
+      var signKey: PgpKey = e2e.async.Result.getValue(
           pgpContext.searchPrivateKey(importResult2[0]))[0];
       
       return new Promise<string>(function(F, R) {
