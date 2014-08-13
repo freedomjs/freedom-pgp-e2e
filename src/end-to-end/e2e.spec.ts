@@ -109,7 +109,7 @@ describe("e2eImp", function() {
     .then(() => {
       return e2eImp.searchPublicKey('<quantsword@gmail.com>');
     })
-    .then((keys: PgpKey[]) => {
+    .then((keys:PgpKey[]) => {
       expect(keys.length).toEqual(1);
       expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
     })
@@ -119,10 +119,10 @@ describe("e2eImp", function() {
     .then(() => {
       return e2eImp.searchPublicKey('<quantsword@gmail.com>');
     })
-    .then((keys: PgpKey[]) => {
+    .then((keys:PgpKey[]) => {
       expect(keys.length).toEqual(0);
     })
-    .catch((e: Error) => {
+    .catch((e:Error) => {
       console.log('test throw error' + e);
       expect(false).toBeTruthy();}) 
     .then(done);
@@ -136,11 +136,11 @@ describe("e2eImp", function() {
     .then(() => {
       return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
     })
-    .then((keys: PgpKey[]) => {
+    .then((keys:PgpKey[]) => {
       expect(keys.length).toEqual(1);
       expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
     })
-    .catch((e: Error) => {
+    .catch((e:Error) => {
       console.log('test throw error' + e);
       expect(false).toBeTruthy();}) 
     .then(done);
@@ -151,15 +151,15 @@ describe("e2eImp", function() {
     .then(() => {
       return e2eImp.doEncryption('123412341234', publicKeyStr);
     })
-    .then((cipherText: string) => {
+    .then((cipherText:string) => {
       return e2eImp.importKey(privateKeyStr).then(() => {
         return e2eImp.doDecryption(cipherText);
       });
     })
-    .then((newText: string) => {
+    .then((newText:string) => {
       expect(newText).toEqual('123412341234');
     })
-    .catch((e: Error) => {
+    .catch((e:Error) => {
       console.log('test throw error' + e);
       expect(false).toBeTruthy();}) 
     .then(done);
@@ -171,19 +171,19 @@ describe("e2eImp", function() {
     .then(() => {
       return e2eImp.encryptSign('123412341234', publicKeyStr, privateKeyStr2);
     })
-    .then((cipherText: string) => {
+    .then((cipherText:string) => {
       return e2eImp.importKey(privateKeyStr).then(() => {
         return e2eImp.importKey(publicKeyStr2).then(() => {
           return e2eImp.verifyDecrypt(cipherText);
         });
       });
     })
-    .then((result: VerifyDecryptResult) => {
+    .then((result:VerifyDecryptResult) => {
       expect(result.data).toEqual('123412341234');
       expect(result.signedBy.length).toEqual(1);
       expect(result.signedBy[0]).toEqual('<test@gmail.com>');
     })
-    .catch((e: Error) => {
+    .catch((e:Error) => {
       console.log('test throw error' + e);
       expect(false).toBeTruthy();}) 
     .then(done);
@@ -198,11 +198,11 @@ describe("e2eImp", function() {
       expect(true).toBeTruthy();
       return e2eImp.searchPrivateKey('tester <test@gmail.com>');
     })
-    .then((keys: PgpKey[]) => {
+    .then((keys:PgpKey[]) => {
       expect(keys.length).toEqual(1);
       expect(keys[0].uids[0]).toEqual('tester <test@gmail.com>');
     })
-    .catch((e: Error) => {
+    .catch((e:Error) => {
       console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
       expect(false).toBeTruthy();}) 
     .then(done);
