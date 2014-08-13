@@ -18,6 +18,8 @@ interface VerifyDecryptResult {
 
 interface E2eProvider {
   setup() : Promise<void>;
+  generateKey(name: string, email: string) : Promise<void>;
+  deleteKey(uid: string) : Promise<void>;
   importKey(keyStr: string) : Promise<string[]>;
   searchPrivateKey(uid: string) : Promise<PgpKey[]>;
   searchPublicKey(uid: string) : Promise<PgpKey[]>;

@@ -2,6 +2,12 @@
 /// <reference path="../third_party/typings/es6-promise/es6-promise.d.ts" />
 /// <reference path='../third_party/typings/jasmine/jasmine.d.ts' />
 
+interface Error {
+  fileName: string;
+  lineNumber: number;
+  stack: string;
+}
+
 describe("e2eImp", function() {
   var e2eImp = new E2eModule.E2eImp('');
 
@@ -103,9 +109,18 @@ describe("e2eImp", function() {
     .then(() => {
       return e2eImp.searchPublicKey('<quantsword@gmail.com>');
     })
-    .then((keys: any[]) => {
+    .then((keys: PgpKey[]) => {
       expect(keys.length).toEqual(1);
       expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
+    })
+    .then(() => {
+      return e2eImp.deleteKey('<quantsword@gmail.com>');
+    })
+    .then(() => {
+      return e2eImp.searchPublicKey('<quantsword@gmail.com>');
+    })
+    .then((keys: PgpKey[]) => {
+      expect(keys.length).toEqual(0);
     })
     .catch((e: Error) => {
       console.log('test throw error' + e);
@@ -121,7 +136,7 @@ describe("e2eImp", function() {
     .then(() => {
       return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
     })
-    .then((keys: any[]) => {
+    .then((keys: PgpKey[]) => {
       expect(keys.length).toEqual(1);
       expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
     })
@@ -170,6 +185,25 @@ describe("e2eImp", function() {
     })
     .catch((e: Error) => {
       console.log('test throw error' + e);
+      expect(false).toBeTruthy();}) 
+    .then(done);
+  });
+
+  it('generate keys', (done) => {
+    e2eImp.testSetup()
+    .then(() => {
+      return e2eImp.generateKey('tester', 'test@gmail.com');
+    })
+    .then(() => {
+      expect(true).toBeTruthy();
+      return e2eImp.searchPrivateKey('tester <test@gmail.com>');
+    })
+    .then((keys: PgpKey[]) => {
+      expect(keys.length).toEqual(1);
+      expect(keys[0].uids[0]).toEqual('tester <test@gmail.com>');
+    })
+    .catch((e: Error) => {
+      console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
       expect(false).toBeTruthy();}) 
     .then(done);
   });

@@ -60,6 +60,12 @@ declare module e2e.openpgp {
 
     verifyDecrypt(passphraseCallback: PassphraseCallbackFunc,
                   encryptedMessage: string) : e2e.async.Result<PgpDecryptResult>;
+
+    generateKey(keyAlgo: string, keyLength: number, subkeyAlgo: any, subkeyLength: number,
+                name: string, comment: string, email: string, expiration: number)
+               : e2e.async.Result<PgpKey[]>;
+
+    deleteKey(uid: string) : void;
   }
 }
 
@@ -86,6 +92,26 @@ module E2eModule {
     public testSetup = () : Promise<void> => {
       // this function has the side-effect to setup the keyright storage. 
       pgpContext.setKeyRingPassphrase('');
+      return Promise.resolve<void>();
+    }
+
+    public generateKey = (name: string, email: string) : Promise<void> => {
+      return new Promise<void>((F, R) => {
+          // expires after one year
+          var expiration : number = Date.now() / 1000 + (3600 * 24 * 365);
+          pgpContext.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email,
+                                 expiration).addCallback((keys: PgpKey[]) => {
+              if (keys.length == 2) {
+                F();
+              } else {
+                R(new Error('Failed to generate key'))
+              }
+            });
+        });
+    }
+
+    public deleteKey = (uid: string) : Promise<void> => {
+      pgpContext.deleteKey(uid);
       return Promise.resolve<void>();
     }
 
