@@ -2,10 +2,7 @@
 /// <reference path="../third_party/typings/es6-promise/es6-promise.d.ts" />
 
 interface PgpKey {
-  subKeys : any[];
   uids: string[];
-  key: any;
-  serialized: number[];
 }
 
 interface PgpDecryptResult {

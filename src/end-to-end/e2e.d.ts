@@ -4,10 +4,7 @@
 // use.
 
 interface PgpKey {
-  subKeys : any[];
   uids: string[];
-  key: any;
-  serialized: number[];
 }
 
 interface VerifyDecryptResult {
