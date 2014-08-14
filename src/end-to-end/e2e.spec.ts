@@ -1,9 +1,15 @@
-/// <reference path='../freedom-declarations/freedom.d.ts' />
+/// <reference path='../freedom/typings/freedom.d.ts' />
 /// <reference path="../third_party/typings/es6-promise/es6-promise.d.ts" />
 /// <reference path='../third_party/typings/jasmine/jasmine.d.ts' />
 
-describe("e2e", function() {
-  var e2e = new E2eModule.E2eImp('');
+interface Error {
+  fileName: string;
+  lineNumber: number;
+  stack: string;
+}
+
+describe("e2eImp", function() {
+  var e2eImp = new E2eModule.E2eImp('');
 
   var publicKeyStr : string = 
     '-----BEGIN PGP PUBLIC KEY BLOCK-----\n' +
@@ -49,53 +55,157 @@ describe("e2e", function() {
     '=H/6h\n' +
     '-----END PGP PRIVATE KEY BLOCK-----';
 
+  var publicKeyStr2 : string = 
+    '-----BEGIN PGP PUBLIC KEY BLOCK-----\n' +
+    'Charset: UTF-8\n' +
+    '\n' +
+    'xv8AAABSBFPlbJgTCCqGSM49AwEHAgMEeDKUXvoVzX/G71zTyGSRj/8wX0rwbcR4\n' +
+    'CWvgWLr5tgXmtrxszUMDVkL4q3IyL+Kq2QNu24d/fanozzh5W/0+GM3/AAAAEDx0\n' +
+    'ZXN0QGdtYWlsLmNvbT7C/wAAAGYEEBMIABj/AAAABYJT5WyY/wAAAAmQyvVjQH9i\n' +
+    'mjMAAFj1APkBlzr8AjTS6fd0iGhQr+2EGtfileyfQx75lcQ3PTaL8wD/ac0jIEZI\n' +
+    '+Kjj5mTygsVvB7f6otEY2kt5s1PZNGS6xjDO/wAAAFYEU+VsmBIIKoZIzj0DAQcC\n' +
+    'AwRIo+L7MEGWPFKKwTqFXGU7tzQTCtqIKYIJdUEbC6TJnkLyE0T0QRViEioZ9hUt\n' +
+    'MbjetaL8j0sIVYz8j8op8E3VAwEIB8L/AAAAZgQYEwgAGP8AAAAFglPlbJj/AAAA\n' +
+    'CZDK9WNAf2KaMwAAueIBAL+wmZPkI/4AKhw48Vv3OpJVJCipns/aY4B1FSv4B6ok\n' +
+    'AQDkwTOM+GBDawUO2e1ad5UBDQRY9cVQcQ6rJ9HrPHeL7g==\n' +
+    '=CAr8\n' +
+    '-----END PGP PUBLIC KEY BLOCK-----\n';
+
+  var privateKeyStr2 : string =
+    '-----BEGIN PGP PRIVATE KEY BLOCK-----\n' +
+    'Charset: UTF-8\n' +
+    'Version: End-To-End v0.3.1338\n' +
+    '\n' +
+    'xf8AAAB3BFPlbJgTCCqGSM49AwEHAgMEeDKUXvoVzX/G71zTyGSRj/8wX0rwbcR4\n' +
+    'CWvgWLr5tgXmtrxszUMDVkL4q3IyL+Kq2QNu24d/fanozzh5W/0+GAABAL8lilDe\n' +
+    'aNBrJb3rD0N9IZHRKN55Y1D6IP3qd6mDKe/TESDN/wAAABA8dGVzdEBnbWFpbC5j\n' +
+    'b20+wv8AAABmBBATCAAY/wAAAAWCU+VsmP8AAAAJkMr1Y0B/YpozAABY9QD5AZc6\n' +
+    '/AI00un3dIhoUK/thBrX4pXsn0Me+ZXENz02i/MA/2nNIyBGSPio4+Zk8oLFbwe3\n' +
+    '+qLRGNpLebNT2TRkusYwx/8AAAB7BFPlbJgSCCqGSM49AwEHAgMESKPi+zBBljxS\n' +
+    'isE6hVxlO7c0EwraiCmCCXVBGwukyZ5C8hNE9EEVYhIqGfYVLTG43rWi/I9LCFWM\n' +
+    '/I/KKfBN1QMBCAcAAQDnXfHUMpj18STlok0zNqocHCiYivWPnmyDRslnGglBKQ9b\n' +
+    'wv8AAABmBBgTCAAY/wAAAAWCU+VsmP8AAAAJkMr1Y0B/YpozAAC54gD+JTzt2JHA\n' +
+    'tBB2Vp6wjqCkdTjQWvYLEcmGT9sPMBBEaGIBANxC4d9fbdOHV4d8etk9VVrrzu8Q\n' +
+    'Yl9+3fApzDpylYplxv8AAABSBFPlbJgTCCqGSM49AwEHAgMEeDKUXvoVzX/G71zT\n' +
+    'yGSRj/8wX0rwbcR4CWvgWLr5tgXmtrxszUMDVkL4q3IyL+Kq2QNu24d/fanozzh5\n' +
+    'W/0+GM3/AAAAEDx0ZXN0QGdtYWlsLmNvbT7C/wAAAGYEEBMIABj/AAAABYJT5WyY\n' +
+    '/wAAAAmQyvVjQH9imjMAAFj1APkBlzr8AjTS6fd0iGhQr+2EGtfileyfQx75lcQ3\n' +
+    'PTaL8wD/ac0jIEZI+Kjj5mTygsVvB7f6otEY2kt5s1PZNGS6xjDO/wAAAFYEU+Vs\n' +
+    'mBIIKoZIzj0DAQcCAwRIo+L7MEGWPFKKwTqFXGU7tzQTCtqIKYIJdUEbC6TJnkLy\n' +
+    'E0T0QRViEioZ9hUtMbjetaL8j0sIVYz8j8op8E3VAwEIB8L/AAAAZgQYEwgAGP8A\n' +
+    'AAAFglPlbJj/AAAACZDK9WNAf2KaMwAAueIBAL+wmZPkI/4AKhw48Vv3OpJVJCip\n' +
+    'ns/aY4B1FSv4B6okAQDkwTOM+GBDawUO2e1ad5UBDQRY9cVQcQ6rJ9HrPHeL7g==\n' +
+    '=2qgG\n' +
+    '-----END PGP PRIVATE KEY BLOCK-----\n';
+
   beforeEach(function() {
   });
 
   it('test importKey with public key', (done) => {
-    e2e.testSetup()
+    e2eImp.testSetup()
     .then(() => {
-      console.log('start to import key');
-      return e2e.importKey(publicKeyStr);
+      return e2eImp.importKey(publicKeyStr);
     })
     .then(() => {
-      return e2e.searchPublicKey('<quantsword@gmail.com>');
+      return e2eImp.searchPublicKey('<quantsword@gmail.com>');
     })
-    .then((keys: string[]) => {
+    .then((keys:PgpKey[]) => {
       expect(keys.length).toEqual(1);
-      expect(keys[0]).toEqual('<quantsword@gmail.com>');
+      expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
     })
-    .catch((e: Error) => {}).then(done);
+    .then(() => {
+      return e2eImp.deleteKey('<quantsword@gmail.com>');
+    })
+    .then(() => {
+      return e2eImp.searchPublicKey('<quantsword@gmail.com>');
+    })
+    .then((keys:PgpKey[]) => {
+      expect(keys.length).toEqual(0);
+    })
+    .catch((e:Error) => {
+      console.log('test throw error' + e);
+      expect(false).toBeTruthy();}) 
+    .then(done);
   });
 
-  it('test importKey with private key', function() {
-    e2e.testSetup()
+  it('test importKey with private key', function(done) {
+    e2eImp.testSetup()
     .then(() => {
-      return e2e.importKey(privateKeyStr)
+      return e2eImp.importKey(privateKeyStr)
     })
     .then(() => {
-      return e2e.searchPrivateKey('<quantsword@gmail.com>');
+      return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
     })
-    .then((keys: string[]) => {
+    .then((keys:PgpKey[]) => {
       expect(keys.length).toEqual(1);
-      expect(keys[0]).toEqual('<quantsword@gmail.com>');
+      expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
     })
-    ;
+    .catch((e:Error) => {
+      console.log('test throw error' + e);
+      expect(false).toBeTruthy();}) 
+    .then(done);
   });
   
   it('encrypt and decrypt', (done) => {
-    e2e.testSetup()
+    e2eImp.testSetup()
     .then(() => {
-      return e2e.doEncryption('123412341234', publicKeyStr);
+      return e2eImp.doEncryption('123412341234', publicKeyStr);
     })
-    .then((cipherText: string) => {
-      return e2e.importKey(privateKeyStr).then(() => {
-        return e2e.doDecryption(cipherText);
+    .then((cipherText:string) => {
+      return e2eImp.importKey(privateKeyStr).then(() => {
+        return e2eImp.doDecryption(cipherText);
       });
     })
-    .then((newText: string) => {
-      expect(newText).toEqual('123412341234--');
-    }).then(done);
+    .then((newText:string) => {
+      expect(newText).toEqual('123412341234');
+    })
+    .catch((e:Error) => {
+      console.log('test throw error' + e);
+      expect(false).toBeTruthy();}) 
+    .then(done);
+  });
+
+
+  it('encryptSign and verifyDecrypt', (done) => {
+    e2eImp.testSetup()
+    .then(() => {
+      return e2eImp.encryptSign('123412341234', publicKeyStr, privateKeyStr2);
+    })
+    .then((cipherText:string) => {
+      return e2eImp.importKey(privateKeyStr).then(() => {
+        return e2eImp.importKey(publicKeyStr2).then(() => {
+          return e2eImp.verifyDecrypt(cipherText);
+        });
+      });
+    })
+    .then((result:VerifyDecryptResult) => {
+      expect(result.data).toEqual('123412341234');
+      expect(result.signedBy.length).toEqual(1);
+      expect(result.signedBy[0]).toEqual('<test@gmail.com>');
+    })
+    .catch((e:Error) => {
+      console.log('test throw error' + e);
+      expect(false).toBeTruthy();}) 
+    .then(done);
+  });
+
+  it('generate keys', (done) => {
+    e2eImp.testSetup()
+    .then(() => {
+      return e2eImp.generateKey('tester', 'test@gmail.com');
+    })
+    .then(() => {
+      expect(true).toBeTruthy();
+      return e2eImp.searchPrivateKey('tester <test@gmail.com>');
+    })
+    .then((keys:PgpKey[]) => {
+      expect(keys.length).toEqual(1);
+      expect(keys[0].uids[0]).toEqual('tester <test@gmail.com>');
+    })
+    .catch((e:Error) => {
+      console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
+      expect(false).toBeTruthy();}) 
+    .then(done);
   });
 
 });

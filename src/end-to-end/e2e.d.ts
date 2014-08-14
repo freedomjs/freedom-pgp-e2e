@@ -2,15 +2,32 @@
 
 // This is the interface that a module that has logger as a dependency gets to
 // use.
+
+interface PgpKey {
+  uids: string[];
+}
+
+interface VerifyDecryptResult {
+  data: string;
+  signedBy: string[];
+}
+
+
 interface E2eProvider {
   setup() : Promise<void>;
-  importKey(keyStr: string) : Promise<string[]>;
-  searchPrivateKey(uid: string) : Promise<string[]>;
-  searchPublicKey(uid: string) : Promise<string[]>;
-  doEncryption(plaintext: string, publicKey: string) : Promise<string>;
-  doDecryption(ciphertext: string) : Promise<string>;
+  generateKey(name:string, email:string) : Promise<void>;
+  deleteKey(uid:string) : Promise<void>;
+  importKey(keyStr:string) : Promise<string[]>;
+  searchPrivateKey(uid:string) : Promise<PgpKey[]>;
+  searchPublicKey(uid:string) : Promise<PgpKey[]>;
+  doEncryption(plaintext:string, publicKey: string) : Promise<string>;
+  doDecryption(ciphertext:string) : Promise<string>;
 
-  providePromises(provider: Object) : void;
+  encryptSign(plaintext:string, encryptKey:string, signatureKey:string) : Promise<string>;
+
+  verifyDecrypt(ciphertext:string) : Promise<VerifyDecryptResult>;
+
+  providePromises(provider:Object) : void;
 }
 
 // TODO: add this again once https://github.com/Microsoft/TypeScript/issues/52

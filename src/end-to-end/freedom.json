@@ -4,7 +4,7 @@
   "app": {
     "script": [
       "end-to-end.compiled.js",
-      "googstorage.js",
+      "googstorage_mock.js",
       "e2e.js"
     ]
   },
@@ -48,9 +48,8 @@
     }
   },
 
-  "dependencies": {
-  },
   "permissions": [
+    "core.log",
     "core.storage"
   ]
 }

@@ -49,14 +49,6 @@ module.exports = (grunt) ->
             cwd: 'third_party',
             src: ['*']
             dest: 'build/typescript-src/'
-          },
-          # freedom-typescript-api interfaces.
-          {
-            expand: true,
-            overwrite: true,
-            cwd: 'node_modules/freedom-typescript-api/interfaces'
-            src: ['*']
-            dest: 'build/typescript-src/freedom-typescript-api/'
           }
         ]}
     },
@@ -104,7 +96,7 @@ module.exports = (grunt) ->
             src: [
               'arraybuffers/**',
               'end-to-end/**',
-              'logger/**'
+              'logging/**'
             ]
             dest: 'build/samples/chrome-app'
             onlyIf: 'modified'
@@ -137,8 +129,9 @@ module.exports = (grunt) ->
       e2e: {
         src: FILES.jasmine_helpers.concat([
           'build/end-to-end/end-to-end.compiled.js',
+          'build/end-to-end/test_mock.js',
+          'build/end-to-end/googstorage_mock.js'
           'build/end-to-end/e2e.js'
-          # 'build/thirdparty/jasmine-as-promised/jasmine-as-promised.js'
           ])
         options: { 
           specs : 'build/end-to-end/*.spec.js' 
