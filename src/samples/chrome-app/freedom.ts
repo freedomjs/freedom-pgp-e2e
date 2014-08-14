@@ -5,9 +5,9 @@
 
 
 module E2eSample {
-  var logger = freedom['Logger']();
+  var log :Freedom_UproxyLogging.Log = freedom['core.log']('Diagnose');
+  var logManager: Freedom_UproxyLogging.LogManager = freedom['core.logmanager']();
   var e2e: E2eProvider = freedom['e2e']();
-  var tag = 'Sample';
 
   var publicKeyStr : string = 
     '-----BEGIN PGP PUBLIC KEY BLOCK-----\n' +
@@ -55,19 +55,21 @@ module E2eSample {
 
 
   freedom.on('command', function(m) {
-    logger.debug(tag, 'received command ' + m);
+    log.debug('received command %1', [m]);
     if (m == 'pgp_test') {
       doPgpTest();
     }
   });
 
   freedom.on('getLogs', function() {
-    logger.getLogs()
-        .then(function(str: string) {
-          freedom.emit('print', str);
+    logManager.getLogs()
+        .then(function(strs: string[]) {
+          for (var i = 0; i < strs.length; i++) {
+            freedom.emit('print', strs[i]);
+          }
         })
         .then(() => {
-          logger.reset();
+          logManager.clearLogs();
         });
   });
 
@@ -76,7 +78,7 @@ module E2eSample {
   }
 
   function doPgpTest() {
-    logger.debug(tag, 'start doPgpTest');
+    log.debug('start doPgpTest');
 
     var testString: string = 'asdfasdf';
 
@@ -95,8 +97,8 @@ module E2eSample {
         print('pgp encryption test failed.');
       } 
     })
-    .catch((e: Error) => {
-      logger.error('doPgpTest encountered error %1', e);
+    .catch((e:Error) => {
+      log.error('doPgpTest encountered error %1', [e]);
     });
 
   }

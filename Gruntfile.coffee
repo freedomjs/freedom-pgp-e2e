@@ -49,14 +49,6 @@ module.exports = (grunt) ->
             cwd: 'third_party',
             src: ['*']
             dest: 'build/typescript-src/'
-          },
-          # freedom-typescript-api interfaces.
-          {
-            expand: true,
-            overwrite: true,
-            cwd: 'node_modules/freedom-typescript-api/interfaces'
-            src: ['*']
-            dest: 'build/typescript-src/freedom-typescript-api/'
           }
         ]}
     },
@@ -104,7 +96,7 @@ module.exports = (grunt) ->
             src: [
               'arraybuffers/**',
               'end-to-end/**',
-              'logger/**'
+              'logging/**'
             ]
             dest: 'build/samples/chrome-app'
             onlyIf: 'modified'

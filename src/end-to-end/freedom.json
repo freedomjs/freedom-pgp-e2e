@@ -48,9 +48,8 @@
     }
   },
 
-  "dependencies": {
-  },
   "permissions": [
+    "core.log",
     "core.storage"
   ]
 }

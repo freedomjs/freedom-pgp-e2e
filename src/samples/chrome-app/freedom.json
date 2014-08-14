@@ -10,13 +10,11 @@
     "e2e": {
       "api": "e2e",
       "url": "end-to-end/freedom.json"
-    },
-    "Logger": {
-      "api": "Logger",
-      "url": "logger/logger.json"
     }
   },
   "permissions": [
+    "core.logmanager",
+    "core.log",
     "core.storage"
   ]
 }
