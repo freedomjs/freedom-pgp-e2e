@@ -1,6 +1,6 @@
-/// <reference path='../../freedom-declarations/freedom.d.ts' />
+/// <reference path='../../freedom/typings/freedom.d.ts' />
 /// <reference path="../../third_party/typings/es6-promise/es6-promise.d.ts" />
-/// <reference path='../../logger/logger.d.ts' />
+/// <reference path='../../freedom/coreproviders/uproxylogging.d.ts' />
 /// <reference path='../../end-to-end/e2e.d.ts' />
 
 
