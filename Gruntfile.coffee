@@ -13,6 +13,33 @@ FILES = {
 module.exports = (grunt) ->
 
   grunt.initConfig {
+    gitclone: {
+      e2e: {
+        options: {
+          repository: 'https://code.google.com/p/end-to-end.build/'
+        }
+      }
+    },
+
+    gitpull: {
+      e2e: {
+        options: {
+          repository: 'https://code.google.com/p/end-to-end.build/'
+        }
+      }
+    },
+
+    # These shell commands execute/depend on do.sh in the e2e repo
+    # Dependencies: unzip, svn, Python 2.X, Java >= 1.7
+    shell: {
+      doDeps: {
+        command: 'bash ./end-to-end.build/do.sh install_deps'
+      },
+      doLib: {
+        command: 'bash ./end-to-end.build/do.sh build_library'
+      }
+    },
+
     symlink: {
       typescriptSrc: {
         files: [ {
@@ -149,17 +176,19 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-env'
   grunt.loadNpmTasks 'grunt-contrib-symlink'
   grunt.loadNpmTasks 'grunt-contrib-jasmine'
+  grunt.loadNpmTasks 'grunt-git'
+  grunt.loadNpmTasks 'grunt-shell'
 
   #-------------------------------------------------------------------------
   # Define the tasks
   taskManager = new TaskManager.Manager();
 
   taskManager.add 'base', [
-    'copy:uproxyLib',
-    'symlink:typescriptSrc',
-    'symlink:uproxyLibTypescriptSrc',
-    'symlink:thirdPartyTypeScript',
-    'symlink:uproxyLibThirdPartyTypescriptSrc',
+    'copy:uproxyLib'
+    'symlink:typescriptSrc'
+    'symlink:uproxyLibTypescriptSrc'
+    'symlink:thirdPartyTypeScript'
+    'symlink:uproxyLibThirdPartyTypescriptSrc'
 
     'copy:e2eCompiledJavaScript'
     'copy:es6Promise'
@@ -168,7 +197,19 @@ module.exports = (grunt) ->
     'copy:endToEnd'
   ]
 
-  taskManager.add 'endToEnd', [
+  taskManager.add 'getEndToEnd', [
+    'gitclone:e2e'
+    'shell:doDeps'
+    'shell:doBuild'
+  ]
+
+  taskManager.add 'updateEndToEnd', [
+    'gitpull:e2e'
+    'shell:doDeps'
+    'shell:doBuild'
+  ]
+
+  taskManager.add 'buildEndToEnd', [
     'base'
     'typescript:endToEnd'
     'typescript:sampleChromeApp'
@@ -179,7 +220,8 @@ module.exports = (grunt) ->
 
   #-------------------------------------------------------------------------
   taskManager.add 'build', [
-    'endToEnd'
+    'updateEndToEnd'
+    'buildEndToEnd'
   ]
 
   taskManager.add 'test', [
