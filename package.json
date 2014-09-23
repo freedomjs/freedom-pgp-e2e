@@ -17,6 +17,7 @@
     "grunt-contrib-jasmine": "^0.6.4",
     "grunt-contrib-symlink": "~0.3.0",
     "grunt-env": "^0.4.1",
+    "grunt-force": "^1.0.0",
     "grunt-git": "^0.2.14",
     "grunt-shell": "^1.1.1",
     "grunt-typescript": "^0.3.0",

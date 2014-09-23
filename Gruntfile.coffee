@@ -24,7 +24,7 @@ module.exports = (grunt) ->
     gitpull: {
       e2e: {
         options: {
-          repository: 'https://code.google.com/p/end-to-end.build/'
+          cwd: 'end-to-end.build/'
         }
       }
     },
@@ -178,6 +178,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-jasmine'
   grunt.loadNpmTasks 'grunt-git'
   grunt.loadNpmTasks 'grunt-shell'
+  grunt.loadNpmTasks 'grunt-force'
 
   #-------------------------------------------------------------------------
   # Define the tasks
@@ -198,15 +199,12 @@ module.exports = (grunt) ->
   ]
 
   taskManager.add 'getEndToEnd', [
+    'force:on'  # clone will fail if already exists, want to continue anyway
     'gitclone:e2e'
-    'shell:doDeps'
-    'shell:doBuild'
-  ]
-
-  taskManager.add 'updateEndToEnd', [
+    'force:off'
     'gitpull:e2e'
     'shell:doDeps'
-    'shell:doBuild'
+    'shell:doLib'
   ]
 
   taskManager.add 'buildEndToEnd', [
@@ -220,7 +218,7 @@ module.exports = (grunt) ->
 
   #-------------------------------------------------------------------------
   taskManager.add 'build', [
-    'updateEndToEnd'
+    'getEndToEnd'
     'buildEndToEnd'
   ]
 
