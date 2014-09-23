@@ -7,19 +7,20 @@
     "url": "https://github.com/uProxy/uproxy-end-to-end"
   },
   "devDependencies": {
+    "es6-promise": "^1.0.0",
+    "freedom": "~0.5.0",
     "grunt": "^0.4.4",
-    "grunt-contrib-concat": "^0.4.0",
     "grunt-contrib-clean": "^0.5.0",
     "grunt-contrib-coffee": "^0.10.1",
+    "grunt-contrib-concat": "^0.4.0",
     "grunt-contrib-copy": "^0.5.0",
     "grunt-contrib-jasmine": "^0.6.4",
     "grunt-contrib-symlink": "~0.3.0",
-    "grunt-typescript": "^0.3.0",
     "grunt-env": "^0.4.1",
-    "uproxy-lib": "^8.0.1",
-    "freedom": "~0.5.0",
-    "grunt-contrib-jasmine": "^0.6.4",
-    "es6-promise": "^1.0.0"
+    "grunt-git": "^0.2.14",
+    "grunt-shell": "^1.1.1",
+    "grunt-typescript": "^0.3.0",
+    "uproxy-lib": "^8.0.1"
   },
   "scripts": {
     "test": "grunt test"
