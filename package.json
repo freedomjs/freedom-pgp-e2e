@@ -19,8 +19,17 @@
     "grunt-env": "^0.4.1",
     "grunt-force": "^1.0.0",
     "grunt-git": "^0.2.14",
+    "grunt-karma": "^0.9.0",
     "grunt-shell": "^1.1.1",
     "grunt-typescript": "^0.3.0",
+    "karma": "^0.12.23",
+    "karma-chrome-launcher": "^0.1.4",
+    "karma-coverage": "^0.2.6",
+    "karma-firefox-launcher": "^0.1.3",
+    "karma-jasmine": "^0.1.5",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-story-reporter": "^0.2.2",
+    "karma-unicorn-reporter": "^0.1.4",
     "uproxy-lib": "^8.0.1"
   },
   "scripts": {
