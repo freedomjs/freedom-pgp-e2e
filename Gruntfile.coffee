@@ -1,15 +1,6 @@
 TaskManager = require('uproxy-lib/tools/taskmanager');
 Rule = require('uproxy-lib/tools/common-grunt-rules');
 
-FILES = {
-  jasmine_helpers: [
-    # Help Jasmine's PhantomJS understand promises.
-    'node_modules/es6-promise/dist/promise-*.js',
-    '!node_modules/es6-promise/dist/promise-*amd.js',
-    '!node_modules/es6-promise/dist/promise-*.min.js'
-  ]
-};
-
 module.exports = (grunt) ->
 
   grunt.initConfig {
@@ -74,7 +65,7 @@ module.exports = (grunt) ->
             expand: true,
             overwrite: true,
             cwd: 'third_party',
-            src: ['*']
+            src: ['*'],
             dest: 'build/typescript-src/'
           }
         ]}
@@ -83,7 +74,8 @@ module.exports = (grunt) ->
     copy: {
       uproxyLib: {
         files: [ {
-          expand: true, cwd: 'node_modules/uproxy-lib/build',
+          expand: true,
+          cwd: 'node_modules/uproxy-lib/build',
           src: ['**', '!**/typescript-src/**'],
           dest: 'build',
           onlyIf: 'modified',
@@ -92,40 +84,34 @@ module.exports = (grunt) ->
 
       es6Promise: { 
         files: [ {
-          expand: true, cwd: 'node_modules/es6-promise/dist/'
-          src: ['**']
-          dest: 'build/third_party/typings/es6-promise/' 
+          expand: true,
+          cwd: 'node_modules/es6-promise/dist/',
+          src: ['**'],
+          dest: 'build/third_party/typings/es6-promise/',
           onlyIf: 'modified'
-        } ] },
-
-      jasmineAsPromised: {
-       files: [ {
-         expand: true
-         cwd: 'node_modules/jasmine-as-promised/src'
-         src: ['**']
-         dest: 'build/third_party/jasmine-as-promised/' 
-         onlyIf: 'modified'
-       } ] },
+        } ]
+      },
       
       # Copy compiled end-to-end code.
       e2eCompiledJavaScript: { 
         files: [ {
-          src: ['end-to-end.build/build/library/end-to-end.compiled.js']
-          dest: 'build/end-to-end/end-to-end.compiled.js'
+          src: ['end-to-end.build/build/library/end-to-end.compiled.js'],
+          dest: 'build/end-to-end/end-to-end.compiled.js',
           onlyIf: 'modified'
-        } ] },
+        } ]
+      },
 
       sampleChromeAppLib: {
         files: [
           {  # Copy all modules in the build directory to the chromeApp
             expand: true,
-            cwd: 'build'
+            cwd: 'build',
             src: [
               'arraybuffers/**',
               'end-to-end/**',
               'logging/**'
-            ]
-            dest: 'build/samples/chrome-app'
+            ],
+            dest: 'build/samples/chrome-app',
             onlyIf: 'modified'
           }
         ]
@@ -138,33 +124,41 @@ module.exports = (grunt) ->
         dest: 'build/samples/chrome-app/'
       },
 
-      endToEnd: Rule.copyModule('end-to-end')
+      endToEnd: Rule.copyModule('end-to-end'),
       sampleChromeApp: Rule.copyModule('samples/chrome-app')
-    }  # copy
+    },  # copy
 
     #-------------------------------------------------------------------------
     # All typescript compiles to locations in `build/`
     typescript: {
       # From build-tools
-      arraybuffers: Rule.typescriptSrc('arraybuffers')
+      arraybuffers: Rule.typescriptSrc('arraybuffers'),
       # Modules
-      endToEnd: Rule.typescriptSrc('end-to-end')
+      endToEnd: Rule.typescriptSrc('end-to-end'),
       sampleChromeApp: Rule.typescriptSrc('samples/chrome-app')
-    } # typescript
+    }, # typescript
 
-    jasmine: {
-      e2e: {
-        src: FILES.jasmine_helpers.concat([
-          'build/end-to-end/end-to-end.compiled.js',
-          'build/end-to-end/test_mock.js',
-          'build/end-to-end/googstorage_mock.js'
-          'build/end-to-end/e2e.js'
-          ])
-        options: { 
-          specs : 'build/end-to-end/*.spec.js' 
-        }
+    karma: {
+      options: {
+        configFile: 'karma.conf.js'
+      },
+      single: {
+        singleRun: true,
+        autoWatch: false
+      },
+      watch: {
+        singleRun: false,
+        autoWatch: true,
+        reporters: ['progress', 'story'],
+        preprocessors: {},
+        coverageReporter: {}
+      },
+      phantom: {
+        browsers: ['PhantomJS'],
+        singleRun: true,
+        autoWatch: false
       }
-    } # jasmine
+    }, # karma
 
     clean: ['build/**']
   }  # grunt.initConfig
@@ -175,7 +169,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-typescript'
   grunt.loadNpmTasks 'grunt-env'
   grunt.loadNpmTasks 'grunt-contrib-symlink'
-  grunt.loadNpmTasks 'grunt-contrib-jasmine'
+  grunt.loadNpmTasks 'grunt-karma'
   grunt.loadNpmTasks 'grunt-git'
   grunt.loadNpmTasks 'grunt-shell'
   grunt.loadNpmTasks 'grunt-force'
@@ -185,58 +179,58 @@ module.exports = (grunt) ->
   taskManager = new TaskManager.Manager();
 
   taskManager.add 'base', [
-    'copy:uproxyLib'
-    'symlink:typescriptSrc'
-    'symlink:uproxyLibTypescriptSrc'
-    'symlink:thirdPartyTypeScript'
-    'symlink:uproxyLibThirdPartyTypescriptSrc'
+    'copy:uproxyLib',
+    'symlink:typescriptSrc',
+    'symlink:uproxyLibTypescriptSrc',
+    'symlink:thirdPartyTypeScript',
+    'symlink:uproxyLibThirdPartyTypescriptSrc',
 
-    'copy:e2eCompiledJavaScript'
-    'copy:es6Promise'
+    'copy:e2eCompiledJavaScript',
+    'copy:es6Promise',
 
     # Copy all source modules non-ts files
     'copy:endToEnd'
   ]
 
   taskManager.add 'getEndToEnd', [
-    'force:on'  # clone will fail if already exists, want to continue anyway
-    'gitclone:e2e'
-    'force:off'
-    'gitpull:e2e'
-    'shell:doDeps'
+    'force:on',  # clone will fail if already exists, want to continue anyway
+    'gitclone:e2e',
+    'force:off',
+    'gitpull:e2e',
+    'shell:doDeps',
     'shell:doLib'
   ]
 
   taskManager.add 'buildEndToEnd', [
-    'base'
-    'typescript:endToEnd'
-    'typescript:sampleChromeApp'
-    'copy:sampleChromeApp'
-    'copy:sampleChromeAppLib'
+    'base',
+    'typescript:endToEnd',
+    'typescript:sampleChromeApp',
+    'copy:sampleChromeApp',
+    'copy:sampleChromeAppLib',
     'copy:sampleChromeAppFreedom'
   ]
 
   #-------------------------------------------------------------------------
   taskManager.add 'build', [
-    'getEndToEnd'
+    'getEndToEnd',
     'buildEndToEnd'
   ]
 
   taskManager.add 'test', [
-    'copy:jasmineAsPromised'
-    'build'
-    'jasmine'
+    'build',
+    'karma'
   ]
 
   taskManager.add 'default', [
-    'build'
+    'build',
+    'karma:phantom'
   ]
 
   #-------------------------------------------------------------------------
   # Register the tasks
   taskManager.list().forEach((taskName) =>
     grunt.registerTask taskName, (taskManager.get taskName)
-  );
+  )
 
 module.exports.Rule = Rule;
 

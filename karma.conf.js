@@ -15,7 +15,9 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'src/end-to-end/*'
+      'node_modules/es6-promise/dist/promise-*.min.js',  // es6 promises
+      'build/end-to-end/end-to-end.compiled.js',  // to coerce loading first
+      'build/end-to-end/*.js'
     ],
 
 

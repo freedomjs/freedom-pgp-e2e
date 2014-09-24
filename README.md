@@ -16,15 +16,18 @@ Note - the grunt build will be pulling from various repositories to
 build end-to-end. You'll see quite a few things flying by, and may
 need to accept certificates for *.googlecode.com. It may also have
 warnings on repeated runs as paths/files will already exist - these
-shouldn't be an issue. Just make sure to check the sample chrome app
-after any builds to make sure it works.
+shouldn't be an issue, but check tests to be sure.
 
 #### Test
 
-A sample chrome app is prepared to show the usage of end-to-end
-api. After build, just load "build/samples/chrome-app" to chrome. You
-will need to enable developer mode and click "load unpacked
-extension", and you should see the text "pgp encryption test
+When running grunt, karma PhantomJS tests are automatically run and
+should be reported at the end. If you want to run the same tests on
+Firefox and Chrome, use "grunt test" instead.
+
+Additionall, a sample chrome app is prepared to show the usage of
+end-to-end api. After build, just load "build/samples/chrome-app" to
+chrome. You will need to enable developer mode and click "load
+unpacked extension", and you should see the text "pgp encryption test
 succeeded" at the bottom of the window that pops up once you launch it.
 
 
