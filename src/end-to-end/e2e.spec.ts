@@ -149,11 +149,11 @@ describe("e2eImp", function() {
   it('encrypt and decrypt', (done) => {
     e2eImp.testSetup()
     .then(() => {
-      return e2eImp.doEncryption('123412341234', publicKeyStr);
+      return e2eImp.signEncrypt('123412341234', publicKeyStr);
     })
     .then((cipherText:string) => {
       return e2eImp.importKey(privateKeyStr).then(() => {
-        return e2eImp.doDecryption(cipherText);
+        return e2eImp.verifyDecrypt(cipherText);
       });
     })
     .then((newText:string) => {
@@ -169,12 +169,12 @@ describe("e2eImp", function() {
   it('encryptSign and verifyDecrypt', (done) => {
     e2eImp.testSetup()
     .then(() => {
-      return e2eImp.encryptSign('123412341234', publicKeyStr, privateKeyStr2);
+      return e2eImp.e2eencryptSign('123412341234', publicKeyStr, privateKeyStr2);
     })
     .then((cipherText:string) => {
       return e2eImp.importKey(privateKeyStr).then(() => {
         return e2eImp.importKey(publicKeyStr2).then(() => {
-          return e2eImp.verifyDecrypt(cipherText);
+          return e2eImp.e2everifyDecrypt(cipherText);
         });
       });
     })

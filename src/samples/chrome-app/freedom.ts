@@ -82,25 +82,24 @@ module E2eSample {
 
     var testString: string = 'asdfasdf';
 
-    e2e.setup()
-    .then(() => {
-      return e2e.doEncryption(testString, publicKeyStr); })
-    .then((result: string) => {
+    e2e.setup('')
+      .then(() => {
+        return e2e.signEncrypt(testString, publicKeyStr); })
+      .then((result: string) => {
         return e2e.importKey(privateKeyStr).then((keys: string[]) => {
           return Promise.resolve(result);
         }); })
-    .then(e2e.doDecryption)
-    .then((result: string) => {
-      if (result == testString) {
-        print('pgp encryption test succeeded.');
-      } else {
-        print('pgp encryption test failed.');
-      } 
-    })
-    .catch((e:Error) => {
-      log.error('doPgpTest encountered error %1', [e]);
-    });
-
+      .then(e2e.verifyDecrypt)
+      .then((result: string) => {
+        if (result == testString) {
+          print('pgp encryption test succeeded.');
+        } else {
+          print('pgp encryption test failed.');
+        } 
+      })
+      .catch((e:Error) => {
+        log.error('doPgpTest encountered error %1', [e]);
+      });
   }
 }
 

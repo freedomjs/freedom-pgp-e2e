@@ -49,6 +49,8 @@ declare module e2e.openpgp {
 
     searchPrivateKey(uid:string) : e2e.async.Result<PgpKey[]>;
 
+    // NOTE - these are e2e-internal encryption functions
+    // and are not directly equivalent to the freedom API
     encryptSign(plaintext:string, 
                 options:any [], 
                 encryptionKeys:PgpKey [], 
@@ -56,7 +58,7 @@ declare module e2e.openpgp {
                 signatureKey?:PgpKey) : e2e.async.Result<string>;
 
     verifyDecrypt(passphraseCallback:PassphraseCallbackFunc,
-                  encryptedMessage:string) : e2e.async.Result<PgpDecryptResult>;
+                     encryptedMessage:string) : e2e.async.Result<PgpDecryptResult>;
 
     generateKey(
       keyAlgo:string, keyLength:number, subkeyAlgo:any, subkeyLength:number,
@@ -75,9 +77,10 @@ module E2eModule {
     constructor(public dispatchEvent: any) {
     }
 
-    public setup = () : Promise<void> => {
+    // Standard freedom crypto API
+    public setup = (passphrase:string) : Promise<void> => {
       // this function has the side-effect to setup the keyright storage. 
-      pgpContext.setKeyRingPassphrase('');
+      pgpContext.setKeyRingPassphrase(passphrase);
       return Promise.resolve<void>();
 
       return goog.storage.mechanism.HTML5LocalStorage.prepareFreedom()
@@ -91,6 +94,34 @@ module E2eModule {
       // this function has the side-effect to setup the keyright storage. 
       pgpContext.setKeyRingPassphrase('');
       return Promise.resolve<void>();
+    }
+
+    public exportKey = () : Promise<string> => {
+      // TODO
+      return Promise.resolve<string>();
+    }
+
+    public signEncrypt = (plaintext:string, publicKey:string,
+                          sign: boolean = true) : Promise<string> => {
+        var result: string[] = e2e.async.Result.getValue(
+          pgpContext.importKey((str, f) => { f(''); }, publicKey));
+        var keys: PgpKey[] = e2e.async.Result.getValue(
+          pgpContext.searchPublicKey(result[0]));
+        return new Promise<string>(function(F, R) {
+          pgpContext.encryptSign(plaintext, [], keys, [])
+            .addCallback(F).addErrback(R);
+        });
+      }
+
+    public verifyDecrypt = (ciphertext:string,
+                            decrypt:boolean = true) : Promise<string> => {
+      return new Promise(function(F, R) {
+        pgpContext.verifyDecrypt(
+          () => { return ''; }, // passphrase callback
+          ciphertext)
+          .addCallback((r:PgpDecryptResult) => {F(array2str(r.decrypt.data));})
+          .addErrback(R);
+      });
     }
 
     public generateKey = (name:string, email:string) : Promise<void> => {
@@ -132,19 +163,7 @@ module E2eModule {
       });
     }
 
-    public doEncryption = (
-      plaintext:string, publicKey:string) : Promise<string> => {
-        var result: string[] = e2e.async.Result.getValue(
-          pgpContext.importKey((str, f) => { f(''); }, publicKey));
-        var keys: PgpKey[] = e2e.async.Result.getValue(
-          pgpContext.searchPublicKey(result[0]));
-        return new Promise<string>(function(F, R) {
-          pgpContext.encryptSign(plaintext, [], keys, [])
-            .addCallback(F).addErrback(R);
-        });
-      }
-
-    public encryptSign = (
+    public e2eencryptSign = (
       plaintext:string, encryptKey:string,
       signatureKey:string) : Promise<string> => {
         var importResult: string[] = e2e.async.Result.getValue(
@@ -162,17 +181,7 @@ module E2eModule {
         });
       }
 
-    public doDecryption = (ciphertext:string) : Promise<string> => {
-      return new Promise(function(F, R) {
-        pgpContext.verifyDecrypt(
-          () => { return ''; }, // passphrase callback
-          ciphertext)
-          .addCallback((r:PgpDecryptResult) => {F(array2str(r.decrypt.data));})
-          .addErrback(R);
-      });
-    }
-
-    public verifyDecrypt = (ciphertext:string) 
+    public e2everifyDecrypt = (ciphertext:string) 
     : Promise<VerifyDecryptResult> => {
       return new Promise(function(F, R) {
         pgpContext.verifyDecrypt(

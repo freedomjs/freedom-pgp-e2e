@@ -14,11 +14,12 @@ interface VerifyDecryptResult {
 
 
 interface E2eProvider {
-  // Standard freedom pgp API
+  // Standard freedom crypto API
   setup(passphrase:string) : Promise<void>;
   exportKey(): Promise<string>;
-  signEncrypt(plaintext:string, publicKey: string, sign:boolean) : Promise<string>;
-  verifyDecrypt(ciphertext:string, decrypt:boolean) : Promise<string>;
+  signEncrypt(plaintext:string, publicKey: string,
+              sign?:boolean) : Promise<string>;
+  verifyDecrypt(ciphertext:string, decrypt?:boolean) : Promise<string>;
 
   // "Internal" API specific to e2e
   importKey(keyStr:string) : Promise<string[]>;
