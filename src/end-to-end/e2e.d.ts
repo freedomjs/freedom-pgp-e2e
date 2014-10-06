@@ -14,19 +14,21 @@ interface VerifyDecryptResult {
 
 
 interface E2eProvider {
-  setup() : Promise<void>;
+  // Standard freedom pgp API
+  setup(passphrase:string) : Promise<void>;
+  exportKey(): Promise<string>;
+  signEncrypt(plaintext:string, publicKey: string, sign:boolean) : Promise<string>;
+  verifyDecrypt(ciphertext:string, decrypt:boolean) : Promise<string>;
+
+  // "Internal" API specific to e2e
+  importKey(keyStr:string) : Promise<string[]>;
   generateKey(name:string, email:string) : Promise<void>;
   deleteKey(uid:string) : Promise<void>;
-  importKey(keyStr:string) : Promise<string[]>;
   searchPrivateKey(uid:string) : Promise<PgpKey[]>;
   searchPublicKey(uid:string) : Promise<PgpKey[]>;
-  doEncryption(plaintext:string, publicKey: string) : Promise<string>;
-  doDecryption(ciphertext:string) : Promise<string>;
-
-  encryptSign(plaintext:string, encryptKey:string, signatureKey:string) : Promise<string>;
-
-  verifyDecrypt(ciphertext:string) : Promise<VerifyDecryptResult>;
-
+  e2eencryptSign(plaintext:string, encryptKey:string,
+                 signatureKey:string) :Promise<string>;
+  e2everifyDecrypt(ciphertext:string) : Promise<VerifyDecryptResult>;
   providePromises(provider:Object) : void;
 }
 

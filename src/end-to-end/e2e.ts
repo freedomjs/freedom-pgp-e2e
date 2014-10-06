@@ -58,9 +58,10 @@ declare module e2e.openpgp {
     verifyDecrypt(passphraseCallback:PassphraseCallbackFunc,
                   encryptedMessage:string) : e2e.async.Result<PgpDecryptResult>;
 
-    generateKey(keyAlgo:string, keyLength:number, subkeyAlgo:any, subkeyLength:number,
-                name:string, comment:string, email:string, expiration:number)
-               : e2e.async.Result<PgpKey[]>;
+    generateKey(
+      keyAlgo:string, keyLength:number, subkeyAlgo:any, subkeyLength:number,
+      name:string, comment:string, email:string, expiration:number)
+    : e2e.async.Result<PgpKey[]>;
 
     deleteKey(uid:string) : void;
   }
@@ -80,10 +81,10 @@ module E2eModule {
       return Promise.resolve<void>();
 
       return goog.storage.mechanism.HTML5LocalStorage.prepareFreedom()
-          .then(() => {
-            // this function has the side-effect to setup the keyright storage. 
-            pgpContext.setKeyRingPassphrase('');
-          });
+        .then(() => {
+          // this function has the side-effect to setup the keyright storage. 
+          pgpContext.setKeyRingPassphrase('');
+        });
     }
 
     public testSetup = () : Promise<void> => {
@@ -94,17 +95,18 @@ module E2eModule {
 
     public generateKey = (name:string, email:string) : Promise<void> => {
       return new Promise<void>((F, R) => {
-          // expires after one year
-          var expiration : number = Date.now() / 1000 + (3600 * 24 * 365);
-          pgpContext.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email,
-                                 expiration).addCallback((keys: PgpKey[]) => {
-              if (keys.length == 2) {
-                F();
-              } else {
-                R(new Error('Failed to generate key'))
-              }
-            });
-        });
+        // expires after one year
+        var expiration : number = Date.now() / 1000 + (3600 * 24 * 365);
+        pgpContext.generateKey(
+          'ECDSA', 256, 'ECDH', 256, name, '', email,
+          expiration).addCallback((keys: PgpKey[]) => {
+            if (keys.length == 2) {
+              F();
+            } else {
+              R(new Error('Failed to generate key'))
+            }
+          });
+      });
     }
 
     public deleteKey = (uid:string) : Promise<void> => {
@@ -130,59 +132,59 @@ module E2eModule {
       });
     }
 
-    public doEncryption = (plaintext:string,
-                           publicKey:string) : Promise<string> => {
-      var result: string[] = e2e.async.Result.getValue(
+    public doEncryption = (
+      plaintext:string, publicKey:string) : Promise<string> => {
+        var result: string[] = e2e.async.Result.getValue(
           pgpContext.importKey((str, f) => { f(''); }, publicKey));
-      var keys: PgpKey[] = e2e.async.Result.getValue(
-        pgpContext.searchPublicKey(result[0]));
-      return new Promise<string>(function(F, R) {
+        var keys: PgpKey[] = e2e.async.Result.getValue(
+          pgpContext.searchPublicKey(result[0]));
+        return new Promise<string>(function(F, R) {
           pgpContext.encryptSign(plaintext, [], keys, [])
-              .addCallback(F).addErrback(R);
+            .addCallback(F).addErrback(R);
         });
-    }
+      }
 
-    public encryptSign = (plaintext:string, 
-                          encryptKey:string,
-                          signatureKey:string) : Promise<string> => {
-      var importResult: string[] = e2e.async.Result.getValue(
+    public encryptSign = (
+      plaintext:string, encryptKey:string,
+      signatureKey:string) : Promise<string> => {
+        var importResult: string[] = e2e.async.Result.getValue(
           pgpContext.importKey((str, f) => { f(''); }, encryptKey));
-      var keys: PgpKey[] = e2e.async.Result.getValue(
+        var keys: PgpKey[] = e2e.async.Result.getValue(
           pgpContext.searchPublicKey(importResult[0]));
-      var importResult2: string[] = e2e.async.Result.getValue(
+        var importResult2: string[] = e2e.async.Result.getValue(
           pgpContext.importKey((str, f) => { f(''); }, signatureKey));
-      var signKey: PgpKey = e2e.async.Result.getValue(
+        var signKey: PgpKey = e2e.async.Result.getValue(
           pgpContext.searchPrivateKey(importResult2[0]))[0];
-      
-      return new Promise<string>(function(F, R) {
+
+        return new Promise<string>(function(F, R) {
           pgpContext.encryptSign(plaintext, [], keys, [], signKey)
-              .addCallback(F).addErrback(R);
+            .addCallback(F).addErrback(R);
         });
-    }
+      }
 
     public doDecryption = (ciphertext:string) : Promise<string> => {
       return new Promise(function(F, R) {
-          pgpContext.verifyDecrypt(
-              () => { return ''; }, // passphrase callback
-              ciphertext)
+        pgpContext.verifyDecrypt(
+          () => { return ''; }, // passphrase callback
+          ciphertext)
           .addCallback((r:PgpDecryptResult) => {F(array2str(r.decrypt.data));})
           .addErrback(R);
-        });
+      });
     }
 
     public verifyDecrypt = (ciphertext:string) 
-        : Promise<VerifyDecryptResult> => {
+    : Promise<VerifyDecryptResult> => {
       return new Promise(function(F, R) {
-          pgpContext.verifyDecrypt(
-              () => { return ''; }, // passphrase callback
-              ciphertext)
+        pgpContext.verifyDecrypt(
+          () => { return ''; }, // passphrase callback
+          ciphertext)
           .addCallback((r:PgpDecryptResult) => {
             F({
               data: array2str(r.decrypt.data),
               signedBy: r.verify.success[0].uids} ); 
           })
           .addErrback(R);
-        });
+      });
     }
   }
 
