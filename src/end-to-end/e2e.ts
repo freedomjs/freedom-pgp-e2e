@@ -5,6 +5,12 @@ interface PgpKey {
   uids: string[];
 }
 
+interface PgpUser {
+  uid: string;  // format: "name <email>"
+  name: string;
+  email: string;
+}
+
 interface PgpDecryptResult {
   decrypt : { data: number[];};
   verify  : {
@@ -105,9 +111,15 @@ module E2eModule {
     }
 
     public exportKey = () : Promise<string> => {
-      return new Promise(function(F, R) {
+      /*var key = this.searchPublicKey(pgpUser)
+        .then((keys: PgpKey[]) => {
+          return keys[0]
+        });
+      return key[0];*/
+      //return Promise.resolve(this.searchPublicKey(pgpUser))[0][0];
+      return new Promise<string>(function(F, R) {
         this.searchPublicKey(pgpUser)
-          .addCallback((r:PgpKey[]) => { F(r[0]); })
+          .addCallback((r:PgpKey[]) => { F(r[0].uids[0]); })
           .addErrback(R);
       });
     }
@@ -218,6 +230,6 @@ module E2eModule {
 
   /** REGISTER PROVIDER **/
   if (typeof freedom !== 'undefined') {
-    freedom['e2e']().providePromises(E2eImp);
+    freedom['crypto']().providePromises(E2eImp);
   }
 }
