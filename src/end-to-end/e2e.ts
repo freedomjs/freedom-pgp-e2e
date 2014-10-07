@@ -91,11 +91,11 @@ module E2eModule {
       pgpUser = userid;
       return Promise.resolve<void>();
 
-      /*return goog.storage.mechanism.HTML5LocalStorage.prepareFreedom()
+      return goog.storage.mechanism.HTML5LocalStorage.prepareFreedom()
         .then(() => {
           // this function has the side-effect to setup the keyright storage. 
           pgpContext.setKeyRingPassphrase('');
-        });*/
+        });
     }
 
     public testSetup = () : Promise<void> => {

@@ -21,7 +21,7 @@ interface VerifyDecryptResult {
 
 interface E2eProvider {
   // Standard freedom crypto API
-  setup(passphrase:string) : Promise<void>;
+  setup(passphrase:string, userid: string) : Promise<void>;
   exportKey(): Promise<string>;
   signEncrypt(plaintext:string, publicKey: string,
               sign?:boolean) : Promise<string>;

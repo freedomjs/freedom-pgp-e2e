@@ -79,16 +79,20 @@ module E2eSample {
 
   function doPgpTest() {
     log.debug('start doPgpTest');
+    log.debug('log test');
 
     var testString: string = 'asdfasdf';
 
-    e2e.setup('')
+    e2e.setup('', 'Joe Test <joetest@example.com>')
       .then(() => {
+        log.debug('exporting public key');
         return e2e.exportKey() })
       .then((result: string) => {
+        log.debug('encrypting/signing');
         return e2e.signEncrypt(testString, result); })
       .then(e2e.verifyDecrypt)
       .then((result: string) => {
+        log.debug('decrypted!')
         if (result == testString) {
           print('pgp encryption test succeeded.');
         } else {
