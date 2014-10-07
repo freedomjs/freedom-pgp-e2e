@@ -9,7 +9,7 @@ module E2eSample {
   var logManager: Freedom_UproxyLogging.LogManager = freedom['core.logmanager']();
   var e2e: E2eProvider = freedom['e2e']();
 
-  var publicKeyStr : string = 
+  /*var publicKeyStr : string =
     '-----BEGIN PGP PUBLIC KEY BLOCK-----\n' +
     'Charset: UTF-8\n' +
     '\n' +
@@ -25,7 +25,7 @@ module E2eSample {
     '=3Iv4\n' +
     '-----END PGP PUBLIC KEY BLOCK-----';
 
-  var privateKeyStr : string = 
+  var privateKeyStr : string =
     '-----BEGIN PGP PRIVATE KEY BLOCK-----\n' +
     'Charset: UTF-8\n' +
     'Version: End-To-End v0.3.1338\n' +
@@ -51,7 +51,7 @@ module E2eSample {
     'iy3xFxWKWPvpnPc5LwX/6DDtwoPMCTLeAQCpjnRiMaIK7tjslDfXd4BtaY6K90JH\n' +
     'uRPCQUJ7Uw+fRA==\n' +
     '=H/6h\n' +
-    '-----END PGP PRIVATE KEY BLOCK-----';
+    '-----END PGP PRIVATE KEY BLOCK-----';*/
 
 
   freedom.on('command', function(m) {
@@ -84,11 +84,9 @@ module E2eSample {
 
     e2e.setup('')
       .then(() => {
-        return e2e.signEncrypt(testString, publicKeyStr); })
+        return e2e.exportKey() })
       .then((result: string) => {
-        return e2e.importKey(privateKeyStr).then((keys: string[]) => {
-          return Promise.resolve(result);
-        }); })
+        return e2e.signEncrypt(testString, result); })
       .then(e2e.verifyDecrypt)
       .then((result: string) => {
         if (result == testString) {

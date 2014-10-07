@@ -7,6 +7,12 @@ interface PgpKey {
   uids: string[];
 }
 
+interface PgpUser {
+  uid: string;  // format: "name <email>"
+  name: string;
+  email: string;
+}
+
 interface VerifyDecryptResult {
   data: string;
   signedBy: string[];

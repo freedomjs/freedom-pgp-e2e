@@ -72,22 +72,30 @@ declare module e2e.openpgp {
 module E2eModule {
 
   var pgpContext: e2e.openpgp.ContextImpl = new e2e.openpgp.ContextImpl();
+  var pgpUser: string;
 
   export class E2eImp {
+
     constructor(public dispatchEvent: any) {
     }
 
     // Standard freedom crypto API
-    public setup = (passphrase:string) : Promise<void> => {
+    public setup = (passphrase:string, userid:string) : Promise<void> => {
       // this function has the side-effect to setup the keyright storage. 
       pgpContext.setKeyRingPassphrase(passphrase);
+      // e2e ContextImpl expects separate name/email so we have to split userid
+      // Doing so *naively* - assuming userid is of form "name <email>"
+      var username = userid.slice(0, userid.lastIndexOf('<')).trim();
+      var email = userid.slice(userid.lastIndexOf('<') + 1, -1);
+      this.generateKey(username, email);
+      pgpUser = userid;
       return Promise.resolve<void>();
 
-      return goog.storage.mechanism.HTML5LocalStorage.prepareFreedom()
+      /*return goog.storage.mechanism.HTML5LocalStorage.prepareFreedom()
         .then(() => {
           // this function has the side-effect to setup the keyright storage. 
           pgpContext.setKeyRingPassphrase('');
-        });
+        });*/
     }
 
     public testSetup = () : Promise<void> => {
@@ -97,8 +105,11 @@ module E2eModule {
     }
 
     public exportKey = () : Promise<string> => {
-      // TODO
-      return Promise.resolve<string>();
+      return new Promise(function(F, R) {
+        this.searchPublicKey(pgpUser)
+          .addCallback((r:PgpKey[]) => { F(r[0]); })
+          .addErrback(R);
+      });
     }
 
     public signEncrypt = (plaintext:string, publicKey:string,
@@ -210,6 +221,3 @@ module E2eModule {
     freedom['e2e']().providePromises(E2eImp);
   }
 }
-
-
-

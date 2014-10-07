@@ -8,8 +8,8 @@
   },
   "dependencies": {
     "e2e": {
-      "api": "crypto",
-      "url": "end-to-end/freedom.json"
+      "url": "end-to-end/freedom.json",
+      "api": "crypto"
     }
   },
   "permissions": [
