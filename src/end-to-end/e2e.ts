@@ -3,6 +3,11 @@
 
 interface PgpKey {
   uids: string[];
+  subKeys: SubKey[];
+}
+
+interface SubKey {
+  fingerprintHex: string;
 }
 
 interface PgpUser {
@@ -91,17 +96,11 @@ module E2eModule {
       pgpContext.setKeyRingPassphrase(passphrase);
       // e2e ContextImpl expects separate name/email so we have to split userid
       // Doing so *naively* - assuming userid is of form "name <email>"
-      var username = userid.slice(0, userid.lastIndexOf('<')).trim();
-      var email = userid.slice(userid.lastIndexOf('<') + 1, -1);
+      var username: string = userid.slice(0, userid.lastIndexOf('<')).trim();
+      var email: string = userid.slice(userid.lastIndexOf('<') + 1, -1);
       this.generateKey(username, email);
       pgpUser = userid;
       return Promise.resolve<void>();
-
-      return goog.storage.mechanism.HTML5LocalStorage.prepareFreedom()
-        .then(() => {
-          // this function has the side-effect to setup the keyright storage. 
-          pgpContext.setKeyRingPassphrase('');
-        });
     }
 
     public testSetup = () : Promise<void> => {
@@ -111,17 +110,9 @@ module E2eModule {
     }
 
     public exportKey = () : Promise<string> => {
-      /*var key = this.searchPublicKey(pgpUser)
-        .then((keys: PgpKey[]) => {
-          return keys[0]
-        });
-      return key[0];*/
-      //return Promise.resolve(this.searchPublicKey(pgpUser))[0][0];
-      return new Promise<string>(function(F, R) {
-        this.searchPublicKey(pgpUser)
-          .addCallback((r:PgpKey[]) => { F(r[0].uids[0]); })
-          .addErrback(R);
-      });
+      console.log('START EXPORT KEY');
+      return e2e.async.Result.getValue(
+        pgpContext.searchPublicKey(pgpUser))[0].subKeys[0].fingerprintHex;
     }
 
     public signEncrypt = (plaintext:string, publicKey:string,

@@ -5,7 +5,7 @@
 
 
 module E2eSample {
-  var log :Freedom_UproxyLogging.Log = freedom['core.log']('Diagnose');
+  var log: Freedom_UproxyLogging.Log = freedom['core.log']('Diagnose');
   var logManager: Freedom_UproxyLogging.LogManager = freedom['core.logmanager']();
   var e2e: E2eProvider = freedom['e2e']();
 

@@ -5,6 +5,11 @@
 
 interface PgpKey {
   uids: string[];
+  subKeys: SubKey[];
+}
+
+interface SubKey {
+  fingerprintHex: string;
 }
 
 interface PgpUser {

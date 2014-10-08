@@ -208,4 +208,21 @@ describe("e2eImp", function() {
     .then(done);
   });
 
+  it('export public key', (done) => {
+    e2eImp.testSetup()
+      .then(() => {
+        return e2eImp.setup('test passphrase', 'tester <test@gmail.com>');
+      })
+      .then(() => {
+        expect(true).toBeTruthy();
+        return e2eImp.exportKey();
+      })
+      .then((publicKeyStr:string) => {
+        expect(publicKeyStr.length > 0);
+      })
+      .catch((e:Error) => {
+        console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
+        expect(false).toBeTruthy();}) 
+        .then(done);
+  });
 });
