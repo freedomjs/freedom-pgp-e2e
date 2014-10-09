@@ -115,28 +115,30 @@ module E2eModule {
         pgpContext.searchPublicKey(pgpUser))[0].subKeys[0].fingerprintHex;
     }
 
-    public signEncrypt = (plaintext:string, publicKey:string,
-                          sign: boolean = true) : Promise<string> => {
-        var result: string[] = e2e.async.Result.getValue(
-          pgpContext.importKey((str, f) => { f(''); }, publicKey));
-        var keys: PgpKey[] = e2e.async.Result.getValue(
-          pgpContext.searchPublicKey(result[0]));
-        return new Promise<string>(function(F, R) {
-          pgpContext.encryptSign(plaintext, [], keys, [])
-            .addCallback(F).addErrback(R);
-        });
-      }
-
-    public verifyDecrypt = (ciphertext:string,
-                            decrypt:boolean = true) : Promise<string> => {
-      return new Promise(function(F, R) {
-        pgpContext.verifyDecrypt(
-          () => { return ''; }, // passphrase callback
-          ciphertext)
-          .addCallback((r:PgpDecryptResult) => {F(array2str(r.decrypt.data));})
-          .addErrback(R);
+    public signEncrypt = (
+      plaintext:string, publicKey:string, sign: boolean = true)
+    : Promise<string> => {
+      // TODO Result.getValue will be deprecated within 12 months, change
+      var result: string[] = e2e.async.Result.getValue(
+        pgpContext.importKey((str, f) => { f(''); }, publicKey));
+      var keys: PgpKey[] = e2e.async.Result.getValue(
+        pgpContext.searchPublicKey(result[0]));
+      return new Promise<string>(function(F, R) {
+        pgpContext.encryptSign(plaintext, [], keys, [])
+          .addCallback(F).addErrback(R);
       });
     }
+
+    public verifyDecrypt = (
+      ciphertext:string, decrypt:boolean = true) : Promise<string> => {
+        return new Promise(function(F, R) {
+          pgpContext.verifyDecrypt(
+            () => { return ''; }, // passphrase callback
+            ciphertext)
+            .addCallback((r:PgpDecryptResult) => {F(array2str(r.decrypt.data));})
+            .addErrback(R);
+        });
+      }
 
     public generateKey = (name:string, email:string) : Promise<void> => {
       return new Promise<void>((F, R) => {

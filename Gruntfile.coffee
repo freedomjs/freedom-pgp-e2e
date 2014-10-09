@@ -195,8 +195,8 @@ module.exports = (grunt) ->
   taskManager.add 'getEndToEnd', [
     'force:on',  # clone will fail if already exists, want to continue anyway
     'gitclone:e2e',
-    'gitpull:e2e'
     'force:off',
+    'gitpull:e2e'
     'shell:doDeps',
     'shell:doLib'
   ]
