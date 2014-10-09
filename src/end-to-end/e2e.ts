@@ -55,6 +55,8 @@ declare module e2e.openpgp {
     importKey(passphraseCallback:PassphraseCallbackFunc,
               keyStr:string) : e2e.async.Result<string[]>;
 
+    exportKeyring(armored:boolean) : e2e.async.Result<string>;
+
     // We don't need to know how key is being represented, thus use any here.
     searchPublicKey(uid:string) : e2e.async.Result<PgpKey[]>;
 
@@ -111,6 +113,7 @@ module E2eModule {
 
     public exportKey = () : Promise<string> => {
       console.log('START EXPORT KEY');
+      console.log(pgpContext.exportKeyring(true));
       return e2e.async.Result.getValue(
         pgpContext.searchPublicKey(pgpUser))[0].subKeys[0].fingerprintHex;
     }

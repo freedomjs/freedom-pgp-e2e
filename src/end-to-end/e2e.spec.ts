@@ -218,7 +218,9 @@ describe("e2eImp", function() {
         return e2eImp.exportKey();
       })
       .then((publicKeyStr:string) => {
-        expect(publicKeyStr.length > 0);
+        expect(publicKeyStr.length > 36);
+        expect(publicKeyStr.substring(0,36)).
+          toEqual('-----BEGIN PGP PUBLIC KEY BLOCK-----');
       })
       .catch((e:Error) => {
         console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
