@@ -135,7 +135,19 @@ module.exports = (grunt) ->
       # From build-tools
       arraybuffers: Rule.typescriptSrc('arraybuffers'),
       # Modules
-      endToEnd: Rule.typescriptSrc('end-to-end'),
+      # TODO move below into uproxy-lib/tools/common-grunt-rules
+      endToEnd: {
+        src: ['build/end-to-end/**/*.ts', '!**/*.d.ts'],
+        options: {
+          sourceRoot: 'build/',
+          target: 'es5',
+          comments: false,
+          noImplicitAny: true,
+          sourceMap: true,
+          declaration: false,
+          fast: 'always',
+        }
+      }
       sampleChromeApp: Rule.typescriptSrc('samples/chrome-app')
     }, # ts
 
@@ -161,7 +173,7 @@ module.exports = (grunt) ->
       }
     }, # karma
 
-    clean: ['build/', 'dist/', '.tscache/']
+    clean: ['build/', 'dist/', '.tscache/', 'end-to-end.build/']
   }  # grunt.initConfig
 
   #-------------------------------------------------------------------------
