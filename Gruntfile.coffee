@@ -36,9 +36,10 @@ module.exports = (grunt) ->
         files: [ {
           expand: true,
           overwrite: true,
-          cwd: 'src',
-          src: ['*'],
-          dest: 'build/typescript-src/'
+          cwd: 'src/',
+          filter: 'isFile',
+          src: ['**/*'],
+          dest: 'build/'
         } ]
       },
 
@@ -47,15 +48,15 @@ module.exports = (grunt) ->
           expand: true,
           overwrite: true,
           cwd: 'node_modules/uproxy-lib/src/',
-          src: ['*'],
-          dest: 'build/typescript-src/'
+          src: ['**/*'],
+          dest: 'build/'
         } ]
       },
 
       uproxyLibThirdPartyTypescriptSrc: {
         overwrite: true,
         src: 'node_modules/uproxy-lib/third_party/',
-        dest: 'build/typescript-src/third_party/'
+        dest: 'build/third_party/'
       },
 
       thirdPartyTypeScript: {
@@ -66,7 +67,7 @@ module.exports = (grunt) ->
             overwrite: true,
             cwd: 'third_party',
             src: ['*'],
-            dest: 'build/typescript-src/'
+            dest: 'build/'
           }
         ]}
     },
@@ -130,13 +131,25 @@ module.exports = (grunt) ->
 
     #-------------------------------------------------------------------------
     # All typescript compiles to locations in `build/`
-    typescript: {
+    ts: {
       # From build-tools
       arraybuffers: Rule.typescriptSrc('arraybuffers'),
       # Modules
-      endToEnd: Rule.typescriptSrc('end-to-end'),
+      # TODO move below into uproxy-lib/tools/common-grunt-rules
+      endToEnd: {
+        src: ['build/end-to-end/**/*.ts', '!**/*.d.ts'],
+        options: {
+          sourceRoot: 'build/',
+          target: 'es5',
+          comments: false,
+          noImplicitAny: true,
+          sourceMap: true,
+          declaration: false,
+          fast: 'always',
+        }
+      }
       sampleChromeApp: Rule.typescriptSrc('samples/chrome-app')
-    }, # typescript
+    }, # ts
 
     karma: {
       options: {
@@ -160,13 +173,13 @@ module.exports = (grunt) ->
       }
     }, # karma
 
-    clean: ['build/**']
+    clean: ['build/', 'dist/', '.tscache/', 'end-to-end.build/']
   }  # grunt.initConfig
 
   #-------------------------------------------------------------------------
   grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-contrib-clean'
-  grunt.loadNpmTasks 'grunt-typescript'
+  grunt.loadNpmTasks 'grunt-ts'
   grunt.loadNpmTasks 'grunt-env'
   grunt.loadNpmTasks 'grunt-contrib-symlink'
   grunt.loadNpmTasks 'grunt-karma'
@@ -175,6 +188,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-force'
 
   #-------------------------------------------------------------------------
+
   # Define the tasks
   taskManager = new TaskManager.Manager();
 
@@ -203,8 +217,8 @@ module.exports = (grunt) ->
 
   taskManager.add 'buildEndToEnd', [
     'base',
-    'typescript:endToEnd',
-    'typescript:sampleChromeApp',
+    'ts:endToEnd',
+    'ts:sampleChromeApp',
     'copy:sampleChromeApp',
     'copy:sampleChromeAppLib',
     'copy:sampleChromeAppFreedom'

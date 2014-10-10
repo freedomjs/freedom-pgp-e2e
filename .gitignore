@@ -1,5 +1,7 @@
 ### Built files
 build/
+dist/
+.tscache/
 
 ### Auto-generated
 node_modules/
