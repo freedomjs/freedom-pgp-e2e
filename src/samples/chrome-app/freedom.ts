@@ -39,9 +39,8 @@ module E2eSample {
 
     e2e.setup('', 'Joe Test <joetest@example.com>')
       .then(() => {
-        log.debug('exporting public key?');
+        log.debug('exporting public key');
         return e2e.exportKey();
-        log.debug('exported public key!');
       })
       .then((result: string) => {
         log.debug('encrypting/signing');

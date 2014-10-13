@@ -3,11 +3,6 @@
 
 interface PgpKey {
   uids: string[];
-  subKeys: SubKey[];
-}
-
-interface SubKey {
-  fingerprintHex: string;
 }
 
 interface PgpUser {
@@ -42,6 +37,11 @@ declare module e2e.async {
 
 declare module goog.storage.mechanism.HTML5LocalStorage {
   function prepareFreedom() : Promise<void>;
+}
+
+declare module e2e.openpgp.asciiArmor {
+  function encode(type:string, payload:string,
+                  opt_headers?:any) : string;
 }
 
 declare module e2e.openpgp {
@@ -112,10 +112,9 @@ module E2eModule {
     }
 
     public exportKey = () : Promise<string> => {
-      console.log('START EXPORT KEY');
-      console.log(pgpContext.exportKeyring(true));
-      return e2e.async.Result.getValue(
-        pgpContext.searchPublicKey(pgpUser))[0].subKeys[0].fingerprintHex;
+      var serialized = e2e.async.Result.getValue(pgpContext.searchPublicKey(
+        pgpUser))[0].serialized;
+      return Promise.resolve<string>(e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized));
     }
 
     public signEncrypt = (

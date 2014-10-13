@@ -210,7 +210,7 @@ module.exports = (grunt) ->
     'force:on',  # clone will fail if already exists, want to continue anyway
     'gitclone:e2e',
     'force:off',
-    'gitpull:e2e'
+    'gitpull:e2e',
     'shell:doDeps',
     'shell:doLib'
   ]

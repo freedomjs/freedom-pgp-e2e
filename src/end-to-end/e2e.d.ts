@@ -5,11 +5,6 @@
 
 interface PgpKey {
   uids: string[];
-  subKeys: SubKey[];
-}
-
-interface SubKey {
-  fingerprintHex: string;
 }
 
 interface PgpUser {
@@ -22,7 +17,6 @@ interface VerifyDecryptResult {
   data: string;
   signedBy: string[];
 }
-
 
 interface E2eProvider {
   // Standard freedom crypto API
