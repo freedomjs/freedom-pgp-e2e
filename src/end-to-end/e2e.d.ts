@@ -26,8 +26,8 @@ interface E2eProvider {
               sign?:boolean) :Promise<ArrayBuffer>;
   verifyDecrypt(data:ArrayBuffer, verifyKey?:string,
                 decrypt?:boolean) :Promise<ArrayBuffer>;
-  armor(data:ArrayBuffer, header:string) :Promise<string>;
-  dearmor(data:string, header:string) :Promise<ArrayBuffer>;
+  armor(data:ArrayBuffer, header?:string) :Promise<string>;
+  dearmor(data:string, header?:string) :Promise<ArrayBuffer>;
 
   // "Internal" API specific to e2e
   importKey(keyStr:string) :Promise<string[]>;

@@ -98,6 +98,10 @@ describe("e2eImp", function() {
     '=2qgG\n' +
     '-----END PGP PRIVATE KEY BLOCK-----\n';
 
+  var buffer :ArrayBuffer = new ArrayBuffer(100);
+  var byteView :Uint8Array = new Uint8Array(buffer);
+  byteView[0] = 7;
+
   beforeEach(function() {
   });
 
@@ -149,8 +153,7 @@ describe("e2eImp", function() {
   it('encrypt and decrypt', (done) => {
     e2eImp.testSetup()
     .then(() => {
-      return e2eImp.signEncrypt(new Uint8Array(new ArrayBuffer(100)),
-                                publicKeyStr);
+      return e2eImp.signEncrypt(buffer, publicKeyStr);
     })
     .then((encryptedData:ArrayBuffer) => {
       return e2eImp.importKey(privateKeyStr).then(() => {
@@ -158,7 +161,7 @@ describe("e2eImp", function() {
       });
     })
     .then((decryptedData:ArrayBuffer) => {
-      expect(decryptedData).toEqual(new Uint8Array(new ArrayBuffer(100)));
+      expect(decryptedData).toEqual(buffer);
     })
     .catch((e:Error) => {
       console.log('test throw error' + e);
@@ -170,8 +173,7 @@ describe("e2eImp", function() {
   it('encryptSign and verifyDecrypt', (done) => {
     e2eImp.testSetup()
     .then(() => {
-      return e2eImp.e2eencryptSign(new Uint8Array(new ArrayBuffer(100)),
-                                   publicKeyStr, privateKeyStr2);
+      return e2eImp.e2eencryptSign(buffer, publicKeyStr, privateKeyStr2);
     })
     .then((encryptedData:ArrayBuffer) => {
       return e2eImp.importKey(privateKeyStr).then(() => {
@@ -181,7 +183,7 @@ describe("e2eImp", function() {
       });
     })
     .then((result:VerifyDecryptResult) => {
-      expect(result.data).toEqual(new Uint8Array(new ArrayBuffer(100)));
+      expect(result.data).toEqual(buffer);
       expect(result.signedBy.length).toEqual(1);
       expect(result.signedBy[0]).toEqual('<test@gmail.com>');
     })

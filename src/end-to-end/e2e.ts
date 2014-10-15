@@ -24,6 +24,11 @@ interface VerifyDecryptResult {
   signedBy :string[];
 }
 
+interface ParseResult {
+  data :ArrayBuffer;
+  charset :string;
+}
+
 declare module e2e.async {
   class Result<T> {
     addCallback(f:(a:T) => void) :e2e.async.Result<T>;
@@ -40,8 +45,9 @@ declare module goog.storage.mechanism.HTML5LocalStorage {
 }
 
 declare module e2e.openpgp.asciiArmor {
-  function encode(type:string, payload:string,
+  function encode(type:string, payload:ArrayBuffer,
                   opt_headers?:any) :string;
+  function parse(text:string) :ParseResult;
 }
 
 declare module e2e.openpgp {
@@ -111,11 +117,12 @@ module E2eModule {
     public exportKey = () :Promise<string> => {
       var serialized = e2e.async.Result.getValue(pgpContext.searchPublicKey(
         pgpUser))[0].serialized;
-      return Promise.resolve<string>(e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized));
+      return Promise.resolve<string>(
+        e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized));
     }
 
     public signEncrypt = (data:ArrayBuffer, encryptKey:string,
-                          sign: boolean = true) :Promise<ArrayBuffer> => {
+                          sign:boolean = true) :Promise<ArrayBuffer> => {
       // TODO Result.getValue will be deprecated within 12 months, change
       var result :string[] = e2e.async.Result.getValue(
         pgpContext.importKey((str, f) => { f(''); }, encryptKey));
@@ -128,17 +135,27 @@ module E2eModule {
     }
 
     public verifyDecrypt = (data:ArrayBuffer, verifyKey:string,
-                            decrypt:boolean = true) : Promise<ArrayBuffer> => {
-        return new Promise(function(F, R) {
-          pgpContext.verifyDecrypt(
-            () => { return ''; }, // passphrase callback
-            data)
-            .addCallback((r:PgpDecryptResult) => {F(array2str(r.decrypt.data));})
-            .addErrback(R);
-        });
-      }
+                            decrypt:boolean = true) :Promise<ArrayBuffer> => {
+      return new Promise(function(F, R) {
+        pgpContext.verifyDecrypt(
+          () => { return ''; }, // passphrase callback
+          data)
+          .addCallback((r:PgpDecryptResult) => {F(r.decrypt.data);})
+          .addErrback(R);
+      });
+    }
 
-    public generateKey = (name:string, email:string) : Promise<void> => {
+    public armor = (data:ArrayBuffer, header:string = '') :Promise<string> => {
+      return Promise.resolve<string>(
+        e2e.openpgp.asciiArmor.encode(header, data));
+    }
+
+    public dearmor = (data:string, header:string = '') :Promise<ArrayBuffer> => {
+      return Promise.resolve<ArrayBuffer>(
+        e2e.openpgp.asciiArmor.parse(data).data);
+    }
+
+    public generateKey = (name:string, email:string) :Promise<void> => {
       return new Promise<void>((F, R) => {
         // expires after one year
         var expiration : number = Date.now() / 1000 + (3600 * 24 * 365);
