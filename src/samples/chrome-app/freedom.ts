@@ -5,9 +5,9 @@
 
 
 module E2eSample {
-  var log: Freedom_UproxyLogging.Log = freedom['core.log']('Diagnose');
-  var logManager: Freedom_UproxyLogging.LogManager = freedom['core.logmanager']();
-  var e2e: E2eProvider = freedom['e2e']();
+  var log :Freedom_UproxyLogging.Log = freedom['core.log']('Diagnose');
+  var logManager :Freedom_UproxyLogging.LogManager = freedom['core.logmanager']();
+  var e2e :E2eProvider = freedom['e2e']();
 
   freedom.on('command', function(m) {
     log.debug('received command %1', [m]);
@@ -35,7 +35,7 @@ module E2eSample {
   function doPgpTest() {
     log.debug('start doPgpTest');
 
-    var testString: string = 'asdfasdf';
+    var testData :ArrayBuffer = new Uint8Array(new ArrayBuffer(100));
 
     e2e.setup('', 'Joe Test <joetest@example.com>')
       .then(() => {
@@ -44,12 +44,12 @@ module E2eSample {
       })
       .then((result: string) => {
         log.debug('encrypting/signing');
-        return e2e.signEncrypt(testString, result);
+        return e2e.signEncrypt(testData, result);
       })
       .then(e2e.verifyDecrypt)
-      .then((result: string) => {
+      .then((result: ArrayBuffer) => {
         log.debug('decrypted!')
-        if (result == testString) {
+        if (result == testData) {
           print('pgp encryption test succeeded.');
         } else {
           print('pgp encryption test failed.');

@@ -4,43 +4,39 @@
 // use.
 
 interface PgpKey {
-  uids: string[];
+  uids :string[];
 }
 
 interface PgpUser {
-  uid: string;  // format: "name <email>"
-  name: string;
-  email: string;
+  uid :string;  // format: "name <email>"
+  name :string;
+  email :string;
 }
 
 interface VerifyDecryptResult {
-  data: string;
-  signedBy: string[];
+  data :ArrayBuffer;
+  signedBy :string[];
 }
 
 interface E2eProvider {
   // Standard freedom crypto API
-  setup(passphrase:string, userid: string) : Promise<void>;
-  exportKey(): Promise<string>;
-  signEncrypt(plaintext:string, publicKey: string,
-              sign?:boolean) : Promise<string>;
-  verifyDecrypt(ciphertext:string, decrypt?:boolean) : Promise<string>;
+  setup(passphrase:string, userid:string) :Promise<void>;
+  exportKey() :Promise<string>;
+  signEncrypt(data:ArrayBuffer, encryptKey?:string,
+              sign?:boolean) :Promise<ArrayBuffer>;
+  verifyDecrypt(data:ArrayBuffer, verifyKey?:string,
+                decrypt?:boolean) :Promise<ArrayBuffer>;
+  armor(data:ArrayBuffer, header:string) :Promise<string>;
+  dearmor(data:string, header:string) :Promise<ArrayBuffer>;
 
   // "Internal" API specific to e2e
-  importKey(keyStr:string) : Promise<string[]>;
-  generateKey(name:string, email:string) : Promise<void>;
-  deleteKey(uid:string) : Promise<void>;
-  searchPrivateKey(uid:string) : Promise<PgpKey[]>;
-  searchPublicKey(uid:string) : Promise<PgpKey[]>;
-  e2eencryptSign(plaintext:string, encryptKey:string,
-                 signatureKey:string) :Promise<string>;
-  e2everifyDecrypt(ciphertext:string) : Promise<VerifyDecryptResult>;
-  providePromises(provider:Object) : void;
+  importKey(keyStr:string) :Promise<string[]>;
+  generateKey(name:string, email:string) :Promise<void>;
+  deleteKey(uid:string) :Promise<void>;
+  searchPrivateKey(uid:string) :Promise<PgpKey[]>;
+  searchPublicKey(uid:string) :Promise<PgpKey[]>;
+  e2eencryptSign(data:ArrayBuffer, encryptKey:string,
+                 signatureKey:string) :Promise<ArrayBuffer>;
+  e2everifyDecrypt(data:ArrayBuffer) :Promise<VerifyDecryptResult>;
+  providePromises(provider:Object) :void;
 }
-
-// TODO: add this again once https://github.com/Microsoft/TypeScript/issues/52
-// is fixed.
-//
-// declare module freedom {
-//     function e2e(): E2eProvider;
-// }
