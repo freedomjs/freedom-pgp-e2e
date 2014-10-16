@@ -56,6 +56,7 @@ declare module e2e.openpgp {
   }
 
   class ContextImpl {
+    armorOutput :boolean;
     setKeyRingPassphrase(passphrase:string) :void;
 
     importKey(passphraseCallback:PassphraseCallbackFunc,
@@ -88,6 +89,7 @@ declare module e2e.openpgp {
 module E2eModule {
 
   var pgpContext :e2e.openpgp.ContextImpl = new e2e.openpgp.ContextImpl();
+  pgpContext.armorOutput = false;
   var pgpUser :string;
 
   export class E2eImp {
@@ -140,7 +142,7 @@ module E2eModule {
         pgpContext.verifyDecrypt(
           () => { return ''; }, // passphrase callback
           data)
-          .addCallback((r:PgpDecryptResult) => {F(r.decrypt.data);})
+          .addCallback((r:PgpDecryptResult) => {F(array2buf(r.decrypt.data));})
           .addErrback(R);
       });
     }
@@ -219,7 +221,7 @@ module E2eModule {
           data)
           .addCallback((r:PgpDecryptResult) => {
             F({
-              data: array2str(r.decrypt.data),
+              data: array2buf(r.decrypt.data),
               signedBy: r.verify.success[0].uids} ); 
           })
           .addErrback(R);
@@ -233,6 +235,13 @@ module E2eModule {
       str += String.fromCharCode(a[i]);
     }
     return str;
+  }
+
+  function array2buf(a:number[]) :ArrayBuffer {
+    var buffer = new ArrayBuffer(a.length);
+    var byteView = new Uint8Array(buffer);
+    byteView.set(a);
+    return buffer;
   }
 
   /** REGISTER PROVIDER **/
