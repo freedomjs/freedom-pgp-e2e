@@ -35,8 +35,8 @@ interface E2eProvider {
   deleteKey(uid:string) :Promise<void>;
   searchPrivateKey(uid:string) :Promise<PgpKey[]>;
   searchPublicKey(uid:string) :Promise<PgpKey[]>;
-  e2eencryptSign(data:ArrayBuffer, encryptKey:string,
+  /*e2eencryptSign(data:ArrayBuffer, encryptKey:string,
                  signatureKey:string) :Promise<ArrayBuffer>;
-  e2everifyDecrypt(data:ArrayBuffer) :Promise<VerifyDecryptResult>;
+  e2everifyDecrypt(data:ArrayBuffer) :Promise<VerifyDecryptResult>;*/
   providePromises(provider:Object) :void;
 }

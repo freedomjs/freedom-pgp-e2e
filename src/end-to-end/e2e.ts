@@ -20,7 +20,7 @@ interface PgpDecryptResult {
 }
 
 interface VerifyDecryptResult {
-  data :ArrayBuffer;
+  data :string;
   signedBy :string[];
 }
 
@@ -71,12 +71,12 @@ declare module e2e.openpgp {
 
     // NOTE - these are e2e-internal encryption functions
     // and are not directly equivalent to the freedom API
-    encryptSign(data:ArrayBuffer, options:any[],
+    encryptSign(plaintext:string, options:any[],
                 encryptionKeys:PgpKey[], passphrases:string[],
-                signatureKey?:PgpKey) :e2e.async.Result<ArrayBuffer>;
+                signatureKey?:PgpKey) :e2e.async.Result<number[]>;
 
     verifyDecrypt(passphraseCallback:PassphraseCallbackFunc,
-                  data:ArrayBuffer) :e2e.async.Result<PgpDecryptResult>;
+                  encryptedMessage:string) :e2e.async.Result<PgpDecryptResult>;
 
     generateKey(keyAlgo:string, keyLength:number, subkeyAlgo:any,
                 subkeyLength:number, name:string, comment:string,
@@ -123,33 +123,40 @@ module E2eModule {
         e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized));
     }
 
-    public signEncrypt = (data:ArrayBuffer, encryptKey:string,
-                          sign:boolean = true) :Promise<ArrayBuffer> => {
+    public signEncrypt = (
+      data:ArrayBuffer, encryptKey:string, sign:boolean = true)
+    :Promise<ArrayBuffer> => {
+      var a = buf2array(data);
+      var s = String.fromCharCode.apply(null, a);
       // TODO Result.getValue will be deprecated within 12 months, change
       var result :string[] = e2e.async.Result.getValue(
         pgpContext.importKey((str, f) => { f(''); }, encryptKey));
       var keys :PgpKey[] = e2e.async.Result.getValue(
         pgpContext.searchPublicKey(result[0]));
       return new Promise<ArrayBuffer>(function(F, R) {
-        pgpContext.encryptSign(data, [], keys, [])
-          .addCallback(F).addErrback(R);
+        pgpContext.encryptSign(s, [], keys, [])
+          .addCallback((ciphertext:number[]) => {F(array2buf(ciphertext));})
+          .addErrback(R);
       });
     }
 
-    public verifyDecrypt = (data:ArrayBuffer, verifyKey:string,
-                            decrypt:boolean = true) :Promise<ArrayBuffer> => {
+    public verifyDecrypt = (
+      data:ArrayBuffer, verifyKey:string, decrypt:boolean = true)
+    :Promise<ArrayBuffer> => {
+      var byteView = new Uint8Array(data);
       return new Promise(function(F, R) {
         pgpContext.verifyDecrypt(
           () => { return ''; }, // passphrase callback
-          data)
+          e2e.openpgp.asciiArmor.encode('MESSAGE', byteView))
           .addCallback((r:PgpDecryptResult) => {F(array2buf(r.decrypt.data));})
           .addErrback(R);
       });
     }
 
     public armor = (data:ArrayBuffer, header:string = '') :Promise<string> => {
+      var byteView = new Uint8Array(data);
       return Promise.resolve<string>(
-        e2e.openpgp.asciiArmor.encode(header, data));
+        e2e.openpgp.asciiArmor.encode(header, byteView));
     }
 
     public dearmor = (data:string, header:string = '') :Promise<ArrayBuffer> => {
@@ -196,22 +203,24 @@ module E2eModule {
       });
     }
 
-    public e2eencryptSign = (data:ArrayBuffer, encryptKey:string,
-                             signatureKey:string) :Promise<ArrayBuffer> => {
-        var importResult :string[] = e2e.async.Result.getValue(
-          pgpContext.importKey((str, f) => { f(''); }, encryptKey));
-        var keys :PgpKey[] = e2e.async.Result.getValue(
-          pgpContext.searchPublicKey(importResult[0]));
-        var importResult2 :string[] = e2e.async.Result.getValue(
-          pgpContext.importKey((str, f) => { f(''); }, signatureKey));
-        var signKey :PgpKey = e2e.async.Result.getValue(
-          pgpContext.searchPrivateKey(importResult2[0]))[0];
-
-        return new Promise<ArrayBuffer>(function(F, R) {
-          pgpContext.encryptSign(data, [], keys, [], signKey)
-            .addCallback(F).addErrback(R);
-        });
-      }
+    /*public e2eencryptSign = (
+      data:ArrayBuffer, encryptKey:string, signatureKey:string)
+    :Promise<ArrayBuffer> => {
+      var importResult :string[] = e2e.async.Result.getValue(
+        pgpContext.importKey((str, f) => { f(''); }, encryptKey));
+      var keys :PgpKey[] = e2e.async.Result.getValue(
+        pgpContext.searchPublicKey(importResult[0]));
+      var importResult2 :string[] = e2e.async.Result.getValue(
+        pgpContext.importKey((str, f) => { f(''); }, signatureKey));
+      var signKey :PgpKey = e2e.async.Result.getValue(
+        pgpContext.searchPrivateKey(importResult2[0]))[0];
+      // TODO use signkey
+      return new Promise<ArrayBuffer>(function(F, R) {
+        pgpContext.encryptSign(data, [], keys, [])
+          .addCallback((ciphertext:string) => {F(str2buf(ciphertext));})
+          .addErrback(R);
+      });
+    }
 
     public e2everifyDecrypt = (
       data:ArrayBuffer) :Promise<VerifyDecryptResult> => {
@@ -226,7 +235,7 @@ module E2eModule {
           })
           .addErrback(R);
       });
-    }
+    }*/
   }
 
   function array2str(a:number[]) :string {
@@ -237,11 +246,29 @@ module E2eModule {
     return str;
   }
 
+  function str2buf(s:string) :ArrayBuffer {
+    var buffer = new ArrayBuffer(s.length * 2);
+    var view = new Uint16Array(buffer);
+    for (var i = 0; i < s.length; i++) {
+      view[i] = s.charCodeAt(i);
+    }
+    return buffer;
+  }
+
   function array2buf(a:number[]) :ArrayBuffer {
     var buffer = new ArrayBuffer(a.length);
     var byteView = new Uint8Array(buffer);
     byteView.set(a);
     return buffer;
+  }
+
+  function buf2array(b:ArrayBuffer) :number[] {
+    var dataView = new DataView(b);
+    var result :number[] = [];
+    for (var i = 0; i < dataView.byteLength; i++) {
+      result.push(dataView.getUint8(i));
+    }
+    return result;
   }
 
   /** REGISTER PROVIDER **/

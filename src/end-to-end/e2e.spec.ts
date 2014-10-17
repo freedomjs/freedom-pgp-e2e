@@ -98,9 +98,10 @@ describe("e2eImp", function() {
     '=2qgG\n' +
     '-----END PGP PRIVATE KEY BLOCK-----\n';
 
-  var buffer :ArrayBuffer = new ArrayBuffer(100);
+  var buffer :ArrayBuffer = new ArrayBuffer(12);
   var byteView :Uint8Array = new Uint8Array(buffer);
-  byteView[0] = 7;
+  // bytes for the string "abcd1234"
+  byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
 
   beforeEach(function() {
   });
@@ -149,15 +150,15 @@ describe("e2eImp", function() {
       expect(false).toBeTruthy();}) 
     .then(done);
   });
-  
+
   it('encrypt and decrypt', (done) => {
     e2eImp.testSetup()
     .then(() => {
-      return e2eImp.signEncrypt(buffer, publicKeyStr);
+      return e2eImp.signEncrypt(buffer, publicKeyStr, false);
     })
     .then((encryptedData:ArrayBuffer) => {
       return e2eImp.importKey(privateKeyStr).then(() => {
-        return e2eImp.verifyDecrypt(encryptedData, publicKeyStr);
+        return e2eImp.verifyDecrypt(encryptedData, publicKeyStr, false);
       });
     })
     .then((decryptedData:ArrayBuffer) => {
@@ -170,15 +171,15 @@ describe("e2eImp", function() {
   });
 
 
-  it('encryptSign and verifyDecrypt', (done) => {
+  /*it('encryptSign and verifyDecrypt', (done) => {
     e2eImp.testSetup()
     .then(() => {
-      return e2eImp.e2eencryptSign(buffer, publicKeyStr, privateKeyStr2);
+      return e2eImp.signEncrypt(buffer, publicKeyStr, true);
     })
     .then((encryptedData:ArrayBuffer) => {
       return e2eImp.importKey(privateKeyStr).then(() => {
         return e2eImp.importKey(publicKeyStr2).then(() => {
-          return e2eImp.e2everifyDecrypt(encryptedData);
+          return e2eImp.verifyDecrypt(encryptedData);
         });
       });
     })
@@ -191,7 +192,7 @@ describe("e2eImp", function() {
       console.log('test throw error' + e);
       expect(false).toBeTruthy();}) 
     .then(done);
-  });
+  });*/
 
   it('generate keys', (done) => {
     e2eImp.testSetup()
