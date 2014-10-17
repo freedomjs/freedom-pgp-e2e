@@ -107,7 +107,7 @@ describe("e2eImp", function() {
   });
 
   it('test importKey with public key', (done) => {
-    e2eImp.testSetup()
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
     .then(() => {
       return e2eImp.importKey(publicKeyStr);
     })
@@ -134,7 +134,7 @@ describe("e2eImp", function() {
   });
 
   it('test importKey with private key', function(done) {
-    e2eImp.testSetup()
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
     .then(() => {
       return e2eImp.importKey(privateKeyStr)
     })
@@ -152,60 +152,57 @@ describe("e2eImp", function() {
   });
 
   it('encrypt and decrypt', (done) => {
-    e2eImp.testSetup()
-    .then(() => {
-      return e2eImp.signEncrypt(buffer, publicKeyStr, false);
-    })
-    .then((encryptedData:ArrayBuffer) => {
-      return e2eImp.importKey(privateKeyStr).then(() => {
-        return e2eImp.verifyDecrypt(encryptedData, publicKeyStr, false);
-      });
-    })
-    .then((decryptedData:ArrayBuffer) => {
-      expect(decryptedData).toEqual(buffer);
-    })
-    .catch((e:Error) => {
-      console.log('test throw error' + e);
-      expect(false).toBeTruthy();}) 
-    .then(done);
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
+      .then(() => {
+        return e2eImp.exportKey();
+      })
+      .then((publicKey:string) => {
+        return e2eImp.signEncrypt(buffer, publicKey, false);
+      })
+      .then((encryptedData:ArrayBuffer) => {
+        return e2eImp.verifyDecrypt(encryptedData);
+      })
+      .then((result:VerifyDecryptResult) => {
+        expect(result.data).toEqual(buffer);
+      })
+      .catch((e:Error) => {
+        console.log('test throw error' + e);
+        expect(false).toBeTruthy();}) 
+        .then(done);
   });
 
 
-  /*it('encryptSign and verifyDecrypt', (done) => {
-    e2eImp.testSetup()
-    .then(() => {
-      return e2eImp.signEncrypt(buffer, publicKeyStr, true);
-    })
-    .then((encryptedData:ArrayBuffer) => {
-      return e2eImp.importKey(privateKeyStr).then(() => {
-        return e2eImp.importKey(publicKeyStr2).then(() => {
-          return e2eImp.verifyDecrypt(encryptedData);
-        });
-      });
-    })
-    .then((result:VerifyDecryptResult) => {
-      expect(result.data).toEqual(buffer);
-      expect(result.signedBy.length).toEqual(1);
-      expect(result.signedBy[0]).toEqual('<test@gmail.com>');
-    })
-    .catch((e:Error) => {
-      console.log('test throw error' + e);
-      expect(false).toBeTruthy();}) 
-    .then(done);
-  });*/
+  it('encryptSign and verifyDecrypt', (done) => {
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
+      .then(() => {
+        return e2eImp.exportKey();
+      })
+      .then((publicKey:string) => {
+        return e2eImp.signEncrypt(buffer, publicKey, true)
+          .then((encryptedData:ArrayBuffer) => {
+            return e2eImp.verifyDecrypt(encryptedData, publicKey)
+          });
+      })
+      .then((result:VerifyDecryptResult) => {
+        expect(result.data).toEqual(buffer);
+        expect(result.signedBy.length).toEqual(1);
+        expect(result.signedBy[0]).toEqual('test user <testuser@gmail.com>');
+      })
+      .catch((e:Error) => {
+        console.log('test throw error' + e);
+        expect(false).toBeTruthy();}) 
+        .then(done);
+  });
 
   it('generate keys', (done) => {
-    e2eImp.testSetup()
-    .then(() => {
-      return e2eImp.generateKey('tester', 'test@gmail.com');
-    })
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
     .then(() => {
       expect(true).toBeTruthy();
-      return e2eImp.searchPrivateKey('tester <test@gmail.com>');
+      return e2eImp.searchPrivateKey('test user <testuser@gmail.com>');
     })
     .then((keys:PgpKey[]) => {
       expect(keys.length).toEqual(1);
-      expect(keys[0].uids[0]).toEqual('tester <test@gmail.com>');
+      expect(keys[0].uids[0]).toEqual('test user <testuser@gmail.com>');
     })
     .catch((e:Error) => {
       console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
@@ -214,10 +211,7 @@ describe("e2eImp", function() {
   });
 
   it('export public key', (done) => {
-    e2eImp.testSetup()
-      .then(() => {
-        return e2eImp.setup('test passphrase', 'tester <test@gmail.com>');
-      })
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
       .then(() => {
         expect(true).toBeTruthy();
         return e2eImp.exportKey();

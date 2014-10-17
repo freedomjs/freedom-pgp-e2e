@@ -54,7 +54,7 @@
       "verifyDecrypt": {
         "_comment": "Decrypt w/private key, optionally verify with other key",
         "type": "method",
-        "value": ["buffer", “string”, "boolean"],
+        "value": ["buffer", “string”],
         "ret": "buffer",
         "err": { "errcode": "string", "message": "string" }
       },

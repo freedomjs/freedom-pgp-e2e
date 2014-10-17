@@ -24,8 +24,7 @@ interface E2eProvider {
   exportKey() :Promise<string>;
   signEncrypt(data:ArrayBuffer, encryptKey?:string,
               sign?:boolean) :Promise<ArrayBuffer>;
-  verifyDecrypt(data:ArrayBuffer, verifyKey?:string,
-                decrypt?:boolean) :Promise<ArrayBuffer>;
+  verifyDecrypt(data:ArrayBuffer, verifyKey?:string) :Promise<ArrayBuffer>;
   armor(data:ArrayBuffer, header?:string) :Promise<string>;
   dearmor(data:string, header?:string) :Promise<ArrayBuffer>;
 
@@ -35,8 +34,5 @@ interface E2eProvider {
   deleteKey(uid:string) :Promise<void>;
   searchPrivateKey(uid:string) :Promise<PgpKey[]>;
   searchPublicKey(uid:string) :Promise<PgpKey[]>;
-  /*e2eencryptSign(data:ArrayBuffer, encryptKey:string,
-                 signatureKey:string) :Promise<ArrayBuffer>;
-  e2everifyDecrypt(data:ArrayBuffer) :Promise<VerifyDecryptResult>;*/
   providePromises(provider:Object) :void;
 }
