@@ -25,7 +25,7 @@ interface VerifyDecryptResult {
 }
 
 interface ParseResult {
-  data :ArrayBuffer;
+  data :number[];
   charset :string;
 }
 
@@ -158,15 +158,17 @@ module E2eModule {
       });
     }
 
-    public armor = (data:ArrayBuffer, header:string = '') :Promise<string> => {
+    public armor = (data:ArrayBuffer, header:string = 'MESSAGE')
+    :Promise<string> => {
       var byteView = new Uint8Array(data);
       return Promise.resolve<string>(
         e2e.openpgp.asciiArmor.encode(header, byteView));
     }
 
-    public dearmor = (data:string, header:string = '') :Promise<ArrayBuffer> => {
+    public dearmor = (data:string, header:string = 'MESSAGE')
+    :Promise<ArrayBuffer> => {
       return Promise.resolve<ArrayBuffer>(
-        e2e.openpgp.asciiArmor.parse(data).data);
+        array2buf(e2e.openpgp.asciiArmor.parse(data).data));
     }
 
     public generateKey = (name:string, email:string) :Promise<void> => {

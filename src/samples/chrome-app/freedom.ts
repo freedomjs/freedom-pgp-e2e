@@ -5,6 +5,9 @@
 
 
 module E2eSample {
+  // TODO: grab logger from freedom.core().getLogger('name')
+  // once this depends on freedom 0.6
+  // (i.e. after cutting out uproxy-lib dependency)
   var log :Freedom_UproxyLogging.Log = freedom['core.log']('Diagnose');
   var logManager :Freedom_UproxyLogging.LogManager = freedom['core.logmanager']();
   var e2e :E2eProvider = freedom['e2e']();

@@ -129,7 +129,7 @@ describe("e2eImp", function() {
     })
     .catch((e:Error) => {
       console.log('test throw error' + e);
-      expect(false).toBeTruthy();}) 
+      expect(false).toBeTruthy();})
     .then(done);
   });
 
@@ -147,7 +147,7 @@ describe("e2eImp", function() {
     })
     .catch((e:Error) => {
       console.log('test throw error' + e);
-      expect(false).toBeTruthy();}) 
+      expect(false).toBeTruthy();})
     .then(done);
   });
 
@@ -167,7 +167,7 @@ describe("e2eImp", function() {
       })
       .catch((e:Error) => {
         console.log('test throw error' + e);
-        expect(false).toBeTruthy();}) 
+        expect(false).toBeTruthy();})
         .then(done);
   });
 
@@ -190,7 +190,7 @@ describe("e2eImp", function() {
       })
       .catch((e:Error) => {
         console.log('test throw error' + e);
-        expect(false).toBeTruthy();}) 
+        expect(false).toBeTruthy();})
         .then(done);
   });
 
@@ -206,7 +206,7 @@ describe("e2eImp", function() {
     })
     .catch((e:Error) => {
       console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
-      expect(false).toBeTruthy();}) 
+      expect(false).toBeTruthy();})
     .then(done);
   });
 
@@ -223,7 +223,24 @@ describe("e2eImp", function() {
       })
       .catch((e:Error) => {
         console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
-        expect(false).toBeTruthy();}) 
+        expect(false).toBeTruthy();})
+        .then(done);
+  });
+
+  it('armor and dearmor', (done) => {
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
+      .then(() => {
+        return e2eImp.armor(buffer);
+      })
+      .then((armored:string) => {
+        return e2eImp.dearmor(armored);
+      })
+      .then((dearmored:ArrayBuffer) => {
+        expect(dearmored).toEqual(buffer);
+      })
+      .catch((e:Error) => {
+        console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
+        expect(false).toBeTruthy();})
         .then(done);
   });
 });
