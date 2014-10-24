@@ -24,7 +24,8 @@ interface E2eProvider {
   exportKey() :Promise<string>;
   signEncrypt(data:ArrayBuffer, encryptKey?:string,
               sign?:boolean) :Promise<ArrayBuffer>;
-  verifyDecrypt(data:ArrayBuffer, verifyKey?:string) :Promise<ArrayBuffer>;
+  verifyDecrypt(data:ArrayBuffer,
+                verifyKey?:string) :Promise<VerifyDecryptResult>;
   armor(data:ArrayBuffer, header?:string) :Promise<string>;
   dearmor(data:string, header?:string) :Promise<ArrayBuffer>;
 

@@ -54,15 +54,15 @@
       "verifyDecrypt": {
         "_comment": "Decrypt w/private key, optionally verify with other key",
         "type": "method",
-        "value": ["buffer", “string”],
-        "ret": "buffer",
+        "value": ["buffer", "string"],
+        "ret": { "data": "buffer", "signedBy": ["array", "string"] },
         "err": { "errcode": "string", "message": "string" }
       },
 
       "armor": {
         "_comment": "ASCII armor data, and include given header",
         "type": "method",
-        "value": ["buffer", “string”],
+        "value": ["buffer", "string"],
         "ret": "string",
         "err": { "errcode": "string", "message": "string" }
       },
@@ -70,7 +70,7 @@
       "dearmor": {
         "_comment": "De-armor given data, checking for given header",
         "type": "method",
-        "value": ["string", “string”],
+        "value": ["string", "string"],
         "ret": "buffer",
         "err": { "errcode": "string", "message": "string" }
       }

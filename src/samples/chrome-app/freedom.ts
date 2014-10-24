@@ -38,21 +38,29 @@ module E2eSample {
   function doPgpTest() {
     log.debug('start doPgpTest');
 
-    var testData :ArrayBuffer = new Uint8Array(new ArrayBuffer(100));
+    var buffer :ArrayBuffer = new ArrayBuffer(12);
+    var byteView :Uint8Array = new Uint8Array(buffer);
+    // bytes for the string "abcd1234"
+    byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
 
-    e2e.setup('', 'Joe Test <joetest@example.com>')
+    e2e.setup('super secret passphrase', 'Joe Test <joetest@example.com>')
       .then(() => {
         log.debug('exporting public key');
         return e2e.exportKey();
       })
-      .then((result: string) => {
+      .then((publicKey: string) => {
         log.debug('encrypting/signing');
-        return e2e.signEncrypt(testData, result);
+        return e2e.signEncrypt(buffer, publicKey, true)
+          .then((encryptedData:ArrayBuffer) => {
+          return e2e.verifyDecrypt(encryptedData, publicKey)
+        });
       })
-      .then(e2e.verifyDecrypt)
-      .then((result: ArrayBuffer) => {
+      .then((result: VerifyDecryptResult) => {
         log.debug('decrypted!')
-        if (result == testData) {
+        var resultView :Uint8Array = new Uint8Array(result.data);
+        if (result.signedBy[0] == 'Joe Test <joetest@example.com>' &&
+            String.fromCharCode.apply(null, resultView) ==
+            String.fromCharCode.apply(null, byteView)) {
           print('pgp encryption test succeeded.');
         } else {
           print('pgp encryption test failed.');
