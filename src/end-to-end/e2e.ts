@@ -158,14 +158,14 @@ module E2eModule {
       });
     }
 
-    public armor = (data:ArrayBuffer, header:string = 'MESSAGE')
+    public armor = (data:ArrayBuffer, type:string = 'MESSAGE')
     :Promise<string> => {
       var byteView = new Uint8Array(data);
       return Promise.resolve<string>(
         e2e.openpgp.asciiArmor.encode(header, byteView));
     }
 
-    public dearmor = (data:string, header:string = 'MESSAGE')
+    public dearmor = (data:string, type:string = 'MESSAGE')
     :Promise<ArrayBuffer> => {
       return Promise.resolve<ArrayBuffer>(
         array2buf(e2e.openpgp.asciiArmor.parse(data).data));
