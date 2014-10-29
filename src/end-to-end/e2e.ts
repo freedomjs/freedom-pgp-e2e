@@ -162,10 +162,10 @@ module E2eModule {
     :Promise<string> => {
       var byteView = new Uint8Array(data);
       return Promise.resolve<string>(
-        e2e.openpgp.asciiArmor.encode(header, byteView));
+        e2e.openpgp.asciiArmor.encode(type, byteView));
     }
 
-    public dearmor = (data:string, type:string = 'MESSAGE')
+    public dearmor = (data:string)
     :Promise<ArrayBuffer> => {
       return Promise.resolve<ArrayBuffer>(
         array2buf(e2e.openpgp.asciiArmor.parse(data).data));

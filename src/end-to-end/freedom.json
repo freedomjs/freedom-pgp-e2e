@@ -70,7 +70,7 @@
       "dearmor": {
         "_comment": "De-armor given data, checking for given header",
         "type": "method",
-        "value": ["string", "string"],
+        "value": ["string"],
         "ret": "buffer",
         "err": { "errcode": "string", "message": "string" }
       }

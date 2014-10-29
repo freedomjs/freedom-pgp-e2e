@@ -2,12 +2,6 @@
 /// <reference path="../third_party/typings/es6-promise/es6-promise.d.ts" />
 /// <reference path='../third_party/typings/jasmine/jasmine.d.ts' />
 
-interface Error {
-  fileName :string;
-  lineNumber :number;
-  stack :string;
-}
-
 describe("e2eImp", function() {
   var e2eImp = new E2eModule.E2eImp('');
 
@@ -128,7 +122,7 @@ describe("e2eImp", function() {
       expect(keys.length).toEqual(0);
     })
     .catch((e:Error) => {
-      console.log('test throw error' + e);
+      console.log(e.toString());
       expect(false).toBeTruthy();})
     .then(done);
   });
@@ -146,7 +140,7 @@ describe("e2eImp", function() {
       expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
     })
     .catch((e:Error) => {
-      console.log('test throw error' + e);
+      console.log(e.toString());
       expect(false).toBeTruthy();})
     .then(done);
   });
@@ -166,7 +160,7 @@ describe("e2eImp", function() {
         expect(result.data).toEqual(buffer);
       })
       .catch((e:Error) => {
-        console.log('test throw error' + e);
+        console.log(e.toString());
         expect(false).toBeTruthy();})
         .then(done);
   });
@@ -189,7 +183,7 @@ describe("e2eImp", function() {
         expect(result.signedBy[0]).toEqual('test user <testuser@gmail.com>');
       })
       .catch((e:Error) => {
-        console.log('test throw error' + e);
+        console.log(e.toString());
         expect(false).toBeTruthy();})
         .then(done);
   });
@@ -205,7 +199,7 @@ describe("e2eImp", function() {
       expect(keys[0].uids[0]).toEqual('test user <testuser@gmail.com>');
     })
     .catch((e:Error) => {
-      console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
+      console.log(e.toString());
       expect(false).toBeTruthy();})
     .then(done);
   });
@@ -222,7 +216,7 @@ describe("e2eImp", function() {
           toEqual('-----BEGIN PGP PUBLIC KEY BLOCK-----');
       })
       .catch((e:Error) => {
-        console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
+        console.log(e.toString());
         expect(false).toBeTruthy();})
         .then(done);
   });
@@ -239,7 +233,7 @@ describe("e2eImp", function() {
         expect(dearmored).toEqual(buffer);
       })
       .catch((e:Error) => {
-        console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
+        console.log(e.toString());
         expect(false).toBeTruthy();})
         .then(done);
   });
