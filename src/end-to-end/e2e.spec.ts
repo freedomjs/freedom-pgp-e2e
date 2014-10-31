@@ -2,12 +2,6 @@
 /// <reference path="../third_party/typings/es6-promise/es6-promise.d.ts" />
 /// <reference path='../third_party/typings/jasmine/jasmine.d.ts' />
 
-interface Error {
-  fileName: string;
-  lineNumber: number;
-  stack: string;
-}
-
 describe("e2eImp", function() {
   var e2eImp = new E2eModule.E2eImp('');
 
@@ -98,11 +92,16 @@ describe("e2eImp", function() {
     '=2qgG\n' +
     '-----END PGP PRIVATE KEY BLOCK-----\n';
 
+  var buffer :ArrayBuffer = new ArrayBuffer(12);
+  var byteView :Uint8Array = new Uint8Array(buffer);
+  // bytes for the string "abcd1234"
+  byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
+
   beforeEach(function() {
   });
 
   it('test importKey with public key', (done) => {
-    e2eImp.testSetup()
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
     .then(() => {
       return e2eImp.importKey(publicKeyStr);
     })
@@ -123,13 +122,13 @@ describe("e2eImp", function() {
       expect(keys.length).toEqual(0);
     })
     .catch((e:Error) => {
-      console.log('test throw error' + e);
-      expect(false).toBeTruthy();}) 
+      console.log(e.toString());
+      expect(false).toBeTruthy();})
     .then(done);
   });
 
   it('test importKey with private key', function(done) {
-    e2eImp.testSetup()
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
     .then(() => {
       return e2eImp.importKey(privateKeyStr)
     })
@@ -141,71 +140,101 @@ describe("e2eImp", function() {
       expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
     })
     .catch((e:Error) => {
-      console.log('test throw error' + e);
-      expect(false).toBeTruthy();}) 
+      console.log(e.toString());
+      expect(false).toBeTruthy();})
     .then(done);
   });
-  
+
   it('encrypt and decrypt', (done) => {
-    e2eImp.testSetup()
-    .then(() => {
-      return e2eImp.doEncryption('123412341234', publicKeyStr);
-    })
-    .then((cipherText:string) => {
-      return e2eImp.importKey(privateKeyStr).then(() => {
-        return e2eImp.doDecryption(cipherText);
-      });
-    })
-    .then((newText:string) => {
-      expect(newText).toEqual('123412341234');
-    })
-    .catch((e:Error) => {
-      console.log('test throw error' + e);
-      expect(false).toBeTruthy();}) 
-    .then(done);
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
+      .then(() => {
+        return e2eImp.exportKey();
+      })
+      .then((publicKey:string) => {
+        return e2eImp.signEncrypt(buffer, publicKey, false);
+      })
+      .then((encryptedData:ArrayBuffer) => {
+        return e2eImp.verifyDecrypt(encryptedData);
+      })
+      .then((result:VerifyDecryptResult) => {
+        expect(result.data).toEqual(buffer);
+      })
+      .catch((e:Error) => {
+        console.log(e.toString());
+        expect(false).toBeTruthy();})
+        .then(done);
   });
 
 
   it('encryptSign and verifyDecrypt', (done) => {
-    e2eImp.testSetup()
-    .then(() => {
-      return e2eImp.encryptSign('123412341234', publicKeyStr, privateKeyStr2);
-    })
-    .then((cipherText:string) => {
-      return e2eImp.importKey(privateKeyStr).then(() => {
-        return e2eImp.importKey(publicKeyStr2).then(() => {
-          return e2eImp.verifyDecrypt(cipherText);
-        });
-      });
-    })
-    .then((result:VerifyDecryptResult) => {
-      expect(result.data).toEqual('123412341234');
-      expect(result.signedBy.length).toEqual(1);
-      expect(result.signedBy[0]).toEqual('<test@gmail.com>');
-    })
-    .catch((e:Error) => {
-      console.log('test throw error' + e);
-      expect(false).toBeTruthy();}) 
-    .then(done);
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
+      .then(() => {
+        return e2eImp.exportKey();
+      })
+      .then((publicKey:string) => {
+        return e2eImp.signEncrypt(buffer, publicKey, true)
+          .then((encryptedData:ArrayBuffer) => {
+            return e2eImp.verifyDecrypt(encryptedData, publicKey)
+          });
+      })
+      .then((result:VerifyDecryptResult) => {
+        expect(result.data).toEqual(buffer);
+        expect(result.signedBy.length).toEqual(1);
+        expect(result.signedBy[0]).toEqual('test user <testuser@gmail.com>');
+      })
+      .catch((e:Error) => {
+        console.log(e.toString());
+        expect(false).toBeTruthy();})
+        .then(done);
   });
 
   it('generate keys', (done) => {
-    e2eImp.testSetup()
-    .then(() => {
-      return e2eImp.generateKey('tester', 'test@gmail.com');
-    })
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
     .then(() => {
       expect(true).toBeTruthy();
-      return e2eImp.searchPrivateKey('tester <test@gmail.com>');
+      return e2eImp.searchPrivateKey('test user <testuser@gmail.com>');
     })
     .then((keys:PgpKey[]) => {
       expect(keys.length).toEqual(1);
-      expect(keys[0].uids[0]).toEqual('tester <test@gmail.com>');
+      expect(keys[0].uids[0]).toEqual('test user <testuser@gmail.com>');
     })
     .catch((e:Error) => {
-      console.log(e.fileName + ':' + e.lineNumber + '\t' + e.message + '\n' + e.stack);
-      expect(false).toBeTruthy();}) 
+      console.log(e.toString());
+      expect(false).toBeTruthy();})
     .then(done);
   });
 
+  it('export public key', (done) => {
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
+      .then(() => {
+        expect(true).toBeTruthy();
+        return e2eImp.exportKey();
+      })
+      .then((publicKeyStr:string) => {
+        expect(publicKeyStr.length > 36);
+        expect(publicKeyStr.substring(0,36)).
+          toEqual('-----BEGIN PGP PUBLIC KEY BLOCK-----');
+      })
+      .catch((e:Error) => {
+        console.log(e.toString());
+        expect(false).toBeTruthy();})
+        .then(done);
+  });
+
+  it('armor and dearmor', (done) => {
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>')
+      .then(() => {
+        return e2eImp.armor(buffer);
+      })
+      .then((armored:string) => {
+        return e2eImp.dearmor(armored);
+      })
+      .then((dearmored:ArrayBuffer) => {
+        expect(dearmored).toEqual(buffer);
+      })
+      .catch((e:Error) => {
+        console.log(e.toString());
+        expect(false).toBeTruthy();})
+        .then(done);
+  });
 });

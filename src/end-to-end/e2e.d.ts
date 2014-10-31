@@ -4,35 +4,36 @@
 // use.
 
 interface PgpKey {
-  uids: string[];
+  uids :string[];
+}
+
+interface PgpUser {
+  uid :string;  // format: "name <email>"
+  name :string;
+  email :string;
 }
 
 interface VerifyDecryptResult {
-  data: string;
-  signedBy: string[];
+  data :ArrayBuffer;
+  signedBy :string[];
 }
-
 
 interface E2eProvider {
-  setup() : Promise<void>;
-  generateKey(name:string, email:string) : Promise<void>;
-  deleteKey(uid:string) : Promise<void>;
-  importKey(keyStr:string) : Promise<string[]>;
-  searchPrivateKey(uid:string) : Promise<PgpKey[]>;
-  searchPublicKey(uid:string) : Promise<PgpKey[]>;
-  doEncryption(plaintext:string, publicKey: string) : Promise<string>;
-  doDecryption(ciphertext:string) : Promise<string>;
+  // Standard freedom crypto API
+  setup(passphrase:string, userid:string) :Promise<void>;
+  exportKey() :Promise<string>;
+  signEncrypt(data:ArrayBuffer, encryptKey?:string,
+              sign?:boolean) :Promise<ArrayBuffer>;
+  verifyDecrypt(data:ArrayBuffer,
+                verifyKey?:string) :Promise<VerifyDecryptResult>;
+  armor(data:ArrayBuffer, type?:string) :Promise<string>;
+  dearmor(data:string) :Promise<ArrayBuffer>;
 
-  encryptSign(plaintext:string, encryptKey:string, signatureKey:string) : Promise<string>;
-
-  verifyDecrypt(ciphertext:string) : Promise<VerifyDecryptResult>;
-
-  providePromises(provider:Object) : void;
+  // "Internal" API specific to e2e
+  importKey(keyStr:string) :Promise<string[]>;
+  generateKey(name:string, email:string) :Promise<void>;
+  deleteKey(uid:string) :Promise<void>;
+  searchPrivateKey(uid:string) :Promise<PgpKey[]>;
+  searchPublicKey(uid:string) :Promise<PgpKey[]>;
+  providePromises(provider:Object) :void;
 }
-
-// TODO: add this again once https://github.com/Microsoft/TypeScript/issues/52
-// is fixed.
-//
-// declare module freedom {
-//     function e2e(): E2eProvider;
-// }
