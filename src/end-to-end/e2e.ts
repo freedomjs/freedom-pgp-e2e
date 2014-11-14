@@ -100,13 +100,17 @@ module E2eModule {
     // Standard freedom crypto API
     public setup = (passphrase:string, userid:string) :Promise<void> => {
       // this function has the side-effect to setup the keyright storage. 
-      pgpContext.setKeyRingPassphrase(passphrase);
-      // e2e ContextImpl expects separate name/email so we have to split userid
-      // Doing so *naively* - assuming userid is of form "name <email>"
-      var username: string = userid.slice(0, userid.lastIndexOf('<')).trim();
-      var email: string = userid.slice(userid.lastIndexOf('<') + 1, -1);
-      this.generateKey(username, email);
       pgpUser = userid;
+      pgpContext.setKeyRingPassphrase(passphrase);
+      // If we've not already loaded existing key, generate one
+      if (e2e.async.Result.getValue(pgpContext.searchPublicKey(
+        pgpUser)).length == 0) {
+        // e2e ContextImpl expects separate name/email so we have to split userid
+        // Doing so *naively* - assuming userid is of form "name <email>"
+        var username: string = pgpUser.slice(0, userid.lastIndexOf('<')).trim();
+        var email: string = pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
+        this.generateKey(username, email);
+      }
       return Promise.resolve<void>();
     }
 
