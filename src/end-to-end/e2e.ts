@@ -103,7 +103,7 @@ module E2eModule {
       pgpUser = userid;
       pgpContext.setKeyRingPassphrase(passphrase);
       // If we've not already loaded existing key, generate one
-      if (e2e.async.Result.getValue(pgpContext.searchPublicKey(
+      if (e2e.async.Result.getValue(pgpContext.searchPrivateKey(
         pgpUser)).length == 0) {
         // e2e ContextImpl expects separate name/email so we have to split userid
         // Doing so *naively* - assuming userid is of form "name <email>"
