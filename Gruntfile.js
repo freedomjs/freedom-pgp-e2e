@@ -1,9 +1,15 @@
-TaskManager = require('uproxy-lib/tools/taskmanager');
-Rule = require('uproxy-lib/tools/common-grunt-rules');
+/**
+ * Gruntfile for freeom-pgp-e2e
+ *
+ * This repository uses JavaScript crypto code from
+ * Google's end-to-end project to provide a pgp-like
+ * freedom crypto API. Note that (for now) the build
+ * process is a bit unorthodox (clones e2e repo from
+ * Google Code - see readme).
+ **/
 
-module.exports = (grunt) ->
-
-  grunt.initConfig {
+module.exports = function(grunt) {
+  grunt.initConfig({
     gitclone: {
       e2e: {
         options: {
@@ -20,8 +26,8 @@ module.exports = (grunt) ->
       }
     },
 
-    # These shell commands execute/depend on do.sh in the e2e repo
-    # Dependencies: unzip, svn, Python 2.X, Java >= 1.7
+    // These shell commands execute/depend on do.sh in the e2e repo
+    // Dependencies: unzip, svn, Python 2.X, Java >= 1.7
     shell: {
       doDeps: {
         command: 'bash ./end-to-end.build/do.sh install_deps'
@@ -61,7 +67,7 @@ module.exports = (grunt) ->
 
       thirdPartyTypeScript: {
         files: [
-          # Copy any typescript from the third_party directory
+          // Copy any typescript from the third_party directory
           {
             expand: true,
             overwrite: true,
@@ -79,11 +85,11 @@ module.exports = (grunt) ->
           cwd: 'node_modules/uproxy-lib/build',
           src: ['**', '!**/typescript-src/**'],
           dest: 'build',
-          onlyIf: 'modified',
+          onlyIf: 'modified'
         } ]
       },
 
-      es6Promise: { 
+      es6Promise: {
         files: [ {
           expand: true,
           cwd: 'node_modules/es6-promise/dist/',
@@ -92,9 +98,9 @@ module.exports = (grunt) ->
           onlyIf: 'modified'
         } ]
       },
-      
-      # Copy compiled end-to-end code.
-      e2eCompiledJavaScript: { 
+
+      // Copy compiled end-to-end code.
+      e2eCompiledJavaScript: {
         files: [ {
           src: ['end-to-end.build/build/library/end-to-end.compiled.js'],
           dest: 'build/end-to-end/end-to-end.compiled.js',
@@ -104,7 +110,8 @@ module.exports = (grunt) ->
 
       sampleChromeAppLib: {
         files: [
-          {  # Copy all modules in the build directory to the chromeApp
+          {
+            // Copy all modules in the build directory to the chromeApp
             expand: true,
             cwd: 'build',
             src: [
@@ -127,15 +134,15 @@ module.exports = (grunt) ->
 
       endToEnd: Rule.copyModule('end-to-end'),
       sampleChromeApp: Rule.copyModule('samples/chrome-app')
-    },  # copy
+    },
 
-    #-------------------------------------------------------------------------
-    # All typescript compiles to locations in `build/`
+    //-------------------------------------------------------------------------
+    // All typescript compiles to locations in `build/`
     ts: {
-      # From build-tools
+      // From build-tools
       arraybuffers: Rule.typescriptSrc('arraybuffers'),
-      # Modules
-      # TODO move below into uproxy-lib/tools/common-grunt-rules
+      // Modules
+      // TODO move below into uproxy-lib/tools/common-grunt-rules
       endToEnd: {
         src: ['build/end-to-end/**/*.ts', '!**/*.d.ts'],
         options: {
@@ -145,11 +152,11 @@ module.exports = (grunt) ->
           noImplicitAny: true,
           sourceMap: true,
           declaration: false,
-          fast: 'always',
+          fast: 'always'
         }
       }
       sampleChromeApp: Rule.typescriptSrc('samples/chrome-app')
-    }, # ts
+    },
 
     karma: {
       options: {
@@ -171,12 +178,12 @@ module.exports = (grunt) ->
         singleRun: true,
         autoWatch: false
       }
-    }, # karma
+    },
 
     clean: ['build/', 'dist/', '.tscache/', 'end-to-end.build/']
-  }  # grunt.initConfig
+  });
 
-  #-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-ts'
@@ -187,9 +194,9 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-shell'
   grunt.loadNpmTasks 'grunt-force'
 
-  #-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
 
-  # Define the tasks
+  // Define the tasks
   taskManager = new TaskManager.Manager();
 
   taskManager.add 'base', [
@@ -202,12 +209,12 @@ module.exports = (grunt) ->
     'copy:e2eCompiledJavaScript',
     'copy:es6Promise',
 
-    # Copy all source modules non-ts files
+    // Copy all source modules non-ts files
     'copy:endToEnd'
   ]
 
   taskManager.add 'getEndToEnd', [
-    'force:on',  # clone will fail if already exists, want to continue anyway
+    'force:on',  // clone will fail if already exists, want to continue anyway
     'gitclone:e2e',
     'force:off',
     'gitpull:e2e',
@@ -224,7 +231,7 @@ module.exports = (grunt) ->
     'copy:sampleChromeAppFreedom'
   ]
 
-  #-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   taskManager.add 'build', [
     'getEndToEnd',
     'buildEndToEnd'
@@ -240,11 +247,9 @@ module.exports = (grunt) ->
     'karma:phantom'
   ]
 
-  #-------------------------------------------------------------------------
-  # Register the tasks
+  //-------------------------------------------------------------------------
+  // Register the tasks
   taskManager.list().forEach((taskName) =>
     grunt.registerTask taskName, (taskManager.get taskName)
   )
-
-module.exports.Rule = Rule;
-
+}
