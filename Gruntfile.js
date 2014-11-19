@@ -37,125 +37,28 @@ module.exports = function(grunt) {
       }
     },
 
-    symlink: {
-      typescriptSrc: {
-        files: [ {
-          expand: true,
-          overwrite: true,
-          cwd: 'src/',
-          filter: 'isFile',
-          src: ['**/*'],
-          dest: 'build/'
-        } ]
-      },
-
-      uproxyLibTypescriptSrc: {
-        files: [ {
-          expand: true,
-          overwrite: true,
-          cwd: 'node_modules/uproxy-lib/src/',
-          src: ['**/*'],
-          dest: 'build/'
-        } ]
-      },
-
-      uproxyLibThirdPartyTypescriptSrc: {
-        overwrite: true,
-        src: 'node_modules/uproxy-lib/third_party/',
-        dest: 'build/third_party/'
-      },
-
-      thirdPartyTypeScript: {
-        files: [
-          // Copy any typescript from the third_party directory
-          {
-            expand: true,
-            overwrite: true,
-            cwd: 'third_party',
-            src: ['*'],
-            dest: 'build/'
-          }
-        ]}
-    },
-
     copy: {
-      uproxyLib: {
-        files: [ {
-          expand: true,
-          cwd: 'node_modules/uproxy-lib/build',
-          src: ['**', '!**/typescript-src/**'],
-          dest: 'build',
-          onlyIf: 'modified'
-        } ]
+      dist: {
+        src: ['src/*'],
+        dest: 'build/',
+        flatten: true,
+        filter: 'isFile',
+        expand: true
       },
-
-      es6Promise: {
-        files: [ {
-          expand: true,
-          cwd: 'node_modules/es6-promise/dist/',
-          src: ['**'],
-          dest: 'build/third_party/typings/es6-promise/',
-          onlyIf: 'modified'
-        } ]
+      freedom: {
+        src: ['node_modules/freedom/freedom.js*'],
+        dest: 'build/',
+        flatten: true,
+        filter: 'isFile',
+        expand: true
       },
-
-      // Copy compiled end-to-end code.
       e2eCompiledJavaScript: {
         files: [ {
           src: ['end-to-end.build/build/library/end-to-end.compiled.js'],
           dest: 'build/end-to-end/end-to-end.compiled.js',
           onlyIf: 'modified'
         } ]
-      },
-
-      sampleChromeAppLib: {
-        files: [
-          {
-            // Copy all modules in the build directory to the chromeApp
-            expand: true,
-            cwd: 'build',
-            src: [
-              'arraybuffers/**',
-              'end-to-end/**',
-              'logging/**'
-            ],
-            dest: 'build/samples/chrome-app',
-            onlyIf: 'modified'
-          }
-        ]
-      },
-
-      sampleChromeAppFreedom: {
-        expand: true,
-        cwd: 'node_modules/uproxy-lib/build/freedom/',
-        src: ['freedom-for-chrome-for-uproxy.js*'],
-        dest: 'build/samples/chrome-app/'
-      },
-
-      endToEnd: Rule.copyModule('end-to-end'),
-      sampleChromeApp: Rule.copyModule('samples/chrome-app')
-    },
-
-    //-------------------------------------------------------------------------
-    // All typescript compiles to locations in `build/`
-    ts: {
-      // From build-tools
-      arraybuffers: Rule.typescriptSrc('arraybuffers'),
-      // Modules
-      // TODO move below into uproxy-lib/tools/common-grunt-rules
-      endToEnd: {
-        src: ['build/end-to-end/**/*.ts', '!**/*.d.ts'],
-        options: {
-          sourceRoot: 'build/',
-          target: 'es5',
-          comments: false,
-          noImplicitAny: true,
-          sourceMap: true,
-          declaration: false,
-          fast: 'always'
-        }
       }
-      sampleChromeApp: Rule.typescriptSrc('samples/chrome-app')
     },
 
     karma: {
@@ -183,73 +86,46 @@ module.exports = function(grunt) {
     clean: ['build/', 'dist/', '.tscache/', 'end-to-end.build/']
   });
 
-  //-------------------------------------------------------------------------
-  grunt.loadNpmTasks 'grunt-contrib-copy'
-  grunt.loadNpmTasks 'grunt-contrib-clean'
-  grunt.loadNpmTasks 'grunt-ts'
-  grunt.loadNpmTasks 'grunt-env'
-  grunt.loadNpmTasks 'grunt-contrib-symlink'
-  grunt.loadNpmTasks 'grunt-karma'
-  grunt.loadNpmTasks 'grunt-git'
-  grunt.loadNpmTasks 'grunt-shell'
-  grunt.loadNpmTasks 'grunt-force'
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-ts');
+  grunt.loadNpmTasks('grunt-env');
+  grunt.loadNpmTasks('grunt-contrib-symlink');
+  grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-git');
+  grunt.loadNpmTasks('grunt-shell');
+  grunt.loadNpmTasks('grunt-force');
 
-  //-------------------------------------------------------------------------
+  grunt.loadTasks('tasks');
 
-  // Define the tasks
-  taskManager = new TaskManager.Manager();
-
-  taskManager.add 'base', [
-    'copy:uproxyLib',
-    'symlink:typescriptSrc',
-    'symlink:uproxyLibTypescriptSrc',
-    'symlink:thirdPartyTypeScript',
-    'symlink:uproxyLibThirdPartyTypescriptSrc',
-
+  grunt.registerTask('base', [
     'copy:e2eCompiledJavaScript',
-    'copy:es6Promise',
-
+//    'copy:es6Promise',
     // Copy all source modules non-ts files
-    'copy:endToEnd'
-  ]
-
-  taskManager.add 'getEndToEnd', [
+//    'copy:endToEnd'
+  ]);
+  grunt.registerTask('getEndToEnd', [
     'force:on',  // clone will fail if already exists, want to continue anyway
     'gitclone:e2e',
     'force:off',
     'gitpull:e2e',
     'shell:doDeps',
     'shell:doLib'
-  ]
-
-  taskManager.add 'buildEndToEnd', [
-    'base',
-    'ts:endToEnd',
-    'ts:sampleChromeApp',
-    'copy:sampleChromeApp',
-    'copy:sampleChromeAppLib',
-    'copy:sampleChromeAppFreedom'
-  ]
-
-  //-------------------------------------------------------------------------
-  taskManager.add 'build', [
+  ]);
+  grunt.registerTask('buildEndToEnd', [
+    'base'
+  ]);
+  grunt.registerTask('build', [
     'getEndToEnd',
     'buildEndToEnd'
-  ]
-
-  taskManager.add 'test', [
+  ]);
+  grunt.registerTask('test', [
     'build',
     'karma'
-  ]
-
-  taskManager.add 'default', [
+  ]);
+  grunt.registerTask('default', [
     'build',
     'karma:phantom'
-  ]
+  ]);
 
-  //-------------------------------------------------------------------------
-  // Register the tasks
-  taskManager.list().forEach((taskName) =>
-    grunt.registerTask taskName, (taskManager.get taskName)
-  )
 }
