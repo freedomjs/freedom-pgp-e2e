@@ -39,7 +39,7 @@ module.exports = function(grunt) {
 
     copy: {
       dist: {
-        src: ['src/end-to-end/*.js*'],
+        src: ['src/*.js*'],
         dest: 'build/',
         flatten: true,
         filter: 'isFile',

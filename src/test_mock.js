@@ -3,7 +3,7 @@ goog.array.extend=function(a,b){
     var d=arguments[c],e;
     if(goog.isArray(d) || goog.isArrayLike(d)) {
       for(var g=d.length,h=0;h<g;h++)a.push(d[h]);
-    } else 
-      a.push(d)
+    } else
+      a.push(d);
   }
-}
+};

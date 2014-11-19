@@ -18,7 +18,7 @@ mye2e.prototype.setup = function(passphrase, userid) {
   this.pgpUser = userid;
   this.pgpContext.setKeyRingPassphrase(passphrase);
 
-  if (e2e.async.Result.getValue(this.pgpContext.searchPrivateKey(this.pgpUser)).length == 0) {
+  if (e2e.async.Result.getValue(this.pgpContext.searchPrivateKey(this.pgpUser)).length === 0) {
     var username = this.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
     var email = this.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
     this.generateKey(username, email);
@@ -134,7 +134,7 @@ function array2str(a) {
     str += String.fromCharCode(a[i]);
   }
   return str;
-};
+}
 
 function str2buf(s) {
   var buffer = new ArrayBuffer(s.length * 2);
@@ -143,14 +143,14 @@ function str2buf(s) {
     view[i] = s.charCodeAt(i);
   }
   return buffer;
-};
+}
 
 function array2buf(a) {
   var buffer = new ArrayBuffer(a.length);
   var byteView = new Uint8Array(buffer);
   byteView.set(a);
   return buffer;
-};
+}
 
 function buf2array(b) {
   var dataView = new DataView(b);
@@ -159,8 +159,8 @@ function buf2array(b) {
     result.push(dataView.getUint8(i));
   }
   return result;
-};
+}
 
 if (typeof freedom !== 'undefined') {
   freedom.crypto().providePromises(e2e);
-};
+}
