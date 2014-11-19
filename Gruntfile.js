@@ -83,11 +83,19 @@ module.exports = function(grunt) {
       }
     },
 
+    jshint: {
+      all: ['src/*.js'],
+      options: {
+        jshintrc: true
+      }
+    },
+
     clean: ['build/', 'dist/', '.tscache/', 'end-to-end.build/']
   });
 
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-ts');
   grunt.loadNpmTasks('grunt-env');
   grunt.loadNpmTasks('grunt-contrib-symlink');
@@ -126,6 +134,7 @@ module.exports = function(grunt) {
     'karma'
   ]);
   grunt.registerTask('default', [
+    'jshint',
     'build',
     'karma:phantom'
   ]);

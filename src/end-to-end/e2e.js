@@ -12,6 +12,8 @@ var mye2e = function() {
   var pgpUser;
 };
 
+
+// These methods implement the actual freedom crypto API
 mye2e.prototype.setup = function(passphrase, userid) {
   this.pgpUser = userid;
   this.pgpContext.setKeyRingPassphrase(passphrase);
@@ -24,35 +26,39 @@ mye2e.prototype.setup = function(passphrase, userid) {
   return Promise.resolve();
 };
 
-mye2e.prototype.exportKey = function () {
-  var serialized = e2e.async.Result.getValue(pgpContext.searchPublicKey(pgpUser))[0].serialized;
+mye2e.prototype.exportKey = function() {
+  var serialized = e2e.async.Result.getValue(this.pgpContext.searchPublicKey(this.pgpUser))[0].serialized;
   return Promise.resolve(e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized));
 };
 
-mye2e.prototype.signEncrypt = function (data, encryptKey, sign) {
-  if (typeof sign === "undefined") { sign = true; }
-  var result = e2e.async.Result.getValue(pgpContext.importKey(function (str, f) {
+mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
+  if (typeof sign === 'undefined') {
+    sign = true;
+  }
+  var result = e2e.async.Result.getValue(this.pgpContext.importKey(function (str, f) {
                                            f('');
                                          }, encryptKey));
-  var keys = e2e.async.Result.getValue(pgpContext.searchPublicKey(result[0]));
+  var keys = e2e.async.Result.getValue(this.pgpContext.searchPublicKey(result[0]));
   var signKey;
   if (sign) {
-    signKey = e2e.async.Result.getValue(pgpContext.searchPrivateKey(pgpUser))[0];
+    signKey = e2e.async.Result.getValue(this.pgpContext.searchPrivateKey(this.pgpUser))[0];
   } else {
     signKey = null;
   }
-  return new Promise(function (F, R) {
-                       pgpContext.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(function (ciphertext) {
+  return new Promise(function(F, R) {
+                       this.pgpContext.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(function (ciphertext) {
                          F(array2buf(ciphertext));
                        }).addErrback(R);
                      });
 };
 
-mye2e.prototype.verifyDecrypt = function (data, verifyKey) {
-  if (typeof verifyKey === "undefined") { verifyKey = ''; }
+mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
+  if (typeof verifyKey === 'undefined') {
+    verifyKey = '';
+  }
   var byteView = new Uint8Array(data);
   return new Promise(function (F, R) {
-                       pgpContext.verifyDecrypt(function () {
+                       this.pgpContext.verifyDecrypt(function () {
                          return '';
                        }, e2e.openpgp.asciiArmor.encode('MESSAGE', byteView)).addCallback(function (r) {
                          var signed = null;
@@ -67,20 +73,25 @@ mye2e.prototype.verifyDecrypt = function (data, verifyKey) {
                      });
 };
 
-mye2e.prototype.armor = function (data, type) {
-  if (typeof type === "undefined") { type = 'MESSAGE'; }
+mye2e.prototype.armor = function(data, type) {
+  if (typeof type === 'undefined') {
+    type = 'MESSAGE';
+  }
   var byteView = new Uint8Array(data);
   return Promise.resolve(e2e.openpgp.asciiArmor.encode(type, byteView));
 };
 
-mye2e.prototype.dearmor = function (data) {
+mye2e.prototype.dearmor = function(data) {
   return Promise.resolve(array2buf(e2e.openpgp.asciiArmor.parse(data).data));
 };
 
-mye2e.prototype.generateKey = function (name, email) {
+
+// The following methods are part of the prototype to be able to access state
+// but are not part of the API and should not be exposed to the client
+mye2e.prototype.generateKey = function(name, email) {
   return new Promise(function (F, R) {
                        var expiration = Date.now() / 1000 + (3600 * 24 * 365);
-                       pgpContext.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration).addCallback(function (keys) {
+                       this.pgpContext.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration).addCallback(function (keys) {
                          if (keys.length == 2) {
                            F();
                          } else {
@@ -90,31 +101,33 @@ mye2e.prototype.generateKey = function (name, email) {
                      });
 };
 
-mye2e.prototype.deleteKey = function (uid) {
-  pgpContext.deleteKey(uid);
+mye2e.prototype.deleteKey = function(uid) {
+  this.pgpContext.deleteKey(uid);
   return Promise.resolve();
 };
 
-mye2e.prototype.importKey = function (keyStr) {
+mye2e.prototype.importKey = function(keyStr) {
   return new Promise(function (F, R) {
-                       pgpContext.importKey(function (str, f) {
+                       this.pgpContext.importKey(function (str, f) {
                          f('');
                        }, keyStr).addCallback(F);
                      });
 };
 
-mye2e.prototype.searchPrivateKey = function (uid) {
+mye2e.prototype.searchPrivateKey = function(uid) {
   return new Promise(function (F, R) {
-                       pgpContext.searchPrivateKey(uid).addCallback(F);
+                       this.pgpContext.searchPrivateKey(uid).addCallback(F);
                      });
 };
 
-mye2e.prototype.searchPublicKey = function (uid) {
+mye2e.prototype.searchPublicKey = function(uid) {
   return new Promise(function (F, R) {
-                       pgpContext.searchPublicKey(uid).addCallback(F);
+                       this.pgpContext.searchPublicKey(uid).addCallback(F);
                      });
 };
 
+
+// Helper methods (that don't need state and could be moved elsewhere)
 function array2str(a) {
   var str = '';
   for (var i = 0; i < a.length; i++) {
