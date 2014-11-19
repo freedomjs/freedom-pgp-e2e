@@ -5,7 +5,7 @@
  * Google's end-to-end project to provide a pgp-like
  * freedom crypto API. Note that (for now) the build
  * process is a bit unorthodox (clones e2e repo from
- * Google Code - see readme).
+ * Google Code - see README.md).
  **/
 
 module.exports = function(grunt) {
@@ -39,7 +39,7 @@ module.exports = function(grunt) {
 
     copy: {
       dist: {
-        src: ['src/*'],
+        src: ['src/end-to-end/*.js*'],
         dest: 'build/',
         flatten: true,
         filter: 'isFile',
@@ -55,7 +55,7 @@ module.exports = function(grunt) {
       e2eCompiledJavaScript: {
         files: [ {
           src: ['end-to-end.build/build/library/end-to-end.compiled.js'],
-          dest: 'build/end-to-end/end-to-end.compiled.js',
+          dest: 'build/end-to-end.compiled.js',
           onlyIf: 'modified'
         } ]
       }
@@ -100,6 +100,8 @@ module.exports = function(grunt) {
 
   grunt.registerTask('base', [
     'copy:e2eCompiledJavaScript',
+    'copy:freedom',
+    'copy:dist'
 //    'copy:es6Promise',
     // Copy all source modules non-ts files
 //    'copy:endToEnd'
