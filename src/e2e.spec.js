@@ -46,7 +46,7 @@ describe("e2eImp", function () {
     '=H/6h\n' +
     '-----END PGP PRIVATE KEY BLOCK-----';
 
-  var e2eImp = new mye2e();//E2eModule.E2eImp('');
+  var e2eImp = new mye2e();
   var buffer = new ArrayBuffer(12);
   var byteView = new Uint8Array(buffer);
   // bytes for the string "abcd1234"
@@ -56,23 +56,23 @@ describe("e2eImp", function () {
   });
 
   it('test importKey with public key', function (done) {
-        e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(function () {
-          return e2eImp.importKey(publicKeyStr);
-        }).then(function () {
-          return e2eImp.searchPublicKey('<quantsword@gmail.com>');
-        }).then(function (keys) {
-          expect(keys.length).toEqual(1);
-          expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
-        }).then(function () {
-            return e2eImp.deleteKey('<quantsword@gmail.com>');
-        }).then(function () {
-          return e2eImp.searchPublicKey('<quantsword@gmail.com>');
-        }).then(function (keys) {
-          expect(keys.length).toEqual(0);
-        }).catch(function (e) {
-                   console.log(e.toString());
-                   expect(false).toBeTruthy();
-                 }).then(done);
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(function () {
+      return e2eImp.importKey(publicKeyStr);
+    }).then(function () {
+      return e2eImp.searchPublicKey('<quantsword@gmail.com>');
+    }).then(function (keys) {
+      expect(keys.length).toEqual(1);
+      expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
+    }).then(function () {
+      return e2eImp.deleteKey('<quantsword@gmail.com>');
+    }).then(function () {
+      return e2eImp.searchPublicKey('<quantsword@gmail.com>');
+    }).then(function (keys) {
+      expect(keys.length).toEqual(0);
+    }).catch(function (e) {
+               console.log(e.toString());
+               expect(false).toBeTruthy();
+             }).then(done);
   });
 
   it('test importKey with private key', function (done) {

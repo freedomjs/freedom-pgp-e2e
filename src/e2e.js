@@ -7,9 +7,9 @@
  **/
 
 var mye2e = function() {
-  var pgpContext = new e2e.openpgp.ContextImpl();
-  pgpContext.armorOutput = false;
-  var pgpUser;
+  this.pgpContext = new e2e.openpgp.ContextImpl();
+  this.pgpContext.armorOutput = false;
+  this.pgpUser = null;
 };
 
 
@@ -45,8 +45,9 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
   } else {
     signKey = null;
   }
+  var pgp = this.pgpContext;
   return new Promise(function(F, R) {
-                       this.pgpContext.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(function (ciphertext) {
+                       pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(function (ciphertext) {
                          F(array2buf(ciphertext));
                        }).addErrback(R);
                      });
@@ -57,8 +58,9 @@ mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
     verifyKey = '';
   }
   var byteView = new Uint8Array(data);
+  var pgp = this.pgpContext;
   return new Promise(function (F, R) {
-                       this.pgpContext.verifyDecrypt(function () {
+                       pgp.verifyDecrypt(function () {
                          return '';
                        }, e2e.openpgp.asciiArmor.encode('MESSAGE', byteView)).addCallback(function (r) {
                          var signed = null;
@@ -89,9 +91,10 @@ mye2e.prototype.dearmor = function(data) {
 // The following methods are part of the prototype to be able to access state
 // but are not part of the API and should not be exposed to the client
 mye2e.prototype.generateKey = function(name, email) {
+  var pgp = this.pgpContext;
   return new Promise(function (F, R) {
                        var expiration = Date.now() / 1000 + (3600 * 24 * 365);
-                       this.pgpContext.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration).addCallback(function (keys) {
+                       pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration).addCallback(function (keys) {
                          if (keys.length == 2) {
                            F();
                          } else {
@@ -107,22 +110,25 @@ mye2e.prototype.deleteKey = function(uid) {
 };
 
 mye2e.prototype.importKey = function(keyStr) {
+  var pgp = this.pgpContext;
   return new Promise(function (F, R) {
-                       this.pgpContext.importKey(function (str, f) {
+                       pgp.importKey(function (str, f) {
                          f('');
                        }, keyStr).addCallback(F);
                      });
 };
 
 mye2e.prototype.searchPrivateKey = function(uid) {
+  var pgp = this.pgpContext;
   return new Promise(function (F, R) {
-                       this.pgpContext.searchPrivateKey(uid).addCallback(F);
+                       pgp.searchPrivateKey(uid).addCallback(F);
                      });
 };
 
 mye2e.prototype.searchPublicKey = function(uid) {
+  var pgp = this.pgpContext;
   return new Promise(function (F, R) {
-                       this.pgpContext.searchPublicKey(uid).addCallback(F);
+                       pgp.searchPublicKey(uid).addCallback(F);
                      });
 };
 
