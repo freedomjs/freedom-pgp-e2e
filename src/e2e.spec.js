@@ -56,9 +56,10 @@ describe("e2eImp", function () {
   });
 
   it('test importKey with public key', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(function () {
-      return e2eImp.importKey(publicKeyStr);
-    }).then(function () {
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+      function () {
+        return e2eImp.importKey(publicKeyStr);
+      }).then(function () {
       return e2eImp.searchPublicKey('<quantsword@gmail.com>');
     }).then(function (keys) {
       expect(keys.length).toEqual(1);
@@ -76,9 +77,10 @@ describe("e2eImp", function () {
   });
 
   it('test importKey with private key', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(function () {
-      return e2eImp.importKey(privateKeyStr);
-    }).then(function () {
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+      function () {
+        return e2eImp.importKey(privateKeyStr);
+      }).then(function () {
       return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
     }).then(function (keys) {
       expect(keys.length).toEqual(1);
@@ -90,9 +92,10 @@ describe("e2eImp", function () {
   });
 
   it('encrypt and decrypt', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(function () {
-      return e2eImp.exportKey();
-    }).then(function (publicKey) {
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+      function () {
+        return e2eImp.exportKey();
+      }).then(function (publicKey) {
       return e2eImp.signEncrypt(buffer, publicKey, false);
     }).then(function (encryptedData) {
       return e2eImp.verifyDecrypt(encryptedData);
@@ -105,12 +108,14 @@ describe("e2eImp", function () {
   });
 
   it('encryptSign and verifyDecrypt', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(function () {
-      return e2eImp.exportKey();
-    }).then(function (publicKey) {
-      return e2eImp.signEncrypt(buffer, publicKey, true).then(function (encryptedData) {
-               return e2eImp.verifyDecrypt(encryptedData, publicKey);
-             });
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+      function () {
+        return e2eImp.exportKey();
+      }).then(function (publicKey) {
+      return e2eImp.signEncrypt(buffer, publicKey, true).then(
+        function (encryptedData) {
+          return e2eImp.verifyDecrypt(encryptedData, publicKey);
+        });
     }).then(function (result) {
       expect(result.data).toEqual(buffer);
       expect(result.signedBy.length).toEqual(1);
@@ -122,10 +127,11 @@ describe("e2eImp", function () {
   });
 
   it('generate keys', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(function () {
-      expect(true).toBeTruthy();
-      return e2eImp.searchPrivateKey('test user <testuser@gmail.com>');
-    }).then(function (keys) {
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+      function () {
+        expect(true).toBeTruthy();
+        return e2eImp.searchPrivateKey('test user <testuser@gmail.com>');
+      }).then(function (keys) {
       expect(keys.length).toEqual(1);
       expect(keys[0].uids[0]).toEqual('test user <testuser@gmail.com>');
     }).catch(function (e) {
@@ -135,12 +141,14 @@ describe("e2eImp", function () {
   });
 
   it('export public key', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(function () {
-      expect(true).toBeTruthy();
-      return e2eImp.exportKey();
-    }).then(function (publicKeyStr) {
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+      function () {
+        expect(true).toBeTruthy();
+        return e2eImp.exportKey();
+      }).then(function (publicKeyStr) {
       expect(publicKeyStr.length > 36);
-      expect(publicKeyStr.substring(0, 36)).toEqual('-----BEGIN PGP PUBLIC KEY BLOCK-----');
+      expect(publicKeyStr.substring(0, 36)).toEqual(
+        '-----BEGIN PGP PUBLIC KEY BLOCK-----');
     }).catch(function (e) {
                console.log(e.toString());
                expect(false).toBeTruthy();
@@ -148,9 +156,10 @@ describe("e2eImp", function () {
   });
 
   it('armor and dearmor', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(function () {
-      return e2eImp.armor(buffer);
-    }).then(function (armored) {
+    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+      function () {
+        return e2eImp.armor(buffer);
+      }).then(function (armored) {
       return e2eImp.dearmor(armored);
     }).then(function (dearmored) {
       expect(dearmored).toEqual(buffer);

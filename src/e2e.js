@@ -18,7 +18,8 @@ mye2e.prototype.setup = function(passphrase, userid) {
   this.pgpUser = userid;
   this.pgpContext.setKeyRingPassphrase(passphrase);
 
-  if (e2e.async.Result.getValue(this.pgpContext.searchPrivateKey(this.pgpUser)).length === 0) {
+  if (e2e.async.Result.getValue(
+    this.pgpContext.searchPrivateKey(this.pgpUser)).length === 0) {
     var username = this.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
     var email = this.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
     this.generateKey(username, email);
@@ -27,30 +28,37 @@ mye2e.prototype.setup = function(passphrase, userid) {
 };
 
 mye2e.prototype.exportKey = function() {
-  var serialized = e2e.async.Result.getValue(this.pgpContext.searchPublicKey(this.pgpUser))[0].serialized;
-  return Promise.resolve(e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized));
+  var serialized = e2e.async.Result.getValue(
+    this.pgpContext.searchPublicKey(this.pgpUser))[0].serialized;
+  return Promise.resolve(e2e.openpgp.asciiArmor.encode(
+    'PUBLIC KEY BLOCK', serialized));
 };
 
 mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
   if (typeof sign === 'undefined') {
     sign = true;
   }
-  var result = e2e.async.Result.getValue(this.pgpContext.importKey(function (str, f) {
-                                           f('');
-                                         }, encryptKey));
-  var keys = e2e.async.Result.getValue(this.pgpContext.searchPublicKey(result[0]));
+  var result = e2e.async.Result.getValue(
+    this.pgpContext.importKey(function (str, f) {
+      f('');
+    }, encryptKey));
+  var keys = e2e.async.Result.getValue(
+    this.pgpContext.searchPublicKey(result[0]));
   var signKey;
   if (sign) {
-    signKey = e2e.async.Result.getValue(this.pgpContext.searchPrivateKey(this.pgpUser))[0];
+    signKey = e2e.async.Result.getValue(
+      this.pgpContext.searchPrivateKey(this.pgpUser))[0];
   } else {
     signKey = null;
   }
   var pgp = this.pgpContext;
-  return new Promise(function(F, R) {
-                       pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(function (ciphertext) {
-                         F(array2buf(ciphertext));
-                       }).addErrback(R);
-                     });
+  return new Promise(
+    function(F, R) {
+      pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(
+        function (ciphertext) {
+          F(array2buf(ciphertext));
+        }).addErrback(R);
+    });
 };
 
 mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
@@ -59,20 +67,22 @@ mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
   }
   var byteView = new Uint8Array(data);
   var pgp = this.pgpContext;
-  return new Promise(function (F, R) {
-                       pgp.verifyDecrypt(function () {
-                         return '';
-                       }, e2e.openpgp.asciiArmor.encode('MESSAGE', byteView)).addCallback(function (r) {
-                         var signed = null;
-                         if (verifyKey) {
-                           signed = r.verify.success[0].uids;
-                         }
-                         F({
-                           data: array2buf(r.decrypt.data),
-                           signedBy: signed
-                         });
-                       }).addErrback(R);
-                     });
+  return new Promise(
+    function (F, R) {
+      pgp.verifyDecrypt(function () {
+        return '';
+      }, e2e.openpgp.asciiArmor.encode('MESSAGE', byteView)).addCallback(
+        function (r) {
+          var signed = null;
+          if (verifyKey) {
+            signed = r.verify.success[0].uids;
+          }
+          F({
+            data: array2buf(r.decrypt.data),
+            signedBy: signed
+          });
+        }).addErrback(R);
+    });
 };
 
 mye2e.prototype.armor = function(data, type) {
@@ -92,16 +102,18 @@ mye2e.prototype.dearmor = function(data) {
 // but are not part of the API and should not be exposed to the client
 mye2e.prototype.generateKey = function(name, email) {
   var pgp = this.pgpContext;
-  return new Promise(function (F, R) {
-                       var expiration = Date.now() / 1000 + (3600 * 24 * 365);
-                       pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration).addCallback(function (keys) {
-                         if (keys.length == 2) {
-                           F();
-                         } else {
-                           R(new Error('Failed to generate key'));
-                         }
-                       });
-                     });
+  return new Promise(
+    function (F, R) {
+      var expiration = Date.now() / 1000 + (3600 * 24 * 365);
+      pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration).
+        addCallback(function (keys) {
+        if (keys.length == 2) {
+          F();
+        } else {
+          R(new Error('Failed to generate key'));
+        }
+      });
+    });
 };
 
 mye2e.prototype.deleteKey = function(uid) {
@@ -111,25 +123,29 @@ mye2e.prototype.deleteKey = function(uid) {
 
 mye2e.prototype.importKey = function(keyStr) {
   var pgp = this.pgpContext;
-  return new Promise(function (F, R) {
-                       pgp.importKey(function (str, f) {
-                         f('');
-                       }, keyStr).addCallback(F);
-                     });
+  return new Promise(
+    function (F, R) {
+      pgp.importKey(
+        function (str, f) {
+          f('');
+        }, keyStr).addCallback(F);
+    });
 };
 
 mye2e.prototype.searchPrivateKey = function(uid) {
   var pgp = this.pgpContext;
-  return new Promise(function (F, R) {
-                       pgp.searchPrivateKey(uid).addCallback(F);
-                     });
+  return new Promise(
+    function (F, R) {
+      pgp.searchPrivateKey(uid).addCallback(F);
+    });
 };
 
 mye2e.prototype.searchPublicKey = function(uid) {
   var pgp = this.pgpContext;
-  return new Promise(function (F, R) {
-                       pgp.searchPublicKey(uid).addCallback(F);
-                     });
+  return new Promise(
+    function (F, R) {
+      pgp.searchPublicKey(uid).addCallback(F);
+    });
 };
 
 
