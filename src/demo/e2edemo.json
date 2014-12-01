@@ -3,12 +3,12 @@
   "description": "A sample chromeapp to show e2e usage",
   "app": {
     "script": [
-      "freedom.js"
+      "e2edemo.js"
     ]
   },
   "dependencies": {
     "e2e": {
-      "url": "end-to-end/freedom.json",
+      "url": "../e2eapi.json",
       "api": "crypto"
     }
   },

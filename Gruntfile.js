@@ -52,6 +52,13 @@ module.exports = function(grunt) {
         filter: 'isFile',
         expand: true
       },
+      demo: {
+        src: ['src/demo/*'],
+        dest: 'build/demo/',
+        flatten: true,
+        filter: 'isFile',
+        expand: true
+      },
       e2eCompiledJavaScript: {
         files: [ {
           src: ['end-to-end.build/build/library/end-to-end.compiled.js'],
@@ -84,31 +91,42 @@ module.exports = function(grunt) {
     },
 
     jshint: {
-      all: ['src/*.js'],
+      all: ['src/*.js', 'src/demo/*.js'],
       options: {
         jshintrc: true
+      }
+    },
+
+    connect: {
+      demo: {
+        options: {
+          port: 8000,
+          keepalive: true,
+          base: ['./', 'build/'],
+          open: 'http://localhost:8000/build/demo/main.html'
+        }
       }
     },
 
     clean: ['build/', 'dist/', '.tscache/', 'end-to-end.build/']
   });
 
-  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-env');
   grunt.loadNpmTasks('grunt-contrib-symlink');
-  grunt.loadNpmTasks('grunt-karma');
-  grunt.loadNpmTasks('grunt-git');
-  grunt.loadNpmTasks('grunt-shell');
+  grunt.loadNpmTasks('grunt-env');
   grunt.loadNpmTasks('grunt-force');
-
-  grunt.loadTasks('tasks');
+  grunt.loadNpmTasks('grunt-git');
+  grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-shell');
 
   grunt.registerTask('base', [
     'copy:e2eCompiledJavaScript',
     'copy:freedom',
-    'copy:dist'
+    'copy:dist',
+    'copy:demo'
 //    'copy:es6Promise',
     // Copy all source modules non-ts files
 //    'copy:endToEnd'
@@ -135,7 +153,8 @@ module.exports = function(grunt) {
   grunt.registerTask('default', [
     'jshint',
     'build',
-    'karma:phantom'
+    'karma:phantom',
+    'connect'
   ]);
 
 }

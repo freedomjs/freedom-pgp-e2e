@@ -13,6 +13,7 @@
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-coffee": "^0.12.0",
     "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-connect": "^0.9.0",
     "grunt-contrib-copy": "^0.5.0",
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-symlink": "^0.3.0",
@@ -29,8 +30,7 @@
     "karma-jasmine": "^0.2.2",
     "karma-phantomjs-launcher": "^0.1.4",
     "karma-story-reporter": "^0.2.2",
-    "karma-unicorn-reporter": "^0.1.4",
-    "uproxy-lib": "^13.0.0"
+    "karma-unicorn-reporter": "^0.1.4"
   },
   "scripts": {
     "test": "grunt test"
