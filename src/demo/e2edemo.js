@@ -1,10 +1,10 @@
 /*globals freedom,Uint8Array,ArrayBuffer*/
 /*jslint indent:2,white:true,sloppy:true*/
 
-var e2edemo = function (dispatchEvents) {
+var e2edemo = function (dispatchEvent) {
   'use strict';
-  this.dispatch = dispatchEvents;
-  this.e2e = freedom.crypto();
+  this.dispatch = dispatchEvent;
+  this.e2e = freedom.e2e();
 };
 
 e2edemo.prototype.rundemo = function() {
@@ -27,8 +27,8 @@ e2edemo.prototype.rundemo = function() {
   }).then(function (result) {
     this.dispatch('print', 'Decrypted!');
     var resultView = new Uint8Array(result.data);
-    if (result.signedBy[0] == 'Joe Test <joetest@example.com>' &&
-        String.fromCharCode.apply(null, resultView) ==
+    if (result.signedBy[0] === 'Joe Test <joetest@example.com>' &&
+        String.fromCharCode.apply(null, resultView) ===
         String.fromCharCode.apply(null, byteView)) {
       this.dispatch('print', 'Encryption test SUCCEEDED.');
     } else {

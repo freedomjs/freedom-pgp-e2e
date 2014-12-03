@@ -1,4 +1,4 @@
-/* globals freedom:true, console, require, global, e2e, exports */
+/* globals freedom, console, e2e, exports, Promise, ArrayBuffer, Uint8Array, Uint16Array, DataView */
 /* jslint indent:2,white:true,sloppy:true */
 
 /**
@@ -184,7 +184,7 @@ function buf2array(b) {
 }
 
 if (typeof freedom !== 'undefined') {
-  freedom().provideAsynchronous(mye2e);
+  freedom().providePromises(mye2e);
 }
 
 if (typeof exports !== 'undefined') {

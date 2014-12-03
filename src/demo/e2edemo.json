@@ -20,7 +20,7 @@
     }
   },
   "dependencies": {
-    "crypto": {
+    "e2e": {
       "url": "../e2eapi.json",
       "api": "crypto"
     }
