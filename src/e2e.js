@@ -1,4 +1,4 @@
-/* globals freedom:true, console, require, global, e2e */
+/* globals freedom:true, console, require, global, e2e, exports */
 /* jslint indent:2,white:true,sloppy:true */
 
 /**
@@ -6,7 +6,7 @@
  * using cryptographic code from Google's end-to-end.
  **/
 
-var mye2e = function() {
+var mye2e = function(dispatchEvents) {
   this.pgpContext = new e2e.openpgp.ContextImpl();
   this.pgpContext.armorOutput = false;
   this.pgpUser = null;
@@ -184,5 +184,10 @@ function buf2array(b) {
 }
 
 if (typeof freedom !== 'undefined') {
-  freedom.crypto().providePromises(e2e);
+  freedom().provideAsynchronous(e2e);
+}
+
+if (typeof exports !== 'undefined') {
+  exports.provider = e2e;
+  exports.name = 'crypto';
 }

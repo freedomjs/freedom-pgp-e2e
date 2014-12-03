@@ -2,12 +2,25 @@
   "name": "e2e demo",
   "description": "A demo to show e2e usage",
   "app": {
-    "script": [
-      "e2edemo.js"
-    ]
+    "script": "e2edemo.js",
+    "index": "main.html"
+  },
+  "provides": ["e2edemo"],
+  "default": "e2edemo",
+  "api": {
+    "e2edemo": {
+      "rundemo": {
+        "type": "method",
+        "value": "object"
+      },
+      "print": {
+        "type": "event",
+        "value": "string"
+      }
+    }
   },
   "dependencies": {
-    "e2e": {
+    "crypto": {
       "url": "../e2eapi.json",
       "api": "crypto"
     }
