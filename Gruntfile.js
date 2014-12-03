@@ -108,7 +108,7 @@ module.exports = function(grunt) {
       }
     },
 
-    clean: ['build/', 'dist/', '.tscache/', 'end-to-end.build/']
+    clean: ['build/', 'end-to-end.build/']
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');

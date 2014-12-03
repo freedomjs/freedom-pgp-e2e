@@ -184,10 +184,10 @@ function buf2array(b) {
 }
 
 if (typeof freedom !== 'undefined') {
-  freedom().provideAsynchronous(e2e);
+  freedom().provideAsynchronous(mye2e);
 }
 
 if (typeof exports !== 'undefined') {
-  exports.provider = e2e;
+  exports.provider = mye2e;
   exports.name = 'crypto';
 }

@@ -9,14 +9,12 @@ var e2edemo = function (dispatchEvents) {
 
 e2edemo.prototype.rundemo = function() {
   'use strict';
-  this.dispatch('print', 'Starting test!');
-
   var buffer = new ArrayBuffer(12);
   var byteView = new Uint8Array(buffer);
-
   byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
 
-  this.e2e.setup('the best passphrase', 'Joe Test <joetest@example.com>').then(
+  this.dispatch('print', 'Starting test!');
+  this.e2e.setup('secret passphrase', 'Joe Test <joetest@example.com>').then(
     function () {
       this.dispatch('print', 'Exporting public key...');
       return this.e2e.exportKey();
