@@ -4,18 +4,38 @@
     <title>freedom.js e2e demo</title>
     <meta http-equiv='Content-Type' content='text/html;charset=utf-8' />
     <script type='text/javascript' src='../freedom.js'></script>
-    <script type='text/javascript' src='main.js'></script>
-  </head>
-  <body style="overflow: scroll;">
+    <script type="text/javascript">
+    var start = function(e2edemo) {
+      e2edemo().on('print', function(msg) {
+        var lines = msg.split('\n');
+        for (var i = 0; i < lines.length; i++) {
+          printToPage(lines[i]);
+        }
+      });
+    };
+    window.onload = function() {
+      freedom("e2edemo.json", {
+        "debug": "log"
+      }).then(start);
+    };
+    function printToPage(msg) {
+      var logDiv = document.getElementById('log');
+      if (typeof msg == 'object') {
+        logDiv.innerHTML += JSON.stringify(msg) + '<br />';
+      } else {
+      logDiv.innerHTML += msg + '<br />';
+      }
+    }
+    </script>
+   </head>
+   <body style="overflow: scroll;">
     Plain Text<br>
     <div id='plain_text'></div>
     Cipher Text<br>
     <div id='cipher_text'></div>
 
     <hr/>
-    <button id='get-log-btn'>Get Log</button>
-    <br>
     <div id='log' style='height:500px; overflow:scroll'>
     </div>
-  </body>
+   </body>
 </html>

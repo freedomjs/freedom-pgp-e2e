@@ -1,6 +1,6 @@
 {
-  "name": "e2e sample chromeapp",
-  "description": "A sample chromeapp to show e2e usage",
+  "name": "e2e demo",
+  "description": "A demo to show e2e usage",
   "app": {
     "script": [
       "e2edemo.js"
@@ -13,8 +13,6 @@
     }
   },
   "permissions": [
-    "core.logmanager",
-    "core.log",
     "core.storage"
   ]
 }
