@@ -10,13 +10,17 @@ Wrapping up end-to-end code and provide in freedom custom API.
 - Ensure you have dependencies for building end-to-end (unzip, svn,
   Python 2.X, Java >= 1.7)
 
-- Perform normal Grunt build (grunt)
+- Perform full Grunt build (grunt full)
 
-Note - the grunt build will be pulling from various repositories to
+Note - the full grunt build will be pulling from various repositories to
 build end-to-end. You'll see quite a few things flying by, and may
 need to accept certificates for *.googlecode.com. It may also have
 warnings on repeated runs as paths/files will already exist - these
 shouldn't be an issue, but check tests to be sure.
+
+If you don't want to do a full build (for example, Java 1.7 isn't
+available) then you can simply run the default grunt command, which
+will copy a pre-compiled version of end-to-end.
 
 #### Test
 

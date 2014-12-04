@@ -127,9 +127,6 @@ module.exports = function(grunt) {
     'copy:freedom',
     'copy:dist',
     'copy:demo'
-//    'copy:es6Promise',
-    // Copy all source modules non-ts files
-//    'copy:endToEnd'
   ]);
   grunt.registerTask('getEndToEnd', [
     'force:on',  // clone will fail if already exists, want to continue anyway
@@ -150,9 +147,15 @@ module.exports = function(grunt) {
     'build',
     'karma'
   ]);
-  grunt.registerTask('default', [
+  grunt.registerTask('full', [
     'jshint',
     'build',
+    'karma:phantom',
+    'connect'
+  ]);
+  grunt.registerTask('default', [
+    'jshint',
+    'base',
     'karma:phantom',
     'connect'
   ]);
