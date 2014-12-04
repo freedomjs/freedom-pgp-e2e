@@ -108,7 +108,7 @@ module.exports = function(grunt) {
       }
     },
 
-    clean: ['build/', 'end-to-end.build/']
+    clean: ['build/']
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -136,12 +136,9 @@ module.exports = function(grunt) {
     'shell:doDeps',
     'shell:doLib'
   ]);
-  grunt.registerTask('buildEndToEnd', [
-    'base'
-  ]);
   grunt.registerTask('build', [
     'getEndToEnd',
-    'buildEndToEnd'
+    'base'
   ]);
   grunt.registerTask('test', [
     'build',
