@@ -18,13 +18,13 @@ e2edemo.prototype.rundemo = function() {
     function () {
       this.dispatch('print', 'Exporting public key...');
       return this.e2e.exportKey();
-    }).then(function (publicKey) {
+    }.bind(this)).then(function (publicKey) {
     this.dispatch('print', 'Encrypting/signing...');
     return this.e2e.signEncrypt(buffer, publicKey, true).then(
       function (encryptedData) {
         return this.e2e.verifyDecrypt(encryptedData, publicKey);
-      });
-  }).then(function (result) {
+      }.bind(this));
+    }.bind(this)).then(function (result) {
     this.dispatch('print', 'Decrypted!');
     var resultView = new Uint8Array(result.data);
     if (result.signedBy[0] === 'Joe Test <joetest@example.com>' &&
@@ -34,10 +34,10 @@ e2edemo.prototype.rundemo = function() {
     } else {
       this.dispatch('print', 'Encryption test FAILED.');
     }
-  }).catch(
+  }.bind(this)).catch(
     function (e) {
       this.dispatch('print', 'Encryption test encountered error %1', [e]);
-  });
+  }.bind(this));
 };
 
 freedom().provideSynchronous(e2edemo);
