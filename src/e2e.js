@@ -17,6 +17,10 @@ var mye2e = function(dispatchEvents) {
 mye2e.prototype.setup = function(passphrase, userid) {
   this.pgpUser = userid;
   this.pgpContext.setKeyRingPassphrase(passphrase);
+  // userid needs to be in format "name <email>"
+  if (!this.pgpUser.match(/^[^\<]*\s<[^>]*>$/)) {
+    Promise.reject(Error('Invalid userid, expected: "name <email>"'));
+  }
 
   if (e2e.async.Result.getValue(
     this.pgpContext.searchPrivateKey(this.pgpUser)).length === 0) {
@@ -103,14 +107,14 @@ mye2e.prototype.dearmor = function(data) {
 mye2e.prototype.generateKey = function(name, email) {
   var pgp = this.pgpContext;
   return new Promise(
-    function (F, R) {
+    function (resolve, reject) {
       var expiration = Date.now() / 1000 + (3600 * 24 * 365);
       pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration).
         addCallback(function (keys) {
         if (keys.length == 2) {
-          F();
+          resolve();
         } else {
-          R(new Error('Failed to generate key'));
+          reject(new Error('Failed to generate key'));
         }
       });
     });
@@ -185,9 +189,4 @@ function buf2array(b) {
 
 if (typeof freedom !== 'undefined') {
   freedom().providePromises(mye2e);
-}
-
-if (typeof exports !== 'undefined') {
-  exports.provider = mye2e;
-  exports.name = 'crypto';
 }

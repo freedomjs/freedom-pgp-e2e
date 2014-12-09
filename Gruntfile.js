@@ -123,6 +123,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-shell');
 
   grunt.registerTask('base', [
+    'jshint',
     'copy:e2eCompiledJavaScript',
     'copy:freedom',
     'copy:dist',
@@ -136,25 +137,17 @@ module.exports = function(grunt) {
     'shell:doDeps',
     'shell:doLib'
   ]);
-  grunt.registerTask('build', [
-    'getEndToEnd',
-    'base'
-  ]);
   grunt.registerTask('test', [
-    'build',
+    'base',
     'karma'
   ]);
-  grunt.registerTask('full', [
-    'jshint',
-    'build',
-    'karma:phantom',
+  grunt.registerTask('demo', [
+    'base',
     'connect'
   ]);
   grunt.registerTask('default', [
-    'jshint',
     'base',
-    'karma:phantom',
-    'connect'
+    'karma:phantom'
   ]);
 
 }
