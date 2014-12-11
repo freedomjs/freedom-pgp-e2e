@@ -14,6 +14,7 @@
   "provides" : [
     "crypto"
   ],
+  "default": "crypto",
   "api": {
     "crypto": {
       "_comment": "Simplified crypto interface",
@@ -78,7 +79,6 @@
   },
 
   "permissions": [
-    "core.log",
     "core.storage"
   ]
 }

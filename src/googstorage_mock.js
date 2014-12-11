@@ -4,7 +4,7 @@ function store () {
 
 store.prototype.set = function(key, val) {
   if (val === undefined) {
-    delete this.storage[key]; 
+    delete this.storage[key];
     return val;
   }
   this.storage[key] = val;
@@ -19,19 +19,19 @@ store.prototype.clear = function() { this.storage = {}; };
 
 store.prototype.transact = function(key, defaultVal, transactionFn) {
   var val = this.store.get(key);
-  if (transactionFn == null) {
+  if (transactionFn === null) {
     transactionFn = defaultVal;
     defaultVal = null;
   }
-  if (typeof val == 'undefined') { 
-    val = defaultVal || {}; 
+  if (typeof val == 'undefined') {
+    val = defaultVal || {};
   }
   transactionFn(val);
   this.set(key, val);
 };
 
-store.prototype.getAll = function() { 
-  return this.storage; 
+store.prototype.getAll = function() {
+  return this.storage;
 };
 
 store.prototype.forEach = function(callback) {
@@ -51,4 +51,3 @@ store.prototype.deserialize = function(value) {
 };
 
 goog.storage.mechanism.HTML5LocalStorage = store;
-
