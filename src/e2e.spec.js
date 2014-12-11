@@ -59,7 +59,7 @@ describe("e2eImp", function () {
     e2eImp.setup('test passphrase', 'bad user@id').then(
       function() {
         console.log(e2eImp);  // shouldn't see this, should go to error case
-        expect(false).toBeTruth();
+        expect(false).toBeTruthy();
       }).catch(function(e) {
         expect(e).toEqual(Error('Invalid userid, expected: "name <email>"'));
     }).then(done);
