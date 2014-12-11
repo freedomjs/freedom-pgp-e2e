@@ -55,6 +55,16 @@ describe("e2eImp", function () {
   beforeEach(function () {
   });
 
+  it('reject invalid userid', function(done) {
+    e2eImp.setup('test passphrase', 'bad user@id').then(
+      function() {
+        console.log(e2eImp);  // shouldn't see this, should go to error case
+        expect(false).toBeTruth();
+      }).catch(function(e) {
+        expect(e).toEqual(Error('Invalid userid, expected: "name <email>"'));
+    }).then(done);
+  });
+
   it('test importKey with public key', function (done) {
     e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
       function () {

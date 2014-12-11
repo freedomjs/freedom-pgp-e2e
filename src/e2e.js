@@ -19,7 +19,7 @@ mye2e.prototype.setup = function(passphrase, userid) {
   this.pgpContext.setKeyRingPassphrase(passphrase);
   // userid needs to be in format "name <email>"
   if (!this.pgpUser.match(/^[^<]*\s<[^>]*>$/)) {
-    Promise.reject(Error('Invalid userid, expected: "name <email>"'));
+    return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
   }
 
   if (e2e.async.Result.getValue(
