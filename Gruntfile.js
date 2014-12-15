@@ -59,6 +59,13 @@ module.exports = function(grunt) {
         filter: 'isFile',
         expand: true
       },
+      playground: {
+        src: ['src/playground/*'],
+        dest: 'build/playground/',
+        flatten: true,
+        filter: 'isFile',
+        expand: true
+      },
       e2eCompiledJavaScript: {
         files: [ {
           src: ['end-to-end.build/build/library/end-to-end.compiled.js'],
@@ -124,10 +131,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('base', [
     'jshint',
-    'copy:e2eCompiledJavaScript',
-    'copy:freedom',
-    'copy:dist',
-    'copy:demo'
+    'copy'
   ]);
   grunt.registerTask('getEndToEnd', [
     'force:on',  // clone will fail if already exists, want to continue anyway

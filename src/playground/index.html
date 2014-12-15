@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <title>PGP ~ freedom.js Demo</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <link href='style.css' rel='stylesheet' type='text/css' />
+
+  <!-- Load freedom.js -->
+  <script type="text/javascript" src="../freedom.js"></script>
+
+  <script type="text/javascript">
+    function ab2str(buf) {
+      return String.fromCharCode.apply(null, new Uint16Array(buf));
+    }
+    
+    function str2ab(str) {
+      var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+      var bufView = new Uint16Array(buf);
+      for (var i=0, strLen=str.length; i<strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+      }
+      return buf;
+    }
+
+    var start = function(PGP) {
+    var crypt = window.crypter = new PGP();
+    var input = document.getElementById('input');
+    var key = document.getElementById('key');
+    var output = document.getElementById('output');
+    var print = function (obj) {
+      if (typeof obj === "string") {
+        output.innerText = obj;
+      } else {
+        output.innerText = JSON.stringify(obj);
+      }
+    };
+    // Print sucessful output
+    var success = function(val) {
+      output.innerHTML = "<font color='green'>Success</font><br />";
+      if (typeof val === 'string') {
+        output.innerHTML += val;
+      }
+    }
+    var decryptSuccess = function(result) {
+      output.innerHTML = "Success: Signed By " + JSON.stringify(result.signedBy);
+      output.innerHTML += "<br />";
+      output.innerHTML += ab2str(result.data);
+    }
+    
+    // Get message as buffer
+    var inputBuf = function() {
+      return str2ab(input.value);
+    }
+    
+    document.getElementById('setup').addEventListener('click', function () {
+      var text = input.value.split('\n');
+      if (text.length < 2) {
+        print("Input format should be:\n<passphrase>\n<userid>\n");
+      } else {
+        crypt.setup(text[0], text[1]).then(success, print);
+      }
+    }, true);
+
+    document.getElementById('export').addEventListener('click', function () {
+      crypt.exportKey().then(success, print);
+    }, true);
+
+    document.getElementById('encrypt').addEventListener('click', function () {
+      crypt.signEncrypt(inputBuf(), key.value, false)
+        .then(crypt.armor, print)
+        .then(success, print);
+    }, true);
+    document.getElementById('signencrypt').addEventListener('click', function () {
+      crypt.signEncrypt(inputBuf(), key.value, true)
+        .then(crypt.armor, print)
+        .then(success, print);
+    }, true);
+    document.getElementById('verify').addEventListener('click', function () {
+      crypt.dearmor(input.value).then(function (buf) {
+        return crypt.verifyDecrypt(buf, key.value)
+      }, print).then(decryptSuccess, print);
+    }, true);
+  };
+
+  window.onload = function() {
+    freedom("../e2eapi.json", {
+      "debug": "log"
+    }).then(start);
+  };
+  </script>
+</head>
+<body>
+  <header id='logo'>freedom.js</header>
+  <header><span class='triangle'>&#9654;</span> Demos</header>
+  <header><span class='triangle'>&#9654;</span> PGP</header>
+  <section>
+    <textarea id="input" rows=10 cols=80>Message</textarea>
+    <textarea id="key" rows=10 cols=80>Key</textarea>
+    <br />
+    <input type="button" id="setup" value="Setup" />
+    <input type="button" id="export" value="ExportKey" />
+    <input type="button" id="encrypt" value="Encrypt" />
+    <input type="button" id="signencrypt" value="Sign+Encrypt" />
+    <input type="button" id="verify" value="Verify+Decrypt" />
+  </section>
+  <section>
+    <h3>Output</h3>
+    <pre id="output">
+    </pre>
+  </section>
+</body>
+</html>
