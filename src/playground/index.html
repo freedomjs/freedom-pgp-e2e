@@ -42,9 +42,12 @@
       }
     }
     var decryptSuccess = function(result) {
-      output.innerHTML = "Success: Signed By " + JSON.stringify(result.signedBy);
+      output.innerHTML = "Success: Signed By ";
+      // Escaping the signedBy due to <email> format
+      output.appendChild(document.createTextNode(result.signedBy));
       output.innerHTML += "<br />";
-      output.innerHTML += ab2str(result.data);
+      // Message should be escaped too
+      output.appendChild(document.createTextNode(ab2str(result.data)));
     }
     
     // Get message as buffer
