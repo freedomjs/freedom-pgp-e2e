@@ -10,33 +10,6 @@
 
 module.exports = function(grunt) {
   grunt.initConfig({
-    gitclone: {
-      e2e: {
-        options: {
-          repository: 'https://code.google.com/p/end-to-end.build/'
-        }
-      }
-    },
-
-    gitpull: {
-      e2e: {
-        options: {
-          cwd: 'end-to-end.build/'
-        }
-      }
-    },
-
-    // These shell commands execute/depend on do.sh in the e2e repo
-    // Dependencies: unzip, svn, Python 2.X, Java >= 1.7
-    shell: {
-      doDeps: {
-        command: 'bash ./end-to-end.build/do.sh install_deps'
-      },
-      doLib: {
-        command: 'bash ./end-to-end.build/do.sh build_library'
-      }
-    },
-
     copy: {
       dist: {
         src: ['src/*.js*'],
@@ -46,7 +19,7 @@ module.exports = function(grunt) {
         expand: true
       },
       freedom: {
-        src: ['node_modules/freedom/freedom.js*'],
+        src: [require.resolve('freedom')],
         dest: 'build/',
         flatten: true,
         filter: 'isFile',
@@ -68,7 +41,7 @@ module.exports = function(grunt) {
       },
       e2eCompiledJavaScript: {
         files: [ {
-          src: ['end-to-end.build/build/library/end-to-end.compiled.js'],
+          src: [require.resolve('e2e')],
           dest: 'build/end-to-end.compiled.js',
           onlyIf: 'modified'
         } ]
@@ -122,35 +95,22 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-symlink');
-  grunt.loadNpmTasks('grunt-env');
-  grunt.loadNpmTasks('grunt-force');
-  grunt.loadNpmTasks('grunt-git');
   grunt.loadNpmTasks('grunt-karma');
-  grunt.loadNpmTasks('grunt-shell');
 
-  grunt.registerTask('base', [
+  grunt.registerTask('build', [
     'jshint',
     'copy'
   ]);
-  grunt.registerTask('getEndToEnd', [
-    'force:on',  // clone will fail if already exists, want to continue anyway
-    'gitclone:e2e',
-    'force:off',
-    'gitpull:e2e',
-    'shell:doDeps',
-    'shell:doLib'
-  ]);
   grunt.registerTask('test', [
-    'base',
+    'build',
     'karma'
   ]);
   grunt.registerTask('demo', [
-    'base',
+    'build',
     'connect'
   ]);
   grunt.registerTask('default', [
-    'base',
+    'build',
     'karma:phantom'
   ]);
 
