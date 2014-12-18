@@ -1,10 +1,2 @@
-### Built files
 build/
-dist/
-.tscache/
-
-### Auto-generated
 node_modules/
-
-### e2e library
-end-to-end.build/
