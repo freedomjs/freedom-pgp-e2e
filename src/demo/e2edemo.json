@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "e2e": {
-      "url": "../e2eapi.json",
+      "url": "../pgpapi.json",
       "api": "crypto"
     }
   },
