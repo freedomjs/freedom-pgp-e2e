@@ -1,4 +1,4 @@
-uproxy-end-to-end
+freedom-pgp-e2e
 =================
 
 Wrapping up [end-to-end code](https://github.com/google/end-to-end)
