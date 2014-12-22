@@ -1,7 +1,10 @@
 {
-  "name": "uproxy-end-to-end",
+  "name": "freedom-pgp-e2e",
   "description": "Library to provide freedom API wrapper of end-to-end library",
-  "version": "0.2.0",
+  "version": "0.2.1",
+  "contributors": [
+    "Aaron Gallant <ag@cs.washington.edu>"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/freedomjs/freedom-pgp-e2e"
@@ -9,7 +12,7 @@
   "devDependencies": {
     "e2e": "0.0.1",
     "es6-promise": "^1.0.0",
-    "freedom": "^0.6.6",
+    "freedom": "^0.6.11",
     "grunt": "^0.4.5",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-concat": "^0.5.0",

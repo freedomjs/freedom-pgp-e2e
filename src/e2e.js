@@ -16,11 +16,11 @@ var mye2e = function(dispatchEvents) {
 // These methods implement the actual freedom crypto API
 mye2e.prototype.setup = function(passphrase, userid) {
   this.pgpUser = userid;
-  this.pgpContext.setKeyRingPassphrase(passphrase);
   // userid needs to be in format "name <email>"
   if (!this.pgpUser.match(/^[^<]*\s<[^>]*>$/)) {
     return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
   }
+  this.pgpContext.setKeyRingPassphrase(passphrase);
 
   if (e2e.async.Result.getValue(
     this.pgpContext.searchPrivateKey(this.pgpUser)).length === 0) {
