@@ -68,6 +68,8 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
 mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
   if (typeof verifyKey === 'undefined') {
     verifyKey = '';
+  } else {
+    this.importKey(verifyKey);
   }
   var byteView = new Uint8Array(data);
   var pgp = this.pgpContext;
