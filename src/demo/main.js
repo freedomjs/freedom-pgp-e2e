@@ -1,8 +1,8 @@
 /* globals freedom */
 /* jslint indent:2,white:true,sloppy:true */
 
-var start = function(e2edemo) {
-  var demo = new e2edemo();
+var start = function(E2edemo) {
+  var demo = new E2edemo();
   demo.on('print', function(msg) {
     var lines = msg.split('\n');
     for (var i = 0; i < lines.length; i++) {
@@ -13,8 +13,8 @@ var start = function(e2edemo) {
 };
 
 window.onload = function() {
-  freedom("e2edemo.json", {
-    "debug": "log"
+  freedom('e2edemo.json', {
+    'debug': 'log'
   }).then(start);
 };
 

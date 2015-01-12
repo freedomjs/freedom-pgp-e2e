@@ -1,7 +1,10 @@
+/*globals describe, beforeEach, require, expect, it */
+/*jslint indent:2,white:true,sloppy:true*/
+
 // Unit tests for e2e directly
 // Tests both freedom API calls and internal methods
 
-describe("e2eImp", function () {
+describe('e2eImp', function () {
   var publicKeyStr =
     '-----BEGIN PGP PUBLIC KEY BLOCK-----\n' +
     'Charset: UTF-8\n' +
