@@ -109,7 +109,12 @@ module.exports = function(grunt) {
   ]);
   grunt.registerTask('test', [
     'build',
+    'jasmine_node',
     'karma'
+  ]);
+  grunt.registerTask('ci', [
+    'build',
+    'jasmine_node'
   ]);
   grunt.registerTask('demo', [
     'build',
