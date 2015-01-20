@@ -32,6 +32,6 @@
     "karma-unicorn-reporter": "^0.1.4"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt ci --verbose"
   }
 }
