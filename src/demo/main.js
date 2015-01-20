@@ -1,5 +1,5 @@
-/* globals freedom */
-/* jslint indent:2,white:true,sloppy:true */
+/*globals freedom*/
+/*jslint indent:2*/
 
 var start = function(E2edemo) {
   var demo = new E2edemo();

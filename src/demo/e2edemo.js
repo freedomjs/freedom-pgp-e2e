@@ -1,5 +1,5 @@
 /*globals freedom,Uint8Array,ArrayBuffer*/
-/*jslint indent:2,white:true,sloppy:true*/
+/*jslint indent:2*/
 
 var e2edemo = function (dispatchEvent) {
   'use strict';

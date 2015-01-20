@@ -1,5 +1,5 @@
-/*globals describe, beforeEach, require, expect, it */
-/*jslint indent:2,white:true,sloppy:true*/
+/*globals describe, beforeEach, require, expect, it*/
+/*jslint indent:2*/
 
 // Unit tests for e2e directly
 // Tests both freedom API calls and internal methods

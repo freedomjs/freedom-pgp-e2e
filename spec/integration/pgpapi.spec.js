@@ -1,5 +1,5 @@
-/*globals describe, beforeEach, require, expect, it */
-/*jslint indent:2,white:true,sloppy:true,node:true*/
+/*globals describe, beforeEach, require, expect, it*/
+/*jslint indent:2,node:true*/
 
 describe('PGP api integration', function() {
   'use strict';
@@ -16,7 +16,7 @@ describe('PGP api integration', function() {
       var msgsReceived = 0;
       var expectedMsgs = [
         'Starting test!', 'Exporting public key...', 'Encrypting/signing...',
-        'Decrypted!', 'Encryption test SUCCEEDED.']
+        'Decrypted!', 'Encryption test SUCCEEDED.'];
       demo.on('print', function(msg) {
         expect(msg).toEqual(expectedMsgs[msgsReceived]);
         msgsReceived++;

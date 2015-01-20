@@ -1,5 +1,5 @@
-/* globals freedom, console, e2e, exports, Promise, ArrayBuffer, Uint8Array, Uint16Array, DataView */
-/* jslint indent:2,white:true,sloppy:true */
+/*globals freedom, console, e2e, exports, Promise, ArrayBuffer, Uint8Array, Uint16Array, DataView*/
+/*jslint indent:2*/
 
 /**
  * Implementation of a crypto-pgp provider for freedom.js
