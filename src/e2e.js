@@ -67,8 +67,6 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
 
 mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
   console.log('starting verifyDecrypt');
-  console.log(data);
-  console.log(verifyKey);
   if (typeof verifyKey === 'undefined') {
     verifyKey = '';
   } else {
