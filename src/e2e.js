@@ -66,7 +66,6 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
 };
 
 mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
-  console.log('starting verifyDecrypt');
   if (typeof verifyKey === 'undefined') {
     verifyKey = '';
   } else {
@@ -80,7 +79,6 @@ mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
         return '';
       }, e2e.openpgp.asciiArmor.encode('MESSAGE', byteView)).addCallback(
         function (r) {
-          console.log('got internal verifyDecrypt result');
           var signed = null;
           if (verifyKey) {
             signed = r.verify.success[0].uids;
