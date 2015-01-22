@@ -70,8 +70,13 @@ module.exports = function(grunt) {
       }
     },
 
+    jasmine_node: {
+      integration: ['spec/integration/']
+    },
+
     jshint: {
-      all: ['src/*.js', 'src/demo/*.js'],
+      all: ['src/*.js', 'src/demo/*.js',
+            'spec/*.js', 'spec/integration/*.js'],
       options: {
         jshintrc: true
       }
@@ -95,6 +100,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-jasmine-node2');
   grunt.loadNpmTasks('grunt-karma');
 
   grunt.registerTask('build', [
@@ -103,7 +109,12 @@ module.exports = function(grunt) {
   ]);
   grunt.registerTask('test', [
     'build',
+    'jasmine_node',
     'karma'
+  ]);
+  grunt.registerTask('ci', [
+    'build',
+    'jasmine_node'
   ]);
   grunt.registerTask('demo', [
     'build',

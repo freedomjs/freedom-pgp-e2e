@@ -17,7 +17,8 @@ module.exports = function(config) {
     files: [
       'node_modules/es6-promise/dist/promise-*.min.js',  // es6 promises
       'build/end-to-end.compiled.js',  // to coerce loading first
-      'build/*.js'
+      'build/*.js',
+      'spec/*.js'
     ],
 
 

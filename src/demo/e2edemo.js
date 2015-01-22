@@ -1,5 +1,5 @@
 /*globals freedom,Uint8Array,ArrayBuffer*/
-/*jslint indent:2,white:true,sloppy:true*/
+/*jslint indent:2*/
 
 var e2edemo = function (dispatchEvent) {
   'use strict';
@@ -22,6 +22,7 @@ e2edemo.prototype.rundemo = function() {
     this.dispatch('print', 'Encrypting/signing...');
     return this.e2e.signEncrypt(buffer, publicKey, true).then(
       function (encryptedData) {
+        this.dispatch('print', 'Decrypting...');
         return this.e2e.verifyDecrypt(encryptedData, publicKey);
       }.bind(this));
     }.bind(this)).then(function (result) {
