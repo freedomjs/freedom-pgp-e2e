@@ -3,10 +3,11 @@
 
 describe('PGP api integration', function() {
   'use strict';
-  var freedom;
+  if (typeof require !== 'undefined') {
+    var freedom = require('freedom-for-node').freedom;
+  }
 
   beforeEach(function() {
-    freedom = require('freedom-for-node').freedom;
     expect(freedom).toBeDefined();
   });
 

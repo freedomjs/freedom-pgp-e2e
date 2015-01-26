@@ -70,6 +70,16 @@ module.exports = function(grunt) {
       }
     },
 
+    jasmine_chromeapp: {
+      src: ['node_modules/freedom-for-chrome/freedom-for-chrome.js',
+            'spec/integration/*'],
+      options: {
+        helpers: ['node_modules/freedom-for-chrome/freedom-for-chrome.js.map',
+                  'build/*.js*', 'build/demo/*'],
+        keepRunner: true
+      }
+    },
+
     jasmine_node: {
       integration: ['spec/integration/']
     },
@@ -93,13 +103,14 @@ module.exports = function(grunt) {
       }
     },
 
-    clean: ['build/']
+    clean: ['build/', '.build/']
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-jasmine-chromeapp');
   grunt.loadNpmTasks('grunt-jasmine-node2');
   grunt.loadNpmTasks('grunt-karma');
 
