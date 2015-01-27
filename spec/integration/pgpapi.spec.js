@@ -18,7 +18,6 @@ describe('PGP api integration', function() {
 
   it('encrypts, signs, decrypts, verifies', function(done) {
     fdom(path).then(function(E2edemo) {
-      console.log('e2efreedom');
       var demo = new E2edemo();
       var msgsReceived = 0;
       var expectedMsgs = [

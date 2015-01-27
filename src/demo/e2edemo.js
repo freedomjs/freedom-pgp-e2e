@@ -3,8 +3,6 @@
 
 var e2edemo = function (dispatchEvent) {
   'use strict';
-  console.log('foo');
-  console.log(freedom);
   this.dispatch = dispatchEvent;
   this.e2e = freedom.e2e();
 };
