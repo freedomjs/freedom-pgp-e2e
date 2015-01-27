@@ -72,11 +72,10 @@ module.exports = function(grunt) {
 
     jasmine_chromeapp: {
       src: ['node_modules/freedom-for-chrome/freedom-for-chrome.*',
-            //'build/demo/e2edemo.js'],
             'spec/integration/pgpapi.spec.js'],
       options: {
         helpers: ['build/*.js*', 'build/demo/*'],
-        keepRunner: true
+        keepRunner: false
       }
     },
 
