@@ -3,15 +3,21 @@
 
 describe('PGP api integration', function() {
   'use strict';
-  var freedom;
+  var fdom, path;  // hack to avoid masking freedom when already defined
+  if (typeof freedom === 'undefined') {
+    fdom = require('freedom-for-node').freedom;
+    path = '../../build/demo/e2edemo.json';
+  } else {
+    fdom = freedom;
+    path = 'scripts/build/demo/e2edemo.json';
+  }
 
   beforeEach(function() {
-    freedom = require('freedom-for-node').freedom;
-    expect(freedom).toBeDefined();
+    expect(fdom).toBeDefined();
   });
 
   it('encrypts, signs, decrypts, verifies', function(done) {
-    freedom('../../build/demo/e2edemo.json').then(function(E2edemo) {
+    fdom(path).then(function(E2edemo) {
       var demo = new E2edemo();
       var msgsReceived = 0;
       var expectedMsgs = [
