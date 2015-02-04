@@ -69,12 +69,12 @@ module.exports = function(grunt) {
         autoWatch: false
       }
     },
-
     jasmine_chromeapp: {
       src: ['node_modules/freedom-for-chrome/freedom-for-chrome.*',
-            'spec/integration/pgpapi.spec.js'],
+            'spec/integration/pgpapi.spec.js', 'build/*.js*', 'build/demo/*'],
       options: {
-        helpers: ['build/*.js*', 'build/demo/*'],
+        paths: ['node_modules/freedom-for-chrome/freedom-for-chrome.js',
+                'spec/integration/pgpapi.spec.js'],
         keepRunner: false
       }
     },
