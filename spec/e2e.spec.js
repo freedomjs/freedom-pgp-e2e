@@ -49,13 +49,14 @@ describe('e2eImp', function () {
     '=H/6h\n' +
     '-----END PGP PRIVATE KEY BLOCK-----';
 
-  var e2eImp = new mye2e();
+  var e2eImp;
   var buffer = new ArrayBuffer(12);
   var byteView = new Uint8Array(buffer);
   // bytes for the string "abcd1234"
   byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
 
   beforeEach(function () {
+    e2eImp = new mye2e();
   });
 
   it('reject invalid userid', function(done) {
@@ -94,6 +95,25 @@ describe('e2eImp', function () {
       function () {
         return e2eImp.importKey(privateKeyStr);
       }).then(function () {
+      return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
+    }).then(function (keys) {
+      expect(keys.length).toEqual(1);
+      expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
+    }).catch(function (e) {
+               console.log(e.toString());
+               expect(false).toBeTruthy();
+             }).then(done);
+  });
+
+  it('test importKeypair', function (done) {
+    e2eImp.importKeypair('', '<quantsword@gmail.com>',
+                         publicKeyStr, privateKeyStr)
+    .then(function () {
+      return e2eImp.searchPublicKey('<quantsword@gmail.com>');
+    }).then(function (keys) {
+      expect(keys.length).toEqual(1);
+      expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
+    }).then(function () {
       return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
     }).then(function (keys) {
       expect(keys.length).toEqual(1);

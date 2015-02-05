@@ -17,7 +17,7 @@ var mye2e = function(dispatchEvents) {
 mye2e.prototype.setup = function(passphrase, userid) {
   this.pgpUser = userid;
   // userid needs to be in format "name <email>"
-  if (!this.pgpUser.match(/^[^<]*\s<[^>]*>$/)) {
+  if (!this.pgpUser.match(/^[^<]*\s?<[^>]*>$/)) {
     return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
   }
   this.pgpContext.setKeyRingPassphrase(passphrase);
@@ -29,6 +29,20 @@ mye2e.prototype.setup = function(passphrase, userid) {
     this.generateKey(username, email);
   }
   return Promise.resolve();
+};
+
+mye2e.prototype.importKeypair = function(passphrase, userid, publicKey, privateKey) {
+  this.pgpContext.setKeyRingPassphrase(passphrase);
+  this.importKey(publicKey);
+  this.importKey(privateKey, passphrase);
+  if (e2e.async.Result.getValue(
+        this.pgpContext.searchPrivateKey(userid)).length === 0 ||
+      e2e.async.Result.getValue(
+        this.pgpContext.searchPublicKey(userid)).length === 0) {
+    return Promise.reject(Error('Keypair does not match provided userid'));
+  } else {
+    return this.setup(passphrase, userid);
+  }
 };
 
 mye2e.prototype.exportKey = function() {
@@ -127,13 +141,16 @@ mye2e.prototype.deleteKey = function(uid) {
   return Promise.resolve();
 };
 
-mye2e.prototype.importKey = function(keyStr) {
+mye2e.prototype.importKey = function(keyStr, passphrase) {
+  if (typeof passphrase === 'undefined') {
+    passphrase = '';
+  }
   var pgp = this.pgpContext;
   return new Promise(
     function (F, R) {
       pgp.importKey(
         function (str, f) {
-          f('');
+          f(passphrase);
         }, keyStr).addCallback(F);
     });
 };
