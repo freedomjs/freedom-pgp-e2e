@@ -69,8 +69,8 @@ describe('e2eImp', function () {
     }).then(done);
   });
 
-  it('test importKey with public key', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+  it('test importKey and deleteKey with public key', function (done) {
+    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         return e2eImp.importKey(publicKeyStr);
       }).then(function () {
@@ -90,7 +90,7 @@ describe('e2eImp', function () {
              }).then(done);
   });
 
-  it('test importKey with private key', function (done) {
+  it('test importKey and deleteKey with private key', function (done) {
     e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
       function () {
         return e2eImp.importKey(privateKeyStr);
@@ -99,6 +99,12 @@ describe('e2eImp', function () {
     }).then(function (keys) {
       expect(keys.length).toEqual(1);
       expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
+    }).then(function () {
+      return e2eImp.deleteKey('<quantsword@gmail.com>');
+    }).then(function () {
+      return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
+    }).then(function (keys) {
+      expect(keys.length).toEqual(0);
     }).catch(function (e) {
                console.log(e.toString());
                expect(false).toBeTruthy();
@@ -124,7 +130,7 @@ describe('e2eImp', function () {
   });
 
   it('encrypt and decrypt', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         return e2eImp.exportKey();
       }).then(function (publicKey) {
@@ -140,7 +146,7 @@ describe('e2eImp', function () {
   });
 
   it('encryptSign and verifyDecrypt', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         return e2eImp.exportKey();
       }).then(function (publicKey) {
@@ -151,7 +157,7 @@ describe('e2eImp', function () {
     }).then(function (result) {
       expect(result.data).toEqual(buffer);
       expect(result.signedBy.length).toEqual(1);
-      expect(result.signedBy[0]).toEqual('test user <testuser@gmail.com>');
+      expect(result.signedBy[0]).toEqual('Test User <test@example.com>');
     }).catch(function (e) {
                console.log(e.toString());
                expect(false).toBeTruthy();
@@ -159,13 +165,13 @@ describe('e2eImp', function () {
   });
 
   it('generate keys', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         expect(true).toBeTruthy();
-        return e2eImp.searchPrivateKey('test user <testuser@gmail.com>');
+        return e2eImp.searchPrivateKey('Test User <test@example.com>');
       }).then(function (keys) {
       expect(keys.length).toEqual(1);
-      expect(keys[0].uids[0]).toEqual('test user <testuser@gmail.com>');
+      expect(keys[0].uids[0]).toEqual('Test User <test@example.com>');
     }).catch(function (e) {
                console.log(e.toString());
                expect(false).toBeTruthy();
@@ -173,7 +179,7 @@ describe('e2eImp', function () {
   });
 
   it('export public key', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         expect(true).toBeTruthy();
         return e2eImp.exportKey();
@@ -188,7 +194,7 @@ describe('e2eImp', function () {
   });
 
   it('armor and dearmor', function (done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         return e2eImp.armor(buffer);
       }).then(function (armored) {

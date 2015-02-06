@@ -34,6 +34,7 @@ mye2e.prototype.setup = function(passphrase, userid) {
 mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
   this.pgpContext.setKeyRingPassphrase(passphrase);
   this.importKey(privateKey, passphrase);
+
   if (e2e.async.Result.getValue(
         this.pgpContext.searchPrivateKey(userid)).length === 0 ||
       e2e.async.Result.getValue(
@@ -50,6 +51,7 @@ mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
 mye2e.prototype.exportKey = function() {
   var serialized = e2e.async.Result.getValue(
     this.pgpContext.searchPublicKey(this.pgpUser))[0].serialized;
+
   return Promise.resolve(e2e.openpgp.asciiArmor.encode(
     'PUBLIC KEY BLOCK', serialized));
 };

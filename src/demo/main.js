@@ -9,7 +9,7 @@ var start = function(E2edemo) {
       printToPage(lines[i]);
     }
   });
-  demo.rundemo();
+  demo.runCryptoDemo();
 };
 
 window.onload = function() {
