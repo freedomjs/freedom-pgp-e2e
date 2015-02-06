@@ -15,11 +15,11 @@ var mye2e = function(dispatchEvents) {
 
 // These methods implement the actual freedom crypto API
 mye2e.prototype.setup = function(passphrase, userid) {
-  this.pgpUser = userid;
   // userid needs to be in format "name <email>"
-  if (!this.pgpUser.match(/^[^<]*\s?<[^>]*>$/)) {
+  if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
     return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
   }
+  this.pgpUser = userid;
   this.pgpContext.setKeyRingPassphrase(passphrase);
 
   if (e2e.async.Result.getValue(
@@ -31,17 +31,19 @@ mye2e.prototype.setup = function(passphrase, userid) {
   return Promise.resolve();
 };
 
-mye2e.prototype.importKeypair = function(passphrase, userid, publicKey, privateKey) {
+mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
   this.pgpContext.setKeyRingPassphrase(passphrase);
-  this.importKey(publicKey);
   this.importKey(privateKey, passphrase);
   if (e2e.async.Result.getValue(
         this.pgpContext.searchPrivateKey(userid)).length === 0 ||
       e2e.async.Result.getValue(
         this.pgpContext.searchPublicKey(userid)).length === 0) {
     return Promise.reject(Error('Keypair does not match provided userid'));
+  } else if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
+    return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
   } else {
-    return this.setup(passphrase, userid);
+    this.pgpUser = userid;
+    return Promise.resolve();
   }
 };
 
