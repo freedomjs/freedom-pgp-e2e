@@ -36,6 +36,14 @@
         "err": { "errcode": "string", "message": "string" }
       },
 
+      "importKeypair": {
+        "_comment": "Import a pre-existing public/private keypair",
+        "type": "method",
+        "value": ["string", "string", "string"],
+        "ret": [],
+        "err": { "errcode": "string", "message": "string" }
+      },
+
       "exportKey": {
         "_comment": "Export your public key to share with buddies",
         "type": "method",

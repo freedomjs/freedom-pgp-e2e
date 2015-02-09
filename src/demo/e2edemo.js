@@ -4,26 +4,26 @@
 var e2edemo = function (dispatchEvent) {
   'use strict';
   this.dispatch = dispatchEvent;
-  this.e2e = freedom.e2e();
 };
 
-e2edemo.prototype.rundemo = function() {
+e2edemo.prototype.runCryptoDemo = function() {
   'use strict';
+  var e2e = new freedom.e2e();
   var buffer = new ArrayBuffer(12);
   var byteView = new Uint8Array(buffer);
   byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
 
-  this.dispatch('print', 'Starting test!');
-  this.e2e.setup('secret passphrase', 'Joe Test <joetest@example.com>').then(
+  this.dispatch('print', 'Starting encryption test!');
+  e2e.setup('secret passphrase', 'Joe Test <joetest@example.com>').then(
     function () {
       this.dispatch('print', 'Exporting public key...');
-      return this.e2e.exportKey();
+      return e2e.exportKey();
     }.bind(this)).then(function (publicKey) {
     this.dispatch('print', 'Encrypting/signing...');
-    return this.e2e.signEncrypt(buffer, publicKey, true).then(
+    return e2e.signEncrypt(buffer, publicKey, true).then(
       function (encryptedData) {
         this.dispatch('print', 'Decrypting...');
-        return this.e2e.verifyDecrypt(encryptedData, publicKey);
+        return e2e.verifyDecrypt(encryptedData, publicKey);
       }.bind(this));
     }.bind(this)).then(function (result) {
     this.dispatch('print', 'Decrypted!');
@@ -38,7 +38,30 @@ e2edemo.prototype.rundemo = function() {
   }.bind(this)).catch(
     function (e) {
       this.dispatch('print', 'Encryption test encountered error %1', [e]);
-  }.bind(this));
+    }.bind(this));
+};
+
+e2edemo.prototype.runImportDemo = function(publicKeyStr, privateKeyStr) {
+  'use strict';
+  var e2e = new freedom.e2e();
+  this.dispatch('print', '');  // blank line to separate from crypto test
+  this.dispatch('print', 'Starting keypair import test!');
+  e2e.importKeypair('', '<quantsword@gmail.com>', privateKeyStr).then(
+    function() {
+      this.dispatch('print', 'Imported keypair...');
+      return e2e.exportKey();
+    }.bind(this)).then(
+      function (result) {
+        if (result === publicKeyStr) {
+          this.dispatch('print', 'Keypair import test SUCCEEDED.');
+        } else {
+          this.dispatch('print', 'Keypair import test FAILED.');
+        }
+      }.bind(this)).catch(
+        function (e) {
+          this.dispatch('print', 'Keypair import test encountered error %1',
+                        [e]);
+        }.bind(this));
 };
 
 freedom().provideSynchronous(e2edemo);

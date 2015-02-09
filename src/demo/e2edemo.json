@@ -9,9 +9,15 @@
   "default": "e2edemo",
   "api": {
     "e2edemo": {
-      "rundemo": {
+      "runCryptoDemo": {
         "type": "method",
-        "value": "object"
+        "value": [],
+        "ret": []
+      },
+      "runImportDemo": {
+        "type": "method",
+        "value": ["string", "string"],
+        "ret": []
       },
       "print": {
         "type": "event",
