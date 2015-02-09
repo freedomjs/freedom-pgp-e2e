@@ -120,6 +120,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test', [
     'build',
     'jasmine_node',
+    'jasmine_chromeapp',
     'karma'
   ]);
   grunt.registerTask('ci', [
