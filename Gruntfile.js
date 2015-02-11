@@ -1,5 +1,5 @@
 /**
- * Gruntfile for freeom-pgp-e2e
+ * Gruntfile for freedom-pgp-e2e
  *
  * This repository uses JavaScript crypto code from
  * Google's end-to-end project to provide a pgp-like
