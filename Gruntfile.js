@@ -121,7 +121,7 @@ module.exports = function(grunt) {
     'build',
     'jasmine_node',
     'jasmine_chromeapp',
-    'karma'
+    'karma:single'
   ]);
   grunt.registerTask('ci', [
     'build',
