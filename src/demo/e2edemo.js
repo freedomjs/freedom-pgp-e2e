@@ -37,7 +37,7 @@ e2edemo.prototype.runCryptoDemo = function() {
     }
   }.bind(this)).catch(
     function (e) {
-      this.dispatch('print', 'Encryption test encountered error %1', [e]);
+      this.dispatch('print', 'Encryption test encountered error: ' + e.message);
     }.bind(this));
 };
 
