@@ -84,8 +84,7 @@ module.exports = function(grunt) {
     },
 
     jshint: {
-      all: ['src/*.js', 'src/demo/*.js',
-            'spec/*.js', 'spec/integration/*.js'],
+      all: ['src/**/*.js', 'spec/**/*.js'],
       options: {
         jshintrc: true
       }
@@ -121,7 +120,7 @@ module.exports = function(grunt) {
     'build',
     'jasmine_node',
     'jasmine_chromeapp',
-    'karma'
+    'karma:single'
   ]);
   grunt.registerTask('ci', [
     'build',
