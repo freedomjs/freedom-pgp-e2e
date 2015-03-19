@@ -19,26 +19,30 @@ e2edemo.prototype.runCryptoDemo = function() {
       this.dispatch('print', 'Exporting public key...');
       return e2e.exportKey();
     }.bind(this)).then(function (publicKey) {
-    this.dispatch('print', 'Encrypting/signing...');
-    return e2e.signEncrypt(buffer, publicKey, true).then(
-      function (encryptedData) {
-        this.dispatch('print', 'Decrypting...');
-        return e2e.verifyDecrypt(encryptedData, publicKey);
-      }.bind(this));
+      console.log("ABOUT TO ENCRYPT/SIGN");
+      this.dispatch('print', 'Encrypting/signing...');
+      return e2e.signEncrypt(buffer, publicKey, true).then(
+        function (encryptedData) {
+          console.log("SIGNENCRYPT RESOLVED?");
+          console.log(encryptedData);
+          console.log(encryptedData.byteLength);
+          this.dispatch('print', 'Decrypting...');
+          return e2e.verifyDecrypt(encryptedData, publicKey);
+        }.bind(this));
     }.bind(this)).then(function (result) {
-    this.dispatch('print', 'Decrypted!');
-    var resultView = new Uint8Array(result.data);
-    if (result.signedBy[0] === 'Joe Test <joetest@example.com>' &&
-        String.fromCharCode.apply(null, resultView) ===
-        String.fromCharCode.apply(null, byteView)) {
-      this.dispatch('print', 'Encryption test SUCCEEDED.');
-    } else {
-      this.dispatch('print', 'Encryption test FAILED.');
-    }
-  }.bind(this)).catch(
-    function (e) {
-      this.dispatch('print', 'Encryption test encountered error: ' + e.message);
-    }.bind(this));
+      this.dispatch('print', 'Decrypted!');
+      var resultView = new Uint8Array(result.data);
+      if (result.signedBy[0] === 'Joe Test <joetest@example.com>' &&
+          String.fromCharCode.apply(null, resultView) ===
+          String.fromCharCode.apply(null, byteView)) {
+        this.dispatch('print', 'Encryption test SUCCEEDED.');
+      } else {
+        this.dispatch('print', 'Encryption test FAILED.');
+      }
+    }.bind(this)).catch(
+      function (e) {
+        this.dispatch('print', 'Encryption test encountered error: ' + e.message);
+      }.bind(this));
 };
 
 e2edemo.prototype.runImportDemo = function(publicKeyStr, privateKeyStr) {

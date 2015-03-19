@@ -75,7 +75,7 @@ module.exports = function(grunt) {
       options: {
         paths: ['node_modules/freedom-for-chrome/freedom-for-chrome.js',
                 'spec/integration/pgpapi.spec.js'],
-        keepRunner: false
+        keepRunner: true
       }
     },
 
@@ -118,9 +118,9 @@ module.exports = function(grunt) {
   ]);
   grunt.registerTask('test', [
     'build',
+    'karma:single',
     'jasmine_node',
-    'jasmine_chromeapp',
-    'karma:single'
+    'jasmine_chromeapp'
   ]);
   grunt.registerTask('ci', [
     'build',

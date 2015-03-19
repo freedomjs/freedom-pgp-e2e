@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "e2e": "0.0.3",
-    "es6-promise": "^1.0.0",
+    "es6-promise": "^2.0.1",
     "freedom": "^0.6.21",
     "freedom-for-chrome": "^0.4.15",
     "freedom-for-node": "^0.2.13",
@@ -20,7 +20,7 @@
     "grunt-contrib-connect": "^0.9.0",
     "grunt-contrib-copy": "^0.8.0",
     "grunt-contrib-jshint": "^0.11.0",
-    "grunt-jasmine-chromeapp": "^1.7.0",
+    "grunt-jasmine-chromeapp": "^1.8.0",
     "grunt-jasmine-node2": "^0.4.0",
     "grunt-karma": "^0.10.1",
     "karma": "^0.12.31",

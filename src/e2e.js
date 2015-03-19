@@ -1,5 +1,10 @@
-/*globals freedom, console, e2e, exports, Promise, ArrayBuffer, Uint8Array, Uint16Array, DataView*/
+/*globals freedom, console, e2e, exports, ArrayBuffer, Uint8Array, Uint16Array, DataView*/
 /*jslint indent:2*/
+
+if (typeof Promise === 'undefined' && typeof ES6Promise !== 'undefined') {
+  // Polyfill for karma unit tests
+  Promise = ES6Promise.Promise;
+}
 
 /**
  * Implementation of a crypto-pgp provider for freedom.js
@@ -57,6 +62,7 @@ mye2e.prototype.exportKey = function() {
 };
 
 mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
+  console.log("START signEncrypt");
   if (typeof sign === 'undefined') {
     sign = true;
   }
@@ -74,10 +80,15 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
     signKey = null;
   }
   var pgp = this.pgpContext;
+  console.log("ABOUT TO RETURN signEncrypt");
   return new Promise(
     function(F, R) {
+      console.log("in promise");
       pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(
         function (ciphertext) {
+          console.log("fulfilling?");
+          console.log(ciphertext.length);
+          console.log(typeof ciphertext);
           F(array2buf(ciphertext));
         }).addErrback(R);
     });
@@ -198,6 +209,8 @@ function array2buf(a) {
   var buffer = new ArrayBuffer(a.length);
   var byteView = new Uint8Array(buffer);
   byteView.set(a);
+  console.log("IN ARRAY2BUF");
+  console.log(buffer.byteLength);
   return buffer;
 }
 
