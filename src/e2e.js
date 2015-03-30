@@ -62,7 +62,6 @@ mye2e.prototype.exportKey = function() {
 };
 
 mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
-  console.log("START signEncrypt");
   if (typeof sign === 'undefined') {
     sign = true;
   }
@@ -80,15 +79,10 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
     signKey = null;
   }
   var pgp = this.pgpContext;
-  console.log("ABOUT TO RETURN signEncrypt");
   return new Promise(
     function(F, R) {
-      console.log("in promise");
       pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(
         function (ciphertext) {
-          console.log("fulfilling?");
-          console.log(ciphertext.length);
-          console.log(typeof ciphertext);
           F(array2buf(ciphertext));
         }).addErrback(R);
     });
@@ -197,21 +191,19 @@ function array2str(a) {
 }
 
 function str2buf(s) {
-  var buffer = new ArrayBuffer(s.length * 2);
-  var view = new Uint16Array(buffer);
+  var buf = new ArrayBuffer(s.length * 2);
+  var view = new Uint16Array(buf);
   for (var i = 0; i < s.length; i++) {
     view[i] = s.charCodeAt(i);
   }
-  return buffer;
+  return buf;
 }
 
 function array2buf(a) {
-  var buffer = new ArrayBuffer(a.length);
-  var byteView = new Uint8Array(buffer);
+  var buf = new ArrayBuffer(a.length);
+  var byteView = new Uint8Array(buf);
   byteView.set(a);
-  console.log("IN ARRAY2BUF");
-  console.log(buffer.byteLength);
-  return buffer;
+  return buf;
 }
 
 function buf2array(b) {

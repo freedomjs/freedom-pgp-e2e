@@ -9,8 +9,9 @@ var e2edemo = function (dispatchEvent) {
 e2edemo.prototype.runCryptoDemo = function() {
   'use strict';
   var e2e = new freedom.e2e();
-  var buffer = new ArrayBuffer(12);
-  var byteView = new Uint8Array(buffer);
+  var plaintext = new ArrayBuffer(12);
+  var byteView = new Uint8Array(plaintext);
+  // "123412341234" in ASCII
   byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
 
   this.dispatch('print', 'Starting encryption test!');
@@ -19,13 +20,9 @@ e2edemo.prototype.runCryptoDemo = function() {
       this.dispatch('print', 'Exporting public key...');
       return e2e.exportKey();
     }.bind(this)).then(function (publicKey) {
-      console.log("ABOUT TO ENCRYPT/SIGN");
       this.dispatch('print', 'Encrypting/signing...');
-      return e2e.signEncrypt(buffer, publicKey, true).then(
+      return e2e.signEncrypt(plaintext, publicKey, true).then(
         function (encryptedData) {
-          console.log("SIGNENCRYPT RESOLVED?");
-          console.log(encryptedData);
-          console.log(encryptedData.byteLength);
           this.dispatch('print', 'Decrypting...');
           return e2e.verifyDecrypt(encryptedData, publicKey);
         }.bind(this));

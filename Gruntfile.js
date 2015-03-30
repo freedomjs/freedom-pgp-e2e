@@ -75,7 +75,7 @@ module.exports = function(grunt) {
       options: {
         paths: ['node_modules/freedom-for-chrome/freedom-for-chrome.js',
                 'spec/integration/pgpapi.spec.js'],
-        keepRunner: true
+        keepRunner: false
       }
     },
 
