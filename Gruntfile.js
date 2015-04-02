@@ -11,7 +11,7 @@
 module.exports = function(grunt) {
   grunt.initConfig({
     copy: {
-      dist: {
+      build: {
         src: ['src/*.js*'],
         dest: 'build/',
         flatten: true,
@@ -45,6 +45,13 @@ module.exports = function(grunt) {
           dest: 'build/end-to-end.compiled.js',
           onlyIf: 'modified'
         } ]
+      },
+      dist: {
+        src: ['build/*'],
+        dest: 'dist/',
+        flatten: true,
+        filter: 'isFile',
+        expand: true
       }
     },
 
@@ -69,6 +76,7 @@ module.exports = function(grunt) {
         autoWatch: false
       }
     },
+
     jasmine_chromeapp: {
       src: ['node_modules/freedom-for-chrome/freedom-for-chrome.*',
             'spec/integration/pgpapi.spec.js', 'build/*.js*', 'build/demo/*'],
@@ -139,7 +147,7 @@ module.exports = function(grunt) {
       }
     },
 
-    clean: ['build/', '.build/']
+    clean: ['build/', '.build/', 'dist/']
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');
