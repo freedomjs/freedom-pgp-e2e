@@ -1,5 +1,10 @@
-/*globals freedom, console, e2e, exports, Promise, ArrayBuffer, Uint8Array, Uint16Array, DataView*/
+/*globals freedom, console, e2e, exports, ArrayBuffer, Uint8Array, Uint16Array, DataView*/
 /*jslint indent:2*/
+
+if (typeof Promise === 'undefined' && typeof ES6Promise !== 'undefined') {
+  // Polyfill for karma unit tests
+  Promise = ES6Promise.Promise;
+}
 
 /**
  * Implementation of a crypto-pgp provider for freedom.js
@@ -186,19 +191,19 @@ function array2str(a) {
 }
 
 function str2buf(s) {
-  var buffer = new ArrayBuffer(s.length * 2);
-  var view = new Uint16Array(buffer);
+  var buf = new ArrayBuffer(s.length * 2);
+  var view = new Uint16Array(buf);
   for (var i = 0; i < s.length; i++) {
     view[i] = s.charCodeAt(i);
   }
-  return buffer;
+  return buf;
 }
 
 function array2buf(a) {
-  var buffer = new ArrayBuffer(a.length);
-  var byteView = new Uint8Array(buffer);
+  var buf = new ArrayBuffer(a.length);
+  var byteView = new Uint8Array(buf);
   byteView.set(a);
-  return buffer;
+  return buf;
 }
 
 function buf2array(b) {

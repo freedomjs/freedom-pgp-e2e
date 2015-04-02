@@ -76,6 +76,7 @@ module.exports = function(grunt) {
         autoWatch: false
       }
     },
+
     jasmine_chromeapp: {
       src: ['node_modules/freedom-for-chrome/freedom-for-chrome.*',
             'spec/integration/pgpapi.spec.js', 'build/*.js*', 'build/demo/*'],
@@ -108,6 +109,44 @@ module.exports = function(grunt) {
       }
     },
 
+    bump: {
+      options: {
+        files: ['package.json'],
+        commit: true,
+        commitMessage: 'Release v%VERSION%',
+        commitFiles: ['package.json'],
+        createTag: true,
+        tagName: 'v%VERSION%',
+        tagMessage: 'Version %VERSION%',
+        push: true,
+        pushTo: 'origin'
+      }
+    },
+
+    'npm-publish': {
+      options: {
+        // list of tasks that are required before publishing
+        requires: [],
+        // if the workspace is dirty, abort publishing (to avoid publishing local changes)
+        abortIfDirty: true
+      }
+    },
+
+    prompt: {
+      tagMessage: {
+        options: {
+          questions: [
+            {
+              config: 'bump.options.tagMessage',
+              type: 'input',
+              message: 'Enter a git tag message:',
+              default: 'v%VERSION%'
+            }
+          ]
+        }
+      }
+    },
+
     clean: ['build/', '.build/', 'dist/']
   });
 
@@ -125,14 +164,24 @@ module.exports = function(grunt) {
   ]);
   grunt.registerTask('test', [
     'build',
+    'karma:single',
     'jasmine_node',
-    'jasmine_chromeapp',
-    'karma:single'
+    'jasmine_chromeapp'
   ]);
   grunt.registerTask('ci', [
     'build',
     'jasmine_node'
   ]);
+  grunt.registerTask('release', function (arg) {
+    if (arguments.length === 0) {
+      arg = 'patch';
+    }
+    grunt.task.run([
+      'prompt:tagMessage',
+      'bump:' + arg,
+      'npm-publish'
+    ]);
+  });
   grunt.registerTask('demo', [
     'build',
     'connect'

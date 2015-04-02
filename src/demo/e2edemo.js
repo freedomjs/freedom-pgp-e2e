@@ -9,8 +9,9 @@ var e2edemo = function (dispatchEvent) {
 e2edemo.prototype.runCryptoDemo = function() {
   'use strict';
   var e2e = new freedom.e2e();
-  var buffer = new ArrayBuffer(12);
-  var byteView = new Uint8Array(buffer);
+  var plaintext = new ArrayBuffer(12);
+  var byteView = new Uint8Array(plaintext);
+  // "123412341234" in ASCII
   byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
 
   this.dispatch('print', 'Starting encryption test!');
@@ -19,26 +20,26 @@ e2edemo.prototype.runCryptoDemo = function() {
       this.dispatch('print', 'Exporting public key...');
       return e2e.exportKey();
     }.bind(this)).then(function (publicKey) {
-    this.dispatch('print', 'Encrypting/signing...');
-    return e2e.signEncrypt(buffer, publicKey, true).then(
-      function (encryptedData) {
-        this.dispatch('print', 'Decrypting...');
-        return e2e.verifyDecrypt(encryptedData, publicKey);
-      }.bind(this));
+      this.dispatch('print', 'Encrypting/signing...');
+      return e2e.signEncrypt(plaintext, publicKey, true).then(
+        function (encryptedData) {
+          this.dispatch('print', 'Decrypting...');
+          return e2e.verifyDecrypt(encryptedData, publicKey);
+        }.bind(this));
     }.bind(this)).then(function (result) {
-    this.dispatch('print', 'Decrypted!');
-    var resultView = new Uint8Array(result.data);
-    if (result.signedBy[0] === 'Joe Test <joetest@example.com>' &&
-        String.fromCharCode.apply(null, resultView) ===
-        String.fromCharCode.apply(null, byteView)) {
-      this.dispatch('print', 'Encryption test SUCCEEDED.');
-    } else {
-      this.dispatch('print', 'Encryption test FAILED.');
-    }
-  }.bind(this)).catch(
-    function (e) {
-      this.dispatch('print', 'Encryption test encountered error %1', [e]);
-    }.bind(this));
+      this.dispatch('print', 'Decrypted!');
+      var resultView = new Uint8Array(result.data);
+      if (result.signedBy[0] === 'Joe Test <joetest@example.com>' &&
+          String.fromCharCode.apply(null, resultView) ===
+          String.fromCharCode.apply(null, byteView)) {
+        this.dispatch('print', 'Encryption test SUCCEEDED.');
+      } else {
+        this.dispatch('print', 'Encryption test FAILED.');
+      }
+    }.bind(this)).catch(
+      function (e) {
+        this.dispatch('print', 'Encryption test encountered error: ' + e.message);
+      }.bind(this));
 };
 
 e2edemo.prototype.runImportDemo = function(publicKeyStr, privateKeyStr) {

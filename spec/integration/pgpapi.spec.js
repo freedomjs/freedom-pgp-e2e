@@ -15,7 +15,7 @@ var publicKeyStr =
   'W9H/AAAACZDpuCAfW4dtiQAAegAA/RYXPbjEOHc7iy3xFxWKWPvpnPc5LwX/6DDt\r\n' +
   'woPMCTLeAQCpjnRiMaIK7tjslDfXd4BtaY6K90JHuRPCQUJ7Uw+fRA==\r\n' +
   '=3Iv4\r\n' +
-  '-----END PGP PUBLIC KEY BLOCK-----';
+  '-----END PGP PUBLIC KEY BLOCK-----\r\n';
 
 var privateKeyStr =
   '-----BEGIN PGP PRIVATE KEY BLOCK-----\r\n' +
@@ -43,7 +43,9 @@ var privateKeyStr =
   'iy3xFxWKWPvpnPc5LwX/6DDtwoPMCTLeAQCpjnRiMaIK7tjslDfXd4BtaY6K90JH\r\n' +
   'uRPCQUJ7Uw+fRA==\r\n' +
   '=H/6h\r\n' +
-  '-----END PGP PRIVATE KEY BLOCK-----';
+  '-----END PGP PRIVATE KEY BLOCK-----\r\n';
+
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
 
 describe('PGP api integration', function() {
   'use strict';
