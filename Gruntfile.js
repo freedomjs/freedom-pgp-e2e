@@ -150,6 +150,7 @@ module.exports = function(grunt) {
     clean: ['build/', '.build/', 'dist/']
   });
 
+  grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-copy');
@@ -157,6 +158,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-jasmine-chromeapp');
   grunt.loadNpmTasks('grunt-jasmine-node2');
   grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-npm');
+  grunt.loadNpmTasks('grunt-prompt');
 
   grunt.registerTask('build', [
     'jshint',
