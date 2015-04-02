@@ -1,7 +1,7 @@
 {
   "name": "freedom-pgp-e2e",
   "description": "Library to provide freedom API wrapper of end-to-end library",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "contributors": [
     "Aaron Gallant <ag@cs.washington.edu>"
   ],
