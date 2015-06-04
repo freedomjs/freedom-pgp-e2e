@@ -56,7 +56,7 @@ e2edemo.prototype.runImportDemo = function(publicKeyStr, privateKeyStr) {
       return e2e.exportKey();
     }.bind(this)).then(
       function (result) {
-        if (result === publicKeyStr) {
+        if (result.key === publicKeyStr) {
           this.dispatch('print', 'Keypair import test SUCCEEDED.');
         } else {
           this.dispatch('print', 'Keypair import test FAILED.');
