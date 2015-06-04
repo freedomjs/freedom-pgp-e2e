@@ -59,7 +59,7 @@ module.exports = function(grunt) {
       options: {
         configFile: 'karma.conf.js'
       },
-      single: {
+      browsers: {
         singleRun: true,
         autoWatch: false
       },
@@ -167,7 +167,8 @@ module.exports = function(grunt) {
   ]);
   grunt.registerTask('test', [
     'build',
-    'karma:single',
+    'karma:browsers',
+    'karma:phantom',
     'jasmine_node',
     'jasmine_chromeapp'
   ]);
