@@ -61,7 +61,7 @@ mye2e.prototype.exportKey = function() {
   return Promise.resolve({
     "key": e2e.openpgp.asciiArmor.encode(
       'PUBLIC KEY BLOCK', serialized),
-    "fingerprint": keyResult[0].fingerprintHex });
+    "fingerprint": keyResult[0].key.fingerprintHex });
 };
 
 mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {

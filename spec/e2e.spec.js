@@ -21,6 +21,8 @@ describe('e2eImp', function () {
     '=3Iv4\r\n' +
     '-----END PGP PUBLIC KEY BLOCK-----\r\n';
 
+  var keyFingerprint = 'B734 A06E 3413 DD98 6774  3FB3 E9B8 201F 5B87 6D89';
+
   var privateKeyStr =
     '-----BEGIN PGP PRIVATE KEY BLOCK-----\r\n' +
     'Charset: UTF-8\r\n' +
@@ -118,6 +120,7 @@ describe('e2eImp', function () {
       return e2eImp.exportKey();
     }).then(function (publicKey) {
       expect(publicKey.key).toEqual(publicKeyStr);
+      expect(publicKey.fingerprint).toEqual(keyFingerprint);
     }).then(function () {
       return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
     }).then(function (keys) {
