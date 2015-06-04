@@ -117,7 +117,7 @@ describe('e2eImp', function () {
       expect(e2eImp.pgpUser).toEqual('<quantsword@gmail.com>');
       return e2eImp.exportKey();
     }).then(function (publicKey) {
-      expect(publicKey).toEqual(publicKeyStr);
+      expect(publicKey.key).toEqual(publicKeyStr);
     }).then(function () {
       return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
     }).then(function (keys) {
@@ -134,10 +134,10 @@ describe('e2eImp', function () {
       function () {
         return e2eImp.exportKey();
       }).then(function (publicKey) {
-      return e2eImp.signEncrypt(buffer, publicKey, false);
-    }).then(function (encryptedData) {
-      return e2eImp.verifyDecrypt(encryptedData);
-    }).then(function (result) {
+        return e2eImp.signEncrypt(buffer, publicKey.key, false);
+      }).then(function (encryptedData) {
+        return e2eImp.verifyDecrypt(encryptedData);
+      }).then(function (result) {
       expect(result.data).toEqual(buffer);
     }).catch(function (e) {
                console.log(e.toString());
@@ -150,10 +150,10 @@ describe('e2eImp', function () {
       function () {
         return e2eImp.exportKey();
       }).then(function (publicKey) {
-      return e2eImp.signEncrypt(buffer, publicKey, true).then(
-        function (encryptedData) {
-          return e2eImp.verifyDecrypt(encryptedData, publicKey);
-        });
+        return e2eImp.signEncrypt(buffer, publicKey.key, true).then(
+          function (encryptedData) {
+            return e2eImp.verifyDecrypt(encryptedData, publicKey.key);
+          });
     }).then(function (result) {
       expect(result.data).toEqual(buffer);
       expect(result.signedBy.length).toEqual(1);
@@ -183,11 +183,11 @@ describe('e2eImp', function () {
       function () {
         expect(true).toBeTruthy();
         return e2eImp.exportKey();
-      }).then(function (publicKeyStr) {
-      expect(publicKeyStr.length > 36);
-      expect(publicKeyStr.substring(0, 36)).toEqual(
-        '-----BEGIN PGP PUBLIC KEY BLOCK-----');
-    }).catch(function (e) {
+      }).then(function (publicKey) {
+        expect(publicKey.key.length > 36);
+        expect(publicKey.key.substring(0, 36)).toEqual(
+          '-----BEGIN PGP PUBLIC KEY BLOCK-----');
+      }).catch(function (e) {
                console.log(e.toString());
                expect(false).toBeTruthy();
              }).then(done);

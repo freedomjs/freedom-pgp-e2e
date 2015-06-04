@@ -54,11 +54,14 @@ mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
 };
 
 mye2e.prototype.exportKey = function() {
-  var serialized = e2e.async.Result.getValue(
-    this.pgpContext.searchPublicKey(this.pgpUser))[0].serialized;
+  var keyResult = e2e.async.Result.getValue(
+    this.pgpContext.searchPublicKey(this.pgpUser));
+  var serialized = keyResult[0].serialized;
 
-  return Promise.resolve(e2e.openpgp.asciiArmor.encode(
-    'PUBLIC KEY BLOCK', serialized));
+  return Promise.resolve({
+    "key": e2e.openpgp.asciiArmor.encode(
+      'PUBLIC KEY BLOCK', serialized),
+    "fingerprint": keyResult[0].fingerprintHex });
 };
 
 mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
@@ -136,12 +139,12 @@ mye2e.prototype.generateKey = function(name, email) {
       var expiration = Date.now() / 1000 + (3600 * 24 * 365);
       pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration).
         addCallback(function (keys) {
-        if (keys.length == 2) {
-          resolve();
-        } else {
-          reject(new Error('Failed to generate key'));
-        }
-      });
+          if (keys.length == 2) {
+            resolve();
+          } else {
+            reject(new Error('Failed to generate key'));
+          }
+        });
     });
 };
 
