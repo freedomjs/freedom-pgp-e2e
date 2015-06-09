@@ -21,10 +21,10 @@ e2edemo.prototype.runCryptoDemo = function() {
       return e2e.exportKey();
     }.bind(this)).then(function (publicKey) {
       this.dispatch('print', 'Encrypting/signing...');
-      return e2e.signEncrypt(plaintext, publicKey, true).then(
+      return e2e.signEncrypt(plaintext, publicKey.key, true).then(
         function (encryptedData) {
           this.dispatch('print', 'Decrypting...');
-          return e2e.verifyDecrypt(encryptedData, publicKey);
+          return e2e.verifyDecrypt(encryptedData, publicKey.key);
         }.bind(this));
     }.bind(this)).then(function (result) {
       this.dispatch('print', 'Decrypted!');
@@ -56,7 +56,7 @@ e2edemo.prototype.runImportDemo = function(publicKeyStr, privateKeyStr) {
       return e2e.exportKey();
     }.bind(this)).then(
       function (result) {
-        if (result === publicKeyStr) {
+        if (result.key === publicKeyStr) {
           this.dispatch('print', 'Keypair import test SUCCEEDED.');
         } else {
           this.dispatch('print', 'Keypair import test FAILED.');

@@ -45,10 +45,10 @@
       },
 
       "exportKey": {
-        "_comment": "Export your public key to share with buddies",
+        "_comment": "Export your public key and fingerprint to share/check",
         "type": "method",
         "value": [],
-        "ret": "string",
+        "ret": { "key": "string", "fingerprint": "string" },
         "err": { "errcode": "string", "message": "string" }
       },
 

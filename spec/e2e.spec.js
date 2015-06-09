@@ -21,6 +21,8 @@ describe('e2eImp', function () {
     '=3Iv4\r\n' +
     '-----END PGP PUBLIC KEY BLOCK-----\r\n';
 
+  var keyFingerprint = 'B734 A06E 3413 DD98 6774  3FB3 E9B8 201F 5B87 6D89';
+
   var privateKeyStr =
     '-----BEGIN PGP PRIVATE KEY BLOCK-----\r\n' +
     'Charset: UTF-8\r\n' +
@@ -117,7 +119,8 @@ describe('e2eImp', function () {
       expect(e2eImp.pgpUser).toEqual('<quantsword@gmail.com>');
       return e2eImp.exportKey();
     }).then(function (publicKey) {
-      expect(publicKey).toEqual(publicKeyStr);
+      expect(publicKey.key).toEqual(publicKeyStr);
+      expect(publicKey.fingerprint).toEqual(keyFingerprint);
     }).then(function () {
       return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
     }).then(function (keys) {
@@ -134,10 +137,10 @@ describe('e2eImp', function () {
       function () {
         return e2eImp.exportKey();
       }).then(function (publicKey) {
-      return e2eImp.signEncrypt(buffer, publicKey, false);
-    }).then(function (encryptedData) {
-      return e2eImp.verifyDecrypt(encryptedData);
-    }).then(function (result) {
+        return e2eImp.signEncrypt(buffer, publicKey.key, false);
+      }).then(function (encryptedData) {
+        return e2eImp.verifyDecrypt(encryptedData);
+      }).then(function (result) {
       expect(result.data).toEqual(buffer);
     }).catch(function (e) {
                console.log(e.toString());
@@ -150,10 +153,10 @@ describe('e2eImp', function () {
       function () {
         return e2eImp.exportKey();
       }).then(function (publicKey) {
-      return e2eImp.signEncrypt(buffer, publicKey, true).then(
-        function (encryptedData) {
-          return e2eImp.verifyDecrypt(encryptedData, publicKey);
-        });
+        return e2eImp.signEncrypt(buffer, publicKey.key, true).then(
+          function (encryptedData) {
+            return e2eImp.verifyDecrypt(encryptedData, publicKey.key);
+          });
     }).then(function (result) {
       expect(result.data).toEqual(buffer);
       expect(result.signedBy.length).toEqual(1);
@@ -183,11 +186,11 @@ describe('e2eImp', function () {
       function () {
         expect(true).toBeTruthy();
         return e2eImp.exportKey();
-      }).then(function (publicKeyStr) {
-      expect(publicKeyStr.length > 36);
-      expect(publicKeyStr.substring(0, 36)).toEqual(
-        '-----BEGIN PGP PUBLIC KEY BLOCK-----');
-    }).catch(function (e) {
+      }).then(function (publicKey) {
+        expect(publicKey.key.length > 36);
+        expect(publicKey.key.substring(0, 36)).toEqual(
+          '-----BEGIN PGP PUBLIC KEY BLOCK-----');
+      }).catch(function (e) {
                console.log(e.toString());
                expect(false).toBeTruthy();
              }).then(done);
