@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "e2e": "^0.0.5",
-    "es6-promise": "^2.1.1",
+    "es6-promise": "^2.2.0",
     "freedom": "^0.6.25",
     "freedom-for-chrome": "^0.4.19",
     "freedom-for-node": "^0.2.17",
