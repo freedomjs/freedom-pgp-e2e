@@ -39,6 +39,8 @@
       output.innerHTML = "<font color='green'>Success</font><br />";
       if (typeof val === 'string') {
         output.innerHTML += val;
+      } else if (val.key) {
+        output.innerHTML += val.key + '\n\n' + val.fingerprint;
       }
     }
     var decryptSuccess = function(result) {
