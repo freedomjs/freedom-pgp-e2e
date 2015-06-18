@@ -36,8 +36,16 @@
         "err": { "errcode": "string", "message": "string" }
       },
 
+      "clear": {
+        "_comment": "Clear local storage, resetting priavte key",
+        "type": "method",
+        "value": [],
+        "ret": [],
+        "err": { "errcode": "string", "message": "string" }
+      },
+
       "importKeypair": {
-        "_comment": "Import a pre-existing public/private keypair",
+        "_comment": "Import a public/private keypair, overwriting if needed",
         "type": "method",
         "value": ["string", "string", "string"],
         "ret": [],

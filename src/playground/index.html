@@ -24,6 +24,7 @@
 
     var start = function(PGP) {
     var crypt = window.crypter = new PGP();
+    Promise.resolve(crypt.clear());  // clear local storage to reset key
     var input = document.getElementById('input');
     var key = document.getElementById('key');
     var output = document.getElementById('output');

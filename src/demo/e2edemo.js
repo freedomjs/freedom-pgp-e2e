@@ -15,6 +15,7 @@ e2edemo.prototype.runCryptoDemo = function() {
   byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
 
   this.dispatch('print', 'Starting encryption test!');
+  Promise.resolve(e2e.clear());  // clear any existing private key
   e2e.setup('secret passphrase', 'Joe Test <joetest@example.com>').then(
     function () {
       this.dispatch('print', 'Exporting public key...');
@@ -63,8 +64,10 @@ e2edemo.prototype.runImportDemo = function(publicKeyStr, privateKeyStr) {
         }
       }.bind(this)).catch(
         function (e) {
-          this.dispatch('print', 'Keypair import test encountered error %1',
-                        [e]);
+          if (e.message) {
+            e = e.message;
+          }
+          this.dispatch('print', 'Keypair import test encountered error ' + e);
         }.bind(this));
 };
 
