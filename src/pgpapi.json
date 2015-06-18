@@ -4,7 +4,7 @@
   "app": {
     "script": [
       "end-to-end.compiled.js",
-      "googstorage_mock.js",
+      "googstorage.js",
       "e2e.js"
     ]
   },

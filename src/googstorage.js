@@ -68,18 +68,13 @@ store.prototype.deserialize = function(value) {
 
 
 store.prototype.initialize = function() {
-  this.memStorage = store.preparedMem;
-};
-
-store.preparedMem = {};
-
-store.prepareFreedom = function() {
-  freedomStorage = freedom['core.storage']();
-  return freedomStorage.get('UserKeyRing').then(function(value) {
+  store.preparedMem = {};
+  this.freedomStorage.get('UserKeyRing').then(function(value) {
     if (value) {
       store.preparedMem.UserKeyRing = value;
     }
   });
+  this.memStorage = store.preparedMem;
 };
 
 goog.storage.mechanism.HTML5LocalStorage = store;
