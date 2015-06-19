@@ -15,6 +15,7 @@ var mye2e = function(dispatchEvents) {
   this.pgpContext = new e2e.openpgp.ContextImpl();
   this.pgpContext.armorOutput = false;
   this.pgpUser = null;
+  this.storage = new store();
 };
 
 
@@ -41,7 +42,9 @@ mye2e.prototype.clear = function() {
   // Attempting to set another will result in an HMAC error
   // So, make sure to clear before doing so
   // See googstorage.js for details on how storage works
-  store.prototype.clear();
+  if (this.storage.get('UserKeyRing')) {
+    this.storage.remove('UserKeyRing');
+  }
 };
 
 mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
