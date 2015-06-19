@@ -24,6 +24,7 @@
 
     var start = function(PGP) {
     var crypt = window.crypter = new PGP();
+    Promise.resolve(crypt.clear());  // clear local storage to reset key
     var input = document.getElementById('input');
     var key = document.getElementById('key');
     var output = document.getElementById('output');
@@ -39,6 +40,8 @@
       output.innerHTML = "<font color='green'>Success</font><br />";
       if (typeof val === 'string') {
         output.innerHTML += val;
+      } else if (val.key) {
+        output.innerHTML += val.key + '\n\n' + val.fingerprint;
       }
     }
     var decryptSuccess = function(result) {

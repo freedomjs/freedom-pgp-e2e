@@ -15,6 +15,7 @@ var mye2e = function(dispatchEvents) {
   this.pgpContext = new e2e.openpgp.ContextImpl();
   this.pgpContext.armorOutput = false;
   this.pgpUser = null;
+  this.storage = new store();
 };
 
 
@@ -36,12 +37,23 @@ mye2e.prototype.setup = function(passphrase, userid) {
   return Promise.resolve();
 };
 
+mye2e.prototype.clear = function() {
+  // e2e can only store one private key in LocalStorage
+  // Attempting to set another will result in an HMAC error
+  // So, make sure to clear before doing so
+  // See googstorage.js for details on how storage works
+  if (this.storage.get('UserKeyRing')) {
+    this.storage.remove('UserKeyRing');
+  }
+};
+
 mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
+  this.clear();
   this.pgpContext.setKeyRingPassphrase(passphrase);
   this.importKey(privateKey, passphrase);
 
   if (e2e.async.Result.getValue(
-        this.pgpContext.searchPrivateKey(userid)).length === 0 ||
+    this.pgpContext.searchPrivateKey(userid)).length === 0 ||
       e2e.async.Result.getValue(
         this.pgpContext.searchPublicKey(userid)).length === 0) {
     return Promise.reject(Error('Keypair does not match provided userid'));

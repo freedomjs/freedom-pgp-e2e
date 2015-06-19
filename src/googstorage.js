@@ -2,7 +2,11 @@
 function store () {
   this.freedomStorage = freedom['core.storage']();
   this.memStorage = {};
-  this.initialize();
+  this.freedomStorage.get('UserKeyRing').then(function(value) {
+    if (value) {
+      this.memStorage.UserKeyRing = value;
+    }
+  });
 }
 
 store.prototype.set = function(key, val) {
@@ -27,7 +31,9 @@ store.prototype.remove = function(key) {
 
 store.prototype.clear = function() {
   this.memStorage = {};
-  this.freedomStorage.clear();
+  if (this.freedomStorage) {
+    this.freedomStorage.clear();
+  }
 };
 
 store.prototype.transact = function(key, defaultVal, transactionFn) {
@@ -64,22 +70,6 @@ store.prototype.deserialize = function(value) {
   } catch(e) {
     return value || undefined;
   }
-};
-
-
-store.prototype.initialize = function() {
-  this.memStorage = store.preparedMem;
-};
-
-store.preparedMem = {};
-
-store.prepareFreedom = function() {
-  freedomStorage = freedom['core.storage']();
-  return freedomStorage.get('UserKeyRing').then(function(value) {
-    if (value) {
-      store.preparedMem.UserKeyRing = value;
-    }
-  });
 };
 
 goog.storage.mechanism.HTML5LocalStorage = store;
