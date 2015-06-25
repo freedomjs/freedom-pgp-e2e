@@ -6,7 +6,12 @@ function store () {
     if (value) {
       this.memStorage.UserKeyRing = value;
     }
-  });
+  }.bind(this));
+  this.freedomStorage.get('Salt').then(function(value) {
+    if (value) {
+      this.memStorage.Salt = value;
+    }
+  }.bind(this));
 }
 
 store.prototype.set = function(key, val) {
@@ -31,9 +36,7 @@ store.prototype.remove = function(key) {
 
 store.prototype.clear = function() {
   this.memStorage = {};
-  if (this.freedomStorage) {
-    this.freedomStorage.clear();
-  }
+  this.freedomStorage.clear();
 };
 
 store.prototype.transact = function(key, defaultVal, transactionFn) {
