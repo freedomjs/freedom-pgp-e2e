@@ -8,12 +8,34 @@ if (typeof Promise === 'undefined' && typeof ES6Promise !== 'undefined') {
 
 if (typeof crypto === 'undefined') {
   console.log("POLYFILLING CRYPTO RANDOM");
-  var rand = freedom['core.crypto']();
-  crypto = {};
-  crypto.getRandomValues = function (array) {
-    rand.getRandomBytes(array.byteLength).then(function (bytes) {
-      array = array.constructor(bytes);
+  var rand = freedom['core.crypto'](),
+      buf,
+      offset = 0;
+  var refreshBuffer = function (size, callback) {
+    rand.getRandomBytes(size).then(function (bytes) {
+      buf = new Uint8Array(bytes);
+      offset = 0;
+      callback(0);
+    }, function (err) {
+      callback(-1, err);
     });
+  };
+
+  crypto = {};
+  crypto.getRandomValues = function (buffer) {
+    if (buffer.buffer) {
+      buffer = buffer.buffer;
+    }
+    var size = buffer.byteLength,
+        view = new Uint8Array(buffer),
+        i;
+    if (offset + size > buf.length) {
+      throw new Error("Insufficient Randomness Allocated.");
+    }
+    for (i = 0; i < size; i += 1) {
+      view[i] = buf[offset + i];
+    }
+    offset += size;
   };
 }
 
