@@ -6,6 +6,17 @@ if (typeof Promise === 'undefined' && typeof ES6Promise !== 'undefined') {
   Promise = ES6Promise.Promise;
 }
 
+if (typeof crypto === 'undefined') {
+  console.log("POLYFILLING CRYPTO RANDOM");
+  var rand = freedom['core.crypto']();
+  crypto = {};
+  crypto.getRandomValues = function (array) {
+    rand.getRandomBytes(array.byteLength).then(function (bytes) {
+      array = array.constructor(bytes);
+    });
+  };
+}
+
 /**
  * Implementation of a crypto-pgp provider for freedom.js
  * using cryptographic code from Google's end-to-end.
