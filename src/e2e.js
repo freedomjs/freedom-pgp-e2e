@@ -42,9 +42,8 @@ mye2e.prototype.clear = function() {
   // Attempting to set another will result in an HMAC error
   // So, make sure to clear before doing so
   // See googstorage.js for details on how storage works
-  if (this.storage.get('UserKeyRing')) {
-    this.storage.remove('UserKeyRing');
-  }
+  this.storage.remove('UserKeyRing');
+  this.storage.remove('Salt');
 };
 
 mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
