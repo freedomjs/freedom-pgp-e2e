@@ -12,17 +12,22 @@ if (typeof crypto === 'undefined') {
       buf,
       offset = 0;
   var refreshBuffer = function (size, callback) {
+    console.log('in rb');
     rand.getRandomBytes(size).then(function (bytes) {
+      console.log('done refresh');
       buf = new Uint8Array(bytes);
       offset = 0;
-      callback(0);
+      return Promise.resolve(callback(0));
     }, function (err) {
-      callback(-1, err);
+      console.log('err!');
+      console.log(err);
+      return Promise.resolve(callback(-1, err));
     });
-  };
+  }.bind(this);
 
   crypto = {};
   crypto.getRandomValues = function (buffer) {
+    console.log('trying to get randomness');
     if (buffer.buffer) {
       buffer = buffer.buffer;
     }
@@ -37,7 +42,7 @@ if (typeof crypto === 'undefined') {
     }
     offset += size;
   };
-}
+  }
 
 /**
  * Implementation of a crypto-pgp provider for freedom.js
@@ -54,20 +59,30 @@ var mye2e = function(dispatchEvents) {
 
 // These methods implement the actual freedom crypto API
 mye2e.prototype.setup = function(passphrase, userid) {
-  // userid needs to be in format "name <email>"
-  if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
-    return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
-  }
-  this.pgpUser = userid;
-  this.pgpContext.setKeyRingPassphrase(passphrase);
+  var init = function () {
+    console.log('in init');
+    // userid needs to be in format "name <email>"
+    if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
+      return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
+    }
+    this.pgpUser = userid;
+    this.pgpContext.setKeyRingPassphrase(passphrase);
 
-  if (e2e.async.Result.getValue(
-    this.pgpContext.searchPrivateKey(this.pgpUser)).length === 0) {
-    var username = this.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
-    var email = this.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
-    this.generateKey(username, email);
+    if (e2e.async.Result.getValue(
+      this.pgpContext.searchPrivateKey(this.pgpUser)).length === 0) {
+      var username = this.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
+      var email = this.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
+      return this.generateKey(username, email);
+    } else {
+      return Promise.resolve();
+    }
+  }.bind(this);
+  if (refreshBuffer) {
+    console.log('refresh?');
+    return refreshBuffer(50000, init);
+  } else {
+    return init();
   }
-  return Promise.resolve();
 };
 
 mye2e.prototype.clear = function() {
