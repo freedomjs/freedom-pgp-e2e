@@ -25,16 +25,16 @@ mye2e.prototype.setup = function(passphrase, userid) {
     return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
   }
   this.pgpUser = userid;
-
+  var scope = this;  // jasmine tests fail w/bind approach
   return store.prepareFreedom().then(function() {
-    this.pgpContext.setKeyRingPassphrase(passphrase);
+    scope.pgpContext.setKeyRingPassphrase(passphrase);
     if (e2e.async.Result.getValue(
-      this.pgpContext.searchPrivateKey(this.pgpUser)).length === 0) {
-      var username = this.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
-      var email = this.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
-      this.generateKey(username, email);
+      scope.pgpContext.searchPrivateKey(scope.pgpUser)).length === 0) {
+      var username = scope.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
+      var email = scope.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
+      scope.generateKey(username, email);
     }
-  }.bind(this));
+  });//.bind(this));  // TODO: switch back to using this once jasmine works
 };
 
 mye2e.prototype.clear = function() {

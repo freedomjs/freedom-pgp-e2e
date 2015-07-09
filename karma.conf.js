@@ -24,7 +24,8 @@ module.exports = function(config) {
 
     // list of files to exclude
     exclude: [
-      'build/freedom.js'
+      'build/freedom.js',
+      'build/googstorage.js'
     ],
 
 
