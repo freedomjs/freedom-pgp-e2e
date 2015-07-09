@@ -15,7 +15,6 @@ var mye2e = function(dispatchEvents) {
   this.pgpContext = new e2e.openpgp.ContextImpl();
   this.pgpContext.armorOutput = false;
   this.pgpUser = null;
-  this.storage = new store();
 };
 
 
@@ -26,15 +25,16 @@ mye2e.prototype.setup = function(passphrase, userid) {
     return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
   }
   this.pgpUser = userid;
-  this.pgpContext.setKeyRingPassphrase(passphrase);
 
-  if (e2e.async.Result.getValue(
-    this.pgpContext.searchPrivateKey(this.pgpUser)).length === 0) {
-    var username = this.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
-    var email = this.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
-    this.generateKey(username, email);
-  }
-  return Promise.resolve();
+  return store.prepareFreedom().then(function() {
+    this.pgpContext.setKeyRingPassphrase(passphrase);
+    if (e2e.async.Result.getValue(
+      this.pgpContext.searchPrivateKey(this.pgpUser)).length === 0) {
+      var username = this.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
+      var email = this.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
+      this.generateKey(username, email);
+    }
+  }.bind(this));
 };
 
 mye2e.prototype.clear = function() {
@@ -42,8 +42,10 @@ mye2e.prototype.clear = function() {
   // Attempting to set another will result in an HMAC error
   // So, make sure to clear before doing so
   // See googstorage.js for details on how storage works
-  this.storage.remove('UserKeyRing');
-  this.storage.remove('Salt');
+  return store.prepareFreedom().then(function() {
+    var storage = new store();
+    storage.clear();
+  });
 };
 
 mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
