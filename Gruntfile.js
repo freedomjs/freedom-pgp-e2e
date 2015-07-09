@@ -181,6 +181,7 @@ module.exports = function(grunt) {
       arg = 'patch';
     }
     grunt.task.run([
+      'test',
       'prompt:tagMessage',
       'bump:' + arg,
       'npm-publish'
