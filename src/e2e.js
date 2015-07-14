@@ -6,29 +6,23 @@ if (typeof Promise === 'undefined' && typeof ES6Promise !== 'undefined') {
   Promise = ES6Promise.Promise;
 }
 
+// getRandomValue polyfill for Firefox - remove when FF webworkers implement
 var refreshBuffer = function (size) { return Promise.resolve(); };  // null-op
 if (typeof crypto === 'undefined') {
-  console.log("POLYFILLING CRYPTO RANDOM");
   var rand = freedom['core.crypto'](),
       buf,
       offset = 0;
   refreshBuffer = function (size) {
-    console.log('in rb');
     return rand.getRandomBytes(size).then(function (bytes) {
-      console.log('done refresh');
       buf = new Uint8Array(bytes);
       offset = 0;
-      //return Promise.resolve();
     }, function (err) {
-      console.log('err!');
       console.log(err);
-      //return Promise.resolve();
     });
   }.bind(this);
 
   crypto = {};
   crypto.getRandomValues = function (buffer) {
-    console.log('trying to get randomness');
     if (buffer.buffer) {
       buffer = buffer.buffer;
     }
@@ -43,7 +37,7 @@ if (typeof crypto === 'undefined') {
     }
     offset += size;
   };
-  }
+}
 
 /**
  * Implementation of a crypto-pgp provider for freedom.js
@@ -65,7 +59,7 @@ mye2e.prototype.setup = function(passphrase, userid) {
   }
   this.pgpUser = userid;
   var scope = this;  // jasmine tests fail w/bind approach
-  return refreshBuffer(50000).then(store.prepareFreedom).then(function() {
+  return refreshBuffer(5000).then(store.prepareFreedom).then(function() {
     scope.pgpContext.setKeyRingPassphrase(passphrase);
     if (e2e.async.Result.getValue(
       scope.pgpContext.searchPrivateKey(scope.pgpUser)).length === 0) {
@@ -117,6 +111,7 @@ mye2e.prototype.exportKey = function() {
 };
 
 mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
+  Promise.resolve(refreshBuffer(5000));
   if (typeof sign === 'undefined') {
     sign = true;
   }
