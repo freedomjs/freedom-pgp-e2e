@@ -6,23 +6,23 @@ if (typeof Promise === 'undefined' && typeof ES6Promise !== 'undefined') {
   Promise = ES6Promise.Promise;
 }
 
-var refreshBuffer = function (size, callback) { };  // null-op
+var refreshBuffer = function (size) { return Promise.resolve(); };  // null-op
 if (typeof crypto === 'undefined') {
   console.log("POLYFILLING CRYPTO RANDOM");
   var rand = freedom['core.crypto'](),
       buf,
       offset = 0;
-  refreshBuffer = function (size, callback) {
+  refreshBuffer = function (size) {
     console.log('in rb');
-    rand.getRandomBytes(size).then(function (bytes) {
+    return rand.getRandomBytes(size).then(function (bytes) {
       console.log('done refresh');
       buf = new Uint8Array(bytes);
       offset = 0;
-      return Promise.resolve(callback(0));
+      //return Promise.resolve();
     }, function (err) {
       console.log('err!');
       console.log(err);
-      return Promise.resolve(callback(-1, err));
+      //return Promise.resolve();
     });
   }.bind(this);
 
