@@ -72,21 +72,33 @@ mye2e.prototype.exportKey = function() {
   var serialized = keyResult[0].serialized;
 
   return Promise.resolve({
-    "key": e2e.openpgp.asciiArmor.encode(
+    'key': e2e.openpgp.asciiArmor.encode(
       'PUBLIC KEY BLOCK', serialized),
-    "fingerprint": keyResult[0].key.fingerprintHex });
+    'fingerprint': keyResult[0].key.fingerprintHex });
+};
+
+mye2e.prototype.getFingerprint = function(publicKey) {
+  // Returns v4 fingerprint per RFC 4880 Section 12.2
+  // http://tools.ietf.org/html/rfc4880#section-12.2
+  var importResult = e2e.async.Result.getValue(
+    this.pgpContext.importKey(function(str, f) {
+      f('');
+    }, publicKey));
+  var keyResult = e2e.async.Result.getValue(
+    this.pgpContext.searchPublicKey(importResult[0]));
+  return Promise.resolve(keyResult[0].key.fingerprintHex);
 };
 
 mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
   if (typeof sign === 'undefined') {
     sign = true;
   }
-  var result = e2e.async.Result.getValue(
+  var importResult = e2e.async.Result.getValue(
     this.pgpContext.importKey(function(str, f) {
       f('');
     }, encryptKey));
   var keys = e2e.async.Result.getValue(
-    this.pgpContext.searchPublicKey(result[0]));
+    this.pgpContext.searchPublicKey(importResult[0]));
   var signKey;
   if (sign) {
     signKey = e2e.async.Result.getValue(

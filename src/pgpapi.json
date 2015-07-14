@@ -60,6 +60,14 @@
         "err": { "errcode": "string", "message": "string" }
       },
 
+      "getFingerprint": {
+        "_comment": "Calculate and return 20-byte public key fingerprint",
+        "type": "method",
+        "value": ["string"],
+        "ret": "string",
+        "err": { "errcode": "string", "message": "string" }
+      },
+
       "signEncrypt": {
         "_comment": "Sign w/private key, optionally encrypt with other key",
         "type": "method",
