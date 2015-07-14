@@ -2,16 +2,7 @@
 function store () {
   this.freedomStorage = freedom['core.storage']();
   this.memStorage = {};
-  this.freedomStorage.get('UserKeyRing').then(function(value) {
-    if (value) {
-      this.memStorage.UserKeyRing = value;
-    }
-  }.bind(this));
-  this.freedomStorage.get('Salt').then(function(value) {
-    if (value) {
-      this.memStorage.Salt = value;
-    }
-  }.bind(this));
+  this.initialize();
 }
 
 store.prototype.set = function(key, val) {
@@ -73,6 +64,22 @@ store.prototype.deserialize = function(value) {
   } catch(e) {
     return value || undefined;
   }
+};
+
+store.prototype.initialize = function() {
+  this.memStorage = store.preparedMem;
+};
+
+store.preparedMem = {};
+
+// IMPORTANT - this function must be called and resolved before instantiating
+// a store object, otherwise async nastiness w/freedom localStorage occurs
+store.prepareFreedom = function() {
+  return freedom['core.storage']().get('UserKeyRing').then(function(value) {
+    if (value) {
+      store.preparedMem.UserKeyRing = value;
+    }
+  });
 };
 
 goog.storage.mechanism.HTML5LocalStorage = store;

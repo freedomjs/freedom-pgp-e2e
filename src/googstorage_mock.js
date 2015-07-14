@@ -50,4 +50,9 @@ store.prototype.deserialize = function(value) {
   catch(e) { return value || undefined; }
 };
 
+store.prepareFreedom = function() {
+  // mock doesn't actually use freedom localStorage
+  return Promise.resolve();
+};
+
 goog.storage.mechanism.HTML5LocalStorage = store;

@@ -71,7 +71,7 @@ describe('e2eImp', function () {
     }).then(done);
   });
 
-  it('test importKey and deleteKey with public key', function (done) {
+  it('test importKey and deleteKey with public key', function(done) {
     e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         return e2eImp.importKey(publicKeyStr);
@@ -92,7 +92,7 @@ describe('e2eImp', function () {
              }).then(done);
   });
 
-  it('test importKey and deleteKey with private key', function (done) {
+  it('test importKey and deleteKey with private key', function(done) {
     e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
       function () {
         return e2eImp.importKey(privateKeyStr);
@@ -113,7 +113,7 @@ describe('e2eImp', function () {
              }).then(done);
   });
 
-  it('test importKeypair', function (done) {
+  it('test importKeypair', function(done) {
     e2eImp.importKeypair('', '<quantsword@gmail.com>', privateKeyStr)
     .then(function () {
       expect(e2eImp.pgpUser).toEqual('<quantsword@gmail.com>');
@@ -132,7 +132,7 @@ describe('e2eImp', function () {
              }).then(done);
   });
 
-  it('encrypt and decrypt', function (done) {
+  it('encrypt and decrypt', function(done) {
     e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         return e2eImp.exportKey();
@@ -148,7 +148,7 @@ describe('e2eImp', function () {
              }).then(done);
   });
 
-  it('encryptSign and verifyDecrypt', function (done) {
+  it('encryptSign and verifyDecrypt', function(done) {
     e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         return e2eImp.exportKey();
@@ -167,7 +167,7 @@ describe('e2eImp', function () {
              }).then(done);
   });
 
-  it('generate keys', function (done) {
+  it('generate keys', function(done) {
     e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         expect(true).toBeTruthy();
@@ -181,7 +181,7 @@ describe('e2eImp', function () {
              }).then(done);
   });
 
-  it('export public key', function (done) {
+  it('export public key', function(done) {
     e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         expect(true).toBeTruthy();
@@ -196,7 +196,7 @@ describe('e2eImp', function () {
              }).then(done);
   });
 
-  it('armor and dearmor', function (done) {
+  it('armor and dearmor', function(done) {
     e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         return e2eImp.armor(buffer);

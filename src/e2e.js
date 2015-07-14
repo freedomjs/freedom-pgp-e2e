@@ -6,12 +6,13 @@ if (typeof Promise === 'undefined' && typeof ES6Promise !== 'undefined') {
   Promise = ES6Promise.Promise;
 }
 
+var refreshBuffer = function (size, callback) { };  // null-op
 if (typeof crypto === 'undefined') {
   console.log("POLYFILLING CRYPTO RANDOM");
   var rand = freedom['core.crypto'](),
       buf,
       offset = 0;
-  var refreshBuffer = function (size, callback) {
+  refreshBuffer = function (size, callback) {
     console.log('in rb');
     rand.getRandomBytes(size).then(function (bytes) {
       console.log('done refresh');
@@ -53,36 +54,26 @@ var mye2e = function(dispatchEvents) {
   this.pgpContext = new e2e.openpgp.ContextImpl();
   this.pgpContext.armorOutput = false;
   this.pgpUser = null;
-  this.storage = new store();
 };
 
 
 // These methods implement the actual freedom crypto API
 mye2e.prototype.setup = function(passphrase, userid) {
-  var init = function () {
-    console.log('in init');
-    // userid needs to be in format "name <email>"
-    if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
-      return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
-    }
-    this.pgpUser = userid;
-    this.pgpContext.setKeyRingPassphrase(passphrase);
-
-    if (e2e.async.Result.getValue(
-      this.pgpContext.searchPrivateKey(this.pgpUser)).length === 0) {
-      var username = this.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
-      var email = this.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
-      return this.generateKey(username, email);
-    } else {
-      return Promise.resolve();
-    }
-  }.bind(this);
-  if (refreshBuffer) {
-    console.log('refresh?');
-    return refreshBuffer(50000, init);
-  } else {
-    return init();
+  // userid needs to be in format "name <email>"
+  if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
+    return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
   }
+  this.pgpUser = userid;
+  var scope = this;  // jasmine tests fail w/bind approach
+  return refreshBuffer(50000).then(store.prepareFreedom).then(function() {
+    scope.pgpContext.setKeyRingPassphrase(passphrase);
+    if (e2e.async.Result.getValue(
+      scope.pgpContext.searchPrivateKey(scope.pgpUser)).length === 0) {
+      var username = scope.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
+      var email = scope.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
+      scope.generateKey(username, email);
+    }
+  });//.bind(this));  // TODO: switch back to using this once jasmine works
 };
 
 mye2e.prototype.clear = function() {
@@ -90,8 +81,10 @@ mye2e.prototype.clear = function() {
   // Attempting to set another will result in an HMAC error
   // So, make sure to clear before doing so
   // See googstorage.js for details on how storage works
-  this.storage.remove('UserKeyRing');
-  this.storage.remove('Salt');
+  return store.prepareFreedom().then(function() {
+    var storage = new store();
+    storage.clear();
+  });
 };
 
 mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
@@ -128,7 +121,7 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
     sign = true;
   }
   var result = e2e.async.Result.getValue(
-    this.pgpContext.importKey(function (str, f) {
+    this.pgpContext.importKey(function(str, f) {
       f('');
     }, encryptKey));
   var keys = e2e.async.Result.getValue(
@@ -142,11 +135,11 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
   }
   var pgp = this.pgpContext;
   return new Promise(
-    function(F, R) {
+    function(resolve, reject) {
       pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(
         function (ciphertext) {
-          F(array2buf(ciphertext));
-        }).addErrback(R);
+          resolve(array2buf(ciphertext));
+        }).addErrback(reject);
     });
 };
 
@@ -159,20 +152,20 @@ mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
   var byteView = new Uint8Array(data);
   var pgp = this.pgpContext;
   return new Promise(
-    function (F, R) {
+    function(resolve, reject) {
       pgp.verifyDecrypt(function () {
         return '';
       }, e2e.openpgp.asciiArmor.encode('MESSAGE', byteView)).addCallback(
-        function (r) {
+        function (result) {
           var signed = null;
           if (verifyKey) {
-            signed = r.verify.success[0].uids;
+            signed = result.verify.success[0].uids;
           }
-          F({
-            data: array2buf(r.decrypt.data),
+          resolve({
+            data: array2buf(result.decrypt.data),
             signedBy: signed
           });
-        }).addErrback(R);
+        }).addErrback(reject);
     });
 };
 
@@ -194,7 +187,7 @@ mye2e.prototype.dearmor = function(data) {
 mye2e.prototype.generateKey = function(name, email) {
   var pgp = this.pgpContext;
   return new Promise(
-    function (resolve, reject) {
+    function(resolve, reject) {
       var expiration = Date.now() / 1000 + (3600 * 24 * 365);
       pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration).
         addCallback(function (keys) {
@@ -218,27 +211,27 @@ mye2e.prototype.importKey = function(keyStr, passphrase) {
   }
   var pgp = this.pgpContext;
   return new Promise(
-    function (F, R) {
+    function(resolve, reject) {
       pgp.importKey(
-        function (str, f) {
-          f(passphrase);
-        }, keyStr).addCallback(F);
+        function(str, continuation) {
+          continuation(passphrase);
+        }, keyStr).addCallback(resolve).addErrback(reject);
     });
 };
 
 mye2e.prototype.searchPrivateKey = function(uid) {
   var pgp = this.pgpContext;
   return new Promise(
-    function (F, R) {
-      pgp.searchPrivateKey(uid).addCallback(F);
+    function(resolve, reject) {
+      pgp.searchPrivateKey(uid).addCallback(resolve).addErrback(reject);
     });
 };
 
 mye2e.prototype.searchPublicKey = function(uid) {
   var pgp = this.pgpContext;
   return new Promise(
-    function (F, R) {
-      pgp.searchPublicKey(uid).addCallback(F);
+    function(resolve, reject) {
+      pgp.searchPublicKey(uid).addCallback(resolve).addErrback(reject);
     });
 };
 

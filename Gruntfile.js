@@ -176,11 +176,12 @@ module.exports = function(grunt) {
     'build',
     'jasmine_node'
   ]);
-  grunt.registerTask('release', function (arg) {
+  grunt.registerTask('release', function(arg) {
     if (arguments.length === 0) {
       arg = 'patch';
     }
     grunt.task.run([
+      'test',
       'prompt:tagMessage',
       'bump:' + arg,
       'npm-publish'
