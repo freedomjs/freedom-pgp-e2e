@@ -111,31 +111,34 @@ mye2e.prototype.exportKey = function() {
 };
 
 mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
-  Promise.resolve(refreshBuffer(5000));
-  if (typeof sign === 'undefined') {
-    sign = true;
-  }
-  var result = e2e.async.Result.getValue(
-    this.pgpContext.importKey(function(str, f) {
-      f('');
-    }, encryptKey));
-  var keys = e2e.async.Result.getValue(
-    this.pgpContext.searchPublicKey(result[0]));
-  var signKey;
-  if (sign) {
-    signKey = e2e.async.Result.getValue(
-      this.pgpContext.searchPrivateKey(this.pgpUser))[0];
-  } else {
-    signKey = null;
-  }
+  // Temp vars instead of .bind(this) because latter fails in phantomjs
   var pgp = this.pgpContext;
-  return new Promise(
-    function(resolve, reject) {
-      pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(
-        function (ciphertext) {
-          resolve(array2buf(ciphertext));
-        }).addErrback(reject);
-    });
+  var user = this.pgpUser;
+  return refreshBuffer(5000).then(function () {
+    if (typeof sign === 'undefined') {
+      sign = true;
+    }
+    var result = e2e.async.Result.getValue(
+      pgp.importKey(function(str, f) {
+        f('');
+      }, encryptKey));
+    var keys = e2e.async.Result.getValue(
+      pgp.searchPublicKey(result[0]));
+    var signKey;
+    if (sign) {
+      signKey = e2e.async.Result.getValue(
+        pgp.searchPrivateKey(user))[0];
+    } else {
+      signKey = null;
+    }
+    return new Promise(
+      function(resolve, reject) {
+        pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(
+          function (ciphertext) {
+            resolve(array2buf(ciphertext));
+          }).addErrback(reject);
+      });
+  });
 };
 
 mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
