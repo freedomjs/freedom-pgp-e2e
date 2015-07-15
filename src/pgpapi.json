@@ -103,6 +103,7 @@
   },
 
   "permissions": [
+    "core.crypto",
     "core.storage"
   ]
 }

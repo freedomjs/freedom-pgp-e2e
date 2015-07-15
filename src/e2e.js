@@ -6,6 +6,39 @@ if (typeof Promise === 'undefined' && typeof ES6Promise !== 'undefined') {
   Promise = ES6Promise.Promise;
 }
 
+// getRandomValue polyfill for Firefox - remove when FF webworkers implement
+var refreshBuffer = function (size) { return Promise.resolve(); };  // null-op
+if (typeof crypto === 'undefined') {
+  var rand = freedom['core.crypto'](),
+      buf,
+      offset = 0;
+  refreshBuffer = function (size) {
+    return rand.getRandomBytes(size).then(function (bytes) {
+      buf = new Uint8Array(bytes);
+      offset = 0;
+    }, function (err) {
+      console.log(err);
+    });
+  }.bind(this);
+
+  crypto = {};
+  crypto.getRandomValues = function (buffer) {
+    if (buffer.buffer) {
+      buffer = buffer.buffer;
+    }
+    var size = buffer.byteLength,
+        view = new Uint8Array(buffer),
+        i;
+    if (offset + size > buf.length) {
+      throw new Error("Insufficient Randomness Allocated.");
+    }
+    for (i = 0; i < size; i += 1) {
+      view[i] = buf[offset + i];
+    }
+    offset += size;
+  };
+}
+
 /**
  * Implementation of a crypto-pgp provider for freedom.js
  * using cryptographic code from Google's end-to-end.
@@ -26,7 +59,7 @@ mye2e.prototype.setup = function(passphrase, userid) {
   }
   this.pgpUser = userid;
   var scope = this;  // jasmine tests fail w/bind approach
-  return store.prepareFreedom().then(function() {
+  return refreshBuffer(5000).then(store.prepareFreedom).then(function() {
     scope.pgpContext.setKeyRingPassphrase(passphrase);
     if (e2e.async.Result.getValue(
       scope.pgpContext.searchPrivateKey(scope.pgpUser)).length === 0) {
@@ -44,7 +77,7 @@ mye2e.prototype.clear = function() {
   // See googstorage.js for details on how storage works
   return store.prepareFreedom().then(function() {
     var storage = new store();
-    storage.clear();
+    storage.remove('UserKeyRing');
   });
 };
 
@@ -90,30 +123,33 @@ mye2e.prototype.getFingerprint = function(publicKey) {
 };
 
 mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
-  if (typeof sign === 'undefined') {
-    sign = true;
-  }
-  var importResult = e2e.async.Result.getValue(
-    this.pgpContext.importKey(function(str, f) {
-      f('');
-    }, encryptKey));
-  var keys = e2e.async.Result.getValue(
-    this.pgpContext.searchPublicKey(importResult[0]));
-  var signKey;
-  if (sign) {
-    signKey = e2e.async.Result.getValue(
-      this.pgpContext.searchPrivateKey(this.pgpUser))[0];
-  } else {
-    signKey = null;
-  }
   var pgp = this.pgpContext;
-  return new Promise(
-    function(resolve, reject) {
-      pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(
-        function (ciphertext) {
-          resolve(array2buf(ciphertext));
-        }).addErrback(reject);
-    });
+  var user = this.pgpUser;
+  return refreshBuffer(5000).then(function () {
+    if (typeof sign === 'undefined') {
+      sign = true;
+    }
+    var importResult = e2e.async.Result.getValue(
+      pgp.importKey(function(str, f) {
+        f('');
+      }, encryptKey));
+    var keys = e2e.async.Result.getValue(
+      pgp.searchPublicKey(importResult[0]));
+    var signKey;
+    if (sign) {
+      signKey = e2e.async.Result.getValue(
+        pgp.searchPrivateKey(user))[0];
+    } else {
+      signKey = null;
+    }
+    return new Promise(
+      function(resolve, reject) {
+        pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(
+          function (ciphertext) {
+            resolve(array2buf(ciphertext));
+          }).addErrback(reject);
+      });
+  });
 };
 
 mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
