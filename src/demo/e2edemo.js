@@ -15,19 +15,20 @@ e2edemo.prototype.runCryptoDemo = function() {
   byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
 
   this.dispatch('print', 'Starting encryption test!');
-  Promise.resolve(e2e.clear());  // clear any existing private key
-  e2e.setup('secret passphrase', 'Joe Test <joetest@example.com>').then(
-    function () {
+  e2e.clear().then(function() {
+    return e2e.setup('secret passphrase', 'Joe Test <joetest@example.com>');
+  }).then(
+    function() {
       this.dispatch('print', 'Exporting public key...');
       return e2e.exportKey();
-    }.bind(this)).then(function (publicKey) {
+    }.bind(this)).then(function(publicKey) {
       this.dispatch('print', 'Encrypting/signing...');
       return e2e.signEncrypt(plaintext, publicKey.key, true).then(
-        function (encryptedData) {
+        function(encryptedData) {
           this.dispatch('print', 'Decrypting...');
           return e2e.verifyDecrypt(encryptedData, publicKey.key);
         }.bind(this));
-    }.bind(this)).then(function (result) {
+    }.bind(this)).then(function(result) {
       this.dispatch('print', 'Decrypted!');
       var resultView = new Uint8Array(result.data);
       if (result.signedBy[0] === 'Joe Test <joetest@example.com>' &&
@@ -38,7 +39,7 @@ e2edemo.prototype.runCryptoDemo = function() {
         this.dispatch('print', 'Encryption test FAILED.');
       }
     }.bind(this)).catch(
-      function (e) {
+      function(e) {
         if (e.message) {
           e = e.message;
         }
@@ -56,14 +57,14 @@ e2edemo.prototype.runImportDemo = function(publicKeyStr, privateKeyStr) {
       this.dispatch('print', 'Imported keypair...');
       return e2e.exportKey();
     }.bind(this)).then(
-      function (result) {
+      function(result) {
         if (result.key === publicKeyStr) {
           this.dispatch('print', 'Keypair import test SUCCEEDED.');
         } else {
           this.dispatch('print', 'Keypair import test FAILED.');
         }
       }.bind(this)).catch(
-        function (e) {
+        function(e) {
           if (e.message) {
             e = e.message;
           }

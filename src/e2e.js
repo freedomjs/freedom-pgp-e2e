@@ -77,7 +77,7 @@ mye2e.prototype.clear = function() {
   // See googstorage.js for details on how storage works
   return store.prepareFreedom().then(function() {
     var storage = new store();
-    storage.clear();
+    storage.remove('UserKeyRing');
   });
 };
 
