@@ -92,8 +92,20 @@ describe('e2eImp', function () {
              }).then(done);
   });
 
+  it('test getFingerprint with public key', function(done) {
+    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
+      function () {
+        return e2eImp.getFingerprint(publicKeyStr);
+      }).then(function (fingerprint) {
+        expect(fingerprint).toEqual(keyFingerprint);
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
+  });
+
   it('test importKey and deleteKey with private key', function(done) {
-    e2eImp.setup('test passphrase', 'test user <testuser@gmail.com>').then(
+    e2eImp.setup('test passphrase', 'Test User <testuser@gmail.com>').then(
       function () {
         return e2eImp.importKey(privateKeyStr);
       }).then(function () {

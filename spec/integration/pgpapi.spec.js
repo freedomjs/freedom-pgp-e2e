@@ -17,6 +17,8 @@ var publicKeyStr =
   '=3Iv4\r\n' +
   '-----END PGP PUBLIC KEY BLOCK-----\r\n';
 
+var keyFingerprint = 'B734 A06E 3413 DD98 6774  3FB3 E9B8 201F 5B87 6D89';
+
 var privateKeyStr =
   '-----BEGIN PGP PRIVATE KEY BLOCK-----\r\n' +
   'Charset: UTF-8\r\n' +
@@ -88,7 +90,7 @@ describe('PGP api integration', function() {
       var msgsReceived = 0;
       var expectedMsgs = [
         '', 'Starting keypair import test!', 'Imported keypair...',
-        'Keypair import test SUCCEEDED.'];
+        'Fingerprint correct...', 'Keypair import test SUCCEEDED.'];
       demo.on('print', function(msg) {
         console.log(msg);
         expect(msg).toEqual(expectedMsgs[msgsReceived]);
@@ -97,7 +99,7 @@ describe('PGP api integration', function() {
           done();
         }
       });
-      demo.runImportDemo(publicKeyStr, privateKeyStr);
+      demo.runImportDemo(publicKeyStr, privateKeyStr, keyFingerprint);
     });
   });
 });
