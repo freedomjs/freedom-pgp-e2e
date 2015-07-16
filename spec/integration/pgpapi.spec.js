@@ -69,9 +69,9 @@ describe('PGP api integration', function() {
       var demo = new E2edemo();
       var msgsReceived = 0;
       var expectedMsgs = [
-        'Starting encryption test!', 'Exporting public key...',
-        'Encrypting/signing...', 'Decrypting...', 'Decrypted!',
-        'Encryption test SUCCEEDED.'];
+        'Starting encryption test! Clearing past key...',
+        'Exporting public key...', 'Encrypting/signing...', 'Decrypting...',
+        'Decrypted!', 'Encryption test SUCCEEDED.'];
       demo.on('print', function(msg) {
         console.log(msg);
         expect(msg).toEqual(expectedMsgs[msgsReceived]);

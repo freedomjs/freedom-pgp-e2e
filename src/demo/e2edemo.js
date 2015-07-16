@@ -14,7 +14,7 @@ e2edemo.prototype.runCryptoDemo = function() {
   // "123412341234" in ASCII
   byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
 
-  this.dispatch('print', 'Starting encryption test!');
+  this.dispatch('print', 'Starting encryption test! Clearing past key...');
   e2e.clear().then(function() {
     return e2e.setup('secret passphrase', 'Joe Test <joetest@example.com>');
   }).then(

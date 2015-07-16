@@ -82,21 +82,23 @@ mye2e.prototype.clear = function() {
 };
 
 mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
-  this.clear();
-  this.pgpContext.setKeyRingPassphrase(passphrase);
-  this.importKey(privateKey, passphrase);
-
-  if (e2e.async.Result.getValue(
-    this.pgpContext.searchPrivateKey(userid)).length === 0 ||
-      e2e.async.Result.getValue(
-        this.pgpContext.searchPublicKey(userid)).length === 0) {
-    return Promise.reject(Error('Keypair does not match provided userid'));
-  } else if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
-    return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
-  } else {
-    this.pgpUser = userid;
-    return Promise.resolve();
-  }
+  var scope = this;  // jasmine tests fail w/bind approach
+  return this.clear().then(function() {
+    scope.pgpContext.setKeyRingPassphrase(passphrase);
+    return scope.importKey(privateKey, passphrase);
+  }).then(function() {
+    if (e2e.async.Result.getValue(
+      scope.pgpContext.searchPrivateKey(userid)).length === 0 ||
+        e2e.async.Result.getValue(
+          scope.pgpContext.searchPublicKey(userid)).length === 0) {
+      return Promise.reject(Error('Keypair does not match provided userid'));
+    } else if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
+      return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
+    } else {
+      scope.pgpUser = userid;
+      return Promise.resolve();
+    }
+  });
 };
 
 mye2e.prototype.exportKey = function() {
