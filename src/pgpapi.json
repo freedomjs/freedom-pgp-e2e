@@ -37,7 +37,7 @@
       },
 
       "clear": {
-        "_comment": "Clear local storage, resetting priavte key",
+        "_comment": "Clear local storage, resetting private key",
         "type": "method",
         "value": [],
         "ret": [],
