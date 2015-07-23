@@ -70,6 +70,9 @@
     document.getElementById('export').addEventListener('click', function () {
       crypt.exportKey().then(success, print);
     }, true);
+    document.getElementById('fingerprint').addEventListener('click', function () {
+      crypt.getFingerprint(input.value).then(success, print);
+    }, true);
 
     document.getElementById('encrypt').addEventListener('click', function () {
       crypt.signEncrypt(inputBuf(), key.value, false)
@@ -105,6 +108,7 @@
     <br />
     <input type="button" id="setup" value="Setup" />
     <input type="button" id="export" value="ExportKey" />
+    <input type="button" id="fingerprint" value="GetFingerprint" />
     <input type="button" id="encrypt" value="Encrypt" />
     <input type="button" id="signencrypt" value="Sign+Encrypt" />
     <input type="button" id="verify" value="Verify+Decrypt" />

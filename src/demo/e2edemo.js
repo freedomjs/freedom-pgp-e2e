@@ -14,7 +14,7 @@ e2edemo.prototype.runCryptoDemo = function() {
   // "123412341234" in ASCII
   byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
 
-  this.dispatch('print', 'Starting encryption test!');
+  this.dispatch('print', 'Starting encryption test! Clearing past key...');
   e2e.clear().then(function() {
     return e2e.setup('secret passphrase', 'Joe Test <joetest@example.com>');
   }).then(
@@ -47,7 +47,8 @@ e2edemo.prototype.runCryptoDemo = function() {
       }.bind(this));
 };
 
-e2edemo.prototype.runImportDemo = function(publicKeyStr, privateKeyStr) {
+e2edemo.prototype.runImportDemo = function(publicKeyStr, privateKeyStr,
+                                           keyFingerprint) {
   'use strict';
   var e2e = new freedom.e2e();
   this.dispatch('print', '');  // blank line to separate from crypto test
@@ -55,15 +56,24 @@ e2edemo.prototype.runImportDemo = function(publicKeyStr, privateKeyStr) {
   e2e.importKeypair('', '<quantsword@gmail.com>', privateKeyStr).then(
     function() {
       this.dispatch('print', 'Imported keypair...');
-      return e2e.exportKey();
+      return e2e.getFingerprint(publicKeyStr);
     }.bind(this)).then(
       function(result) {
-        if (result.key === publicKeyStr) {
-          this.dispatch('print', 'Keypair import test SUCCEEDED.');
+        if (result === keyFingerprint) {
+          this.dispatch('print', 'Fingerprint correct...');
         } else {
-          this.dispatch('print', 'Keypair import test FAILED.');
+          this.dispatch('print', 'Fingerprint incorrect!');
         }
-      }.bind(this)).catch(
+        return e2e.exportKey();
+      }.bind(this)).then(
+        function(result) {
+          if (result.key === publicKeyStr &&
+              result.fingerprint === keyFingerprint) {
+            this.dispatch('print', 'Keypair import test SUCCEEDED.');
+          } else {
+            this.dispatch('print', 'Keypair import test FAILED.');
+          }
+        }.bind(this)).catch(
         function(e) {
           if (e.message) {
             e = e.message;

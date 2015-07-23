@@ -16,7 +16,7 @@
       },
       "runImportDemo": {
         "type": "method",
-        "value": ["string", "string"],
+        "value": ["string", "string", "string"],
         "ret": []
       },
       "print": {
