@@ -6,7 +6,7 @@ if (typeof Promise === 'undefined' && typeof ES6Promise !== 'undefined') {
   Promise = ES6Promise.Promise;
 }
 
-// getRandomValue polyfill for Firefox - remove when FF webworkers implement
+// getRandomValue polyfill, currently needed for Firefox webworkers
 var refreshBuffer = function (size) { return Promise.resolve(); };  // null-op
 if (typeof crypto === 'undefined') {
   var rand = freedom['core.crypto'](),
