@@ -55,7 +55,7 @@ module.exports = function(grunt) {
       },
       firefoxAddonTest: {
         src: ['build/**'],
-        dest: '.build/data/scripts/',
+        dest: '.buildff/data/scripts/',
         expand: true
       }
     },
@@ -157,7 +157,7 @@ module.exports = function(grunt) {
       }
     },
 
-    clean: ['build/', '.build/', 'dist/']
+    clean: ['build/', '.build/', '.buildff/', 'dist/']
   });
 
   grunt.loadNpmTasks('grunt-bump');
