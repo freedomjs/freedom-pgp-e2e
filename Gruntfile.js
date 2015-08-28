@@ -52,6 +52,11 @@ module.exports = function(grunt) {
         flatten: true,
         filter: 'isFile',
         expand: true
+      },
+      firefoxAddonTest: {
+        src: ['build/**'],
+        dest: '.buildff/data/scripts/',
+        expand: true
       }
     },
 
@@ -85,6 +90,11 @@ module.exports = function(grunt) {
                 'spec/integration/pgpapi.spec.js'],
         keepRunner: false
       }
+    },
+
+    jasmine_firefoxaddon: {
+      tests: ['spec/integration/pgpapi.spec.js'],
+      helpers: ['node_modules/freedom-for-firefox/freedom-for-firefox.jsm']
     },
 
     jasmine_node: {
@@ -147,7 +157,7 @@ module.exports = function(grunt) {
       }
     },
 
-    clean: ['build/', '.build/', 'dist/']
+    clean: ['build/', '.build/', '.buildff/', 'dist/']
   });
 
   grunt.loadNpmTasks('grunt-bump');
@@ -156,6 +166,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-jasmine-chromeapp');
+  grunt.loadNpmTasks('grunt-jasmine-firefoxaddon');
   grunt.loadNpmTasks('grunt-jasmine-node2');
   grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-npm');
@@ -163,14 +174,21 @@ module.exports = function(grunt) {
 
   grunt.registerTask('build', [
     'jshint',
-    'copy'
+    'copy:build',
+    'copy:freedom',
+    'copy:demo',
+    'copy:playground',
+    'copy:e2eCompiledJavaScript',
+    'copy:dist'
   ]);
   grunt.registerTask('test', [
     'build',
     'karma:browsers',
     'karma:phantom',
     'jasmine_node',
-    'jasmine_chromeapp'
+    'jasmine_chromeapp',
+    'copy:firefoxAddonTest',
+    'jasmine_firefoxaddon'
   ]);
   grunt.registerTask('ci', [
     'build',
