@@ -52,11 +52,6 @@ module.exports = function(grunt) {
         flatten: true,
         filter: 'isFile',
         expand: true
-      },
-      firefoxAddonTest: {
-        src: ['build/**'],
-        dest: '.buildff/data/scripts/',
-        expand: true
       }
     },
 
@@ -94,6 +89,7 @@ module.exports = function(grunt) {
 
     jasmine_firefoxaddon: {
       tests: ['spec/integration/pgpapi.spec.js'],
+      resources: ['build/*js*', 'build/demo/*'],
       helpers: ['node_modules/freedom-for-firefox/freedom-for-firefox.jsm']
     },
 
@@ -157,7 +153,7 @@ module.exports = function(grunt) {
       }
     },
 
-    clean: ['build/', '.build/', '.buildff/', 'dist/']
+    clean: ['build/', '.build/', 'dist/']
   });
 
   grunt.loadNpmTasks('grunt-bump');
@@ -187,7 +183,6 @@ module.exports = function(grunt) {
     'karma:phantom',
     'jasmine_node',
     'jasmine_chromeapp',
-    'copy:firefoxAddonTest',
     'jasmine_firefoxaddon'
   ]);
   grunt.registerTask('ci', [
