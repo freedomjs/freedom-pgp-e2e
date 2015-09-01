@@ -51,7 +51,8 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
 
 describe('PGP api integration', function() {
   'use strict';
-  var fdom, path = '';  // hack to avoid masking freedom when already defined
+  // Need to ensure freedom is loaded and path is appropriate for environment
+  var fdom, path;
   if (typeof freedom === 'undefined') {
     // Node, need to load freedom
     fdom = require('freedom-for-node').freedom;
@@ -61,9 +62,11 @@ describe('PGP api integration', function() {
     fdom = freedom;
     if (typeof window === 'undefined') {
       // Firefox addon, need to prefix path with proper data location
-      path = 'jid1-mkagayemb0e5nq-at-jetpack/data/';
+      path = 'jid1-mkagayemb0e5nq-at-jetpack/data/build/demo/e2edemo.json';
+    } else {
+      // Chrome app
+      path = 'scripts/build/demo/e2edemo.json';
     }
-    path += 'scripts/build/demo/e2edemo.json';
   }
 
   beforeEach(function() {
