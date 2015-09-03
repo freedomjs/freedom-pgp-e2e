@@ -62,7 +62,7 @@ describe('PGP api integration', function() {
     fdom = freedom;
     if (typeof window === 'undefined') {
       // Firefox addon, need to prefix path with proper data location
-      path = 'jid1-mkagayemb0e5nq-at-jetpack/data/build/demo/e2edemo.json';
+      path = 'grunt-jasmine-firefoxaddon-runner/data/build/demo/e2edemo.json';
     } else {
       // Chrome app
       path = 'scripts/build/demo/e2edemo.json';
