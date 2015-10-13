@@ -112,16 +112,23 @@ mye2e.prototype.exportKey = function() {
     'fingerprint': keyResult[0].key.fingerprintHex });
 };
 
-mye2e.prototype.getFingerprint = function(publicKey) {
+mye2e.prototype.getFingerprint = function(publicKey, convertToWords) {
   // Returns v4 fingerprint per RFC 4880 Section 12.2
   // http://tools.ietf.org/html/rfc4880#section-12.2
+  if (typeof convertToWords === 'undefined') {
+    convertToWords = false;  // default hex string
+  }
   var importResult = e2e.async.Result.getValue(
     this.pgpContext.importKey(function(str, f) {
       f('');
     }, publicKey));
   var keyResult = e2e.async.Result.getValue(
     this.pgpContext.searchPublicKey(importResult[0]));
-  return Promise.resolve(keyResult[0].key.fingerprintHex);
+  if (convertToWords) {
+    return Promise.resolve(hex2words(keyResult[0].key.fingerprintHex));
+  } else {
+    return Promise.resolve(keyResult[0].key.fingerprintHex);
+  }
 };
 
 mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {

@@ -22,34 +22,39 @@ describe('e2eImp', function () {
     '-----END PGP PUBLIC KEY BLOCK-----\r\n';
 
   var keyFingerprint = 'B734 A06E 3413 DD98 6774  3FB3 E9B8 201F 5B87 6D89';
+  var keyWordlist = ["seabird", "confidence", "ragtime", "headwaters",
+                     "choking", "barbecue", "swelter", "narrative", "freedom",
+                     "hydraulic", "cowbell", "pocketful", "treadmill",
+                     "provincial", "bison", "businessman", "erase", "liberty",
+                     "goggles", "matchmaker"];
 
   var privateKeyStr =
-    '-----BEGIN PGP PRIVATE KEY BLOCK-----\r\n' +
-    'Charset: UTF-8\r\n' +
-    'Version: End-To-End v0.3.1338\r\n' +
-    '\r\n' +
-    'xf8AAAB3BFPIW9ETCCqGSM49AwEHAgMEh9yJj8tEYplKXKKiTWphXYkJEQSbm0GH\r\n' +
-    'hy6dQOefg7/uuDMOdI2YF0NLbK+m0sL41Ewfgk/3TqVWCNdRpwgcKgABAIaxz+cn\r\n' +
-    'aR1CNIhNGoo7m0T8RycWCslolvmV6JnSFzhYDn3N/wAAABY8cXVhbnRzd29yZEBn\r\n' +
-    'bWFpbC5jb20+wv8AAABmBBATCAAY/wAAAAWCU8hb0f8AAAAJkOm4IB9bh22JAAD3\r\n' +
-    'nwEA4Mf6Jnw0XO4QeA09RKJ4NsrcoFVzCLkCZkY5ysajOtQBAIOQ+pysNVqInJoO\r\n' +
-    '8dqn4+8FPni5WeVF0zao6XvMUOPtx/8AAAB7BFPIW9ESCCqGSM49AwEHAgMEtdGB\r\n' +
-    'bayFsL7yxPK99oAhLQw+wp3n5Hpuk8+HwxZa3awFDVwA8Ri2qgELIJnHpbj1oyAW\r\n' +
-    'OxrTL3es/24jfGDgDQMBCAcAAP40eoOaXxwE/EIXZOddFf+423N12TuuQfqPREhx\r\n' +
-    'KOMOAg94wv8AAABmBBgTCAAY/wAAAAWCU8hb0f8AAAAJkOm4IB9bh22JAAB6AAD/\r\n' +
-    'R8thL3J2WQsIviAWAZFaip8WCzom60sXCfb3eVC3Eg4BAMR+IehbobVWr3AEdNIj\r\n' +
-    'MjSM+cgdhFBqQqQyxFOaX3kRxv8AAABSBFPIW9ETCCqGSM49AwEHAgMEh9yJj8tE\r\n' +
-    'YplKXKKiTWphXYkJEQSbm0GHhy6dQOefg7/uuDMOdI2YF0NLbK+m0sL41Ewfgk/3\r\n' +
-    'TqVWCNdRpwgcKs3/AAAAFjxxdWFudHN3b3JkQGdtYWlsLmNvbT7C/wAAAGYEEBMI\r\n' +
-    'ABj/AAAABYJTyFvR/wAAAAmQ6bggH1uHbYkAAPefAQDgx/omfDRc7hB4DT1Eong2\r\n' +
-    'ytygVXMIuQJmRjnKxqM61AEAg5D6nKw1Woicmg7x2qfj7wU+eLlZ5UXTNqjpe8xQ\r\n' +
-    '4+3O/wAAAFYEU8hb0RIIKoZIzj0DAQcCAwS10YFtrIWwvvLE8r32gCEtDD7Cnefk\r\n' +
-    'em6Tz4fDFlrdrAUNXADxGLaqAQsgmceluPWjIBY7GtMvd6z/biN8YOANAwEIB8L/\r\n' +
-    'AAAAZgQYEwgAGP8AAAAFglPIW9H/AAAACZDpuCAfW4dtiQAAegAA/RYXPbjEOHc7\r\n' +
-    'iy3xFxWKWPvpnPc5LwX/6DDtwoPMCTLeAQCpjnRiMaIK7tjslDfXd4BtaY6K90JH\r\n' +
-    'uRPCQUJ7Uw+fRA==\r\n' +
-    '=H/6h\r\n' +
-    '-----END PGP PRIVATE KEY BLOCK-----\r\n';
+      '-----BEGIN PGP PRIVATE KEY BLOCK-----\r\n' +
+      'Charset: UTF-8\r\n' +
+      'Version: End-To-End v0.3.1338\r\n' +
+      '\r\n' +
+      'xf8AAAB3BFPIW9ETCCqGSM49AwEHAgMEh9yJj8tEYplKXKKiTWphXYkJEQSbm0GH\r\n' +
+      'hy6dQOefg7/uuDMOdI2YF0NLbK+m0sL41Ewfgk/3TqVWCNdRpwgcKgABAIaxz+cn\r\n' +
+      'aR1CNIhNGoo7m0T8RycWCslolvmV6JnSFzhYDn3N/wAAABY8cXVhbnRzd29yZEBn\r\n' +
+      'bWFpbC5jb20+wv8AAABmBBATCAAY/wAAAAWCU8hb0f8AAAAJkOm4IB9bh22JAAD3\r\n' +
+      'nwEA4Mf6Jnw0XO4QeA09RKJ4NsrcoFVzCLkCZkY5ysajOtQBAIOQ+pysNVqInJoO\r\n' +
+      '8dqn4+8FPni5WeVF0zao6XvMUOPtx/8AAAB7BFPIW9ESCCqGSM49AwEHAgMEtdGB\r\n' +
+      'bayFsL7yxPK99oAhLQw+wp3n5Hpuk8+HwxZa3awFDVwA8Ri2qgELIJnHpbj1oyAW\r\n' +
+      'OxrTL3es/24jfGDgDQMBCAcAAP40eoOaXxwE/EIXZOddFf+423N12TuuQfqPREhx\r\n' +
+      'KOMOAg94wv8AAABmBBgTCAAY/wAAAAWCU8hb0f8AAAAJkOm4IB9bh22JAAB6AAD/\r\n' +
+      'R8thL3J2WQsIviAWAZFaip8WCzom60sXCfb3eVC3Eg4BAMR+IehbobVWr3AEdNIj\r\n' +
+      'MjSM+cgdhFBqQqQyxFOaX3kRxv8AAABSBFPIW9ETCCqGSM49AwEHAgMEh9yJj8tE\r\n' +
+      'YplKXKKiTWphXYkJEQSbm0GHhy6dQOefg7/uuDMOdI2YF0NLbK+m0sL41Ewfgk/3\r\n' +
+      'TqVWCNdRpwgcKs3/AAAAFjxxdWFudHN3b3JkQGdtYWlsLmNvbT7C/wAAAGYEEBMI\r\n' +
+      'ABj/AAAABYJTyFvR/wAAAAmQ6bggH1uHbYkAAPefAQDgx/omfDRc7hB4DT1Eong2\r\n' +
+      'ytygVXMIuQJmRjnKxqM61AEAg5D6nKw1Woicmg7x2qfj7wU+eLlZ5UXTNqjpe8xQ\r\n' +
+      '4+3O/wAAAFYEU8hb0RIIKoZIzj0DAQcCAwS10YFtrIWwvvLE8r32gCEtDD7Cnefk\r\n' +
+      'em6Tz4fDFlrdrAUNXADxGLaqAQsgmceluPWjIBY7GtMvd6z/biN8YOANAwEIB8L/\r\n' +
+      'AAAAZgQYEwgAGP8AAAAFglPIW9H/AAAACZDpuCAfW4dtiQAAegAA/RYXPbjEOHc7\r\n' +
+      'iy3xFxWKWPvpnPc5LwX/6DDtwoPMCTLeAQCpjnRiMaIK7tjslDfXd4BtaY6K90JH\r\n' +
+      'uRPCQUJ7Uw+fRA==\r\n' +
+      '=H/6h\r\n' +
+      '-----END PGP PRIVATE KEY BLOCK-----\r\n';
 
   var e2eImp;
   var buffer = new ArrayBuffer(12);
@@ -68,7 +73,7 @@ describe('e2eImp', function () {
         expect(false).toBeTruthy();
       }).catch(function(e) {
         expect(e).toEqual(Error('Invalid userid, expected: "name <email>"'));
-    }).then(done);
+      }).then(done);
   });
 
   it('test importKey and deleteKey with public key', function(done) {
@@ -76,23 +81,23 @@ describe('e2eImp', function () {
       function () {
         return e2eImp.importKey(publicKeyStr);
       }).then(function () {
-      return e2eImp.searchPublicKey('<quantsword@gmail.com>');
-    }).then(function (keys) {
-      expect(keys.length).toEqual(1);
-      expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
-    }).then(function () {
-      return e2eImp.deleteKey('<quantsword@gmail.com>');
-    }).then(function () {
-      return e2eImp.searchPublicKey('<quantsword@gmail.com>');
-    }).then(function (keys) {
-      expect(keys.length).toEqual(0);
-    }).catch(function (e) {
-               console.log(e.toString());
-               expect(false).toBeTruthy();
-             }).then(done);
+        return e2eImp.searchPublicKey('<quantsword@gmail.com>');
+      }).then(function (keys) {
+        expect(keys.length).toEqual(1);
+        expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
+      }).then(function () {
+        return e2eImp.deleteKey('<quantsword@gmail.com>');
+      }).then(function () {
+        return e2eImp.searchPublicKey('<quantsword@gmail.com>');
+      }).then(function (keys) {
+        expect(keys.length).toEqual(0);
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
   });
 
-  it('test getFingerprint with public key', function(done) {
+  it('test hex getFingerprint with public key', function(done) {
     e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         return e2eImp.getFingerprint(publicKeyStr);
@@ -104,44 +109,56 @@ describe('e2eImp', function () {
       }).then(done);
   });
 
+  it('test wordlist getFingerprint with public key', function(done) {
+    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
+      function () {
+        return e2eImp.getFingerprint(publicKeyStr, true);
+      }).then(function (fingerprint) {
+        expect(fingerprint).toEqual(keyWordlist);
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
+  });
+
   it('test importKey and deleteKey with private key', function(done) {
     e2eImp.setup('test passphrase', 'Test User <testuser@gmail.com>').then(
       function () {
         return e2eImp.importKey(privateKeyStr);
       }).then(function () {
-      return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
-    }).then(function (keys) {
-      expect(keys.length).toEqual(1);
-      expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
-    }).then(function () {
-      return e2eImp.deleteKey('<quantsword@gmail.com>');
-    }).then(function () {
-      return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
-    }).then(function (keys) {
-      expect(keys.length).toEqual(0);
-    }).catch(function (e) {
-               console.log(e.toString());
-               expect(false).toBeTruthy();
-             }).then(done);
+        return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
+      }).then(function (keys) {
+        expect(keys.length).toEqual(1);
+        expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
+      }).then(function () {
+        return e2eImp.deleteKey('<quantsword@gmail.com>');
+      }).then(function () {
+        return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
+      }).then(function (keys) {
+        expect(keys.length).toEqual(0);
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
   });
 
   it('test importKeypair', function(done) {
     e2eImp.importKeypair('', '<quantsword@gmail.com>', privateKeyStr)
-    .then(function () {
-      expect(e2eImp.pgpUser).toEqual('<quantsword@gmail.com>');
-      return e2eImp.exportKey();
-    }).then(function (publicKey) {
-      expect(publicKey.key).toEqual(publicKeyStr);
-      expect(publicKey.fingerprint).toEqual(keyFingerprint);
-    }).then(function () {
-      return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
-    }).then(function (keys) {
-      expect(keys.length).toEqual(1);
-      expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
-    }).catch(function (e) {
-               console.log(e.toString());
-               expect(false).toBeTruthy();
-             }).then(done);
+      .then(function () {
+        expect(e2eImp.pgpUser).toEqual('<quantsword@gmail.com>');
+        return e2eImp.exportKey();
+      }).then(function (publicKey) {
+        expect(publicKey.key).toEqual(publicKeyStr);
+        expect(publicKey.fingerprint).toEqual(keyFingerprint);
+      }).then(function () {
+        return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
+      }).then(function (keys) {
+        expect(keys.length).toEqual(1);
+        expect(keys[0].uids[0]).toEqual('<quantsword@gmail.com>');
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
   });
 
   it('encrypt and decrypt', function(done) {
@@ -153,11 +170,11 @@ describe('e2eImp', function () {
       }).then(function (encryptedData) {
         return e2eImp.verifyDecrypt(encryptedData);
       }).then(function (result) {
-      expect(result.data).toEqual(buffer);
-    }).catch(function (e) {
-               console.log(e.toString());
-               expect(false).toBeTruthy();
-             }).then(done);
+        expect(result.data).toEqual(buffer);
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
   });
 
   it('encryptSign and verifyDecrypt', function(done) {
@@ -169,14 +186,14 @@ describe('e2eImp', function () {
           function (encryptedData) {
             return e2eImp.verifyDecrypt(encryptedData, publicKey.key);
           });
-    }).then(function (result) {
-      expect(result.data).toEqual(buffer);
-      expect(result.signedBy.length).toEqual(1);
-      expect(result.signedBy[0]).toEqual('Test User <test@example.com>');
-    }).catch(function (e) {
-               console.log(e.toString());
-               expect(false).toBeTruthy();
-             }).then(done);
+      }).then(function (result) {
+        expect(result.data).toEqual(buffer);
+        expect(result.signedBy.length).toEqual(1);
+        expect(result.signedBy[0]).toEqual('Test User <test@example.com>');
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
   });
 
   it('generate keys', function(done) {
@@ -185,12 +202,12 @@ describe('e2eImp', function () {
         expect(true).toBeTruthy();
         return e2eImp.searchPrivateKey('Test User <test@example.com>');
       }).then(function (keys) {
-      expect(keys.length).toEqual(1);
-      expect(keys[0].uids[0]).toEqual('Test User <test@example.com>');
-    }).catch(function (e) {
-               console.log(e.toString());
-               expect(false).toBeTruthy();
-             }).then(done);
+        expect(keys.length).toEqual(1);
+        expect(keys[0].uids[0]).toEqual('Test User <test@example.com>');
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
   });
 
   it('export public key', function(done) {
@@ -203,9 +220,9 @@ describe('e2eImp', function () {
         expect(publicKey.key.substring(0, 36)).toEqual(
           '-----BEGIN PGP PUBLIC KEY BLOCK-----');
       }).catch(function (e) {
-               console.log(e.toString());
-               expect(false).toBeTruthy();
-             }).then(done);
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
   });
 
   it('armor and dearmor', function(done) {
@@ -213,12 +230,12 @@ describe('e2eImp', function () {
       function () {
         return e2eImp.armor(buffer);
       }).then(function (armored) {
-      return e2eImp.dearmor(armored);
-    }).then(function (dearmored) {
-      expect(dearmored).toEqual(buffer);
-    }).catch(function (e) {
-               console.log(e.toString());
-               expect(false).toBeTruthy();
-             }).then(done);
+        return e2eImp.dearmor(armored);
+      }).then(function (dearmored) {
+        expect(dearmored).toEqual(buffer);
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
   });
 });

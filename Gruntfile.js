@@ -40,11 +40,9 @@ module.exports = function(grunt) {
         expand: true
       },
       e2eCompiledJavaScript: {
-        files: [ {
-          src: [require.resolve('e2e')],
-          dest: 'build/end-to-end.compiled.js',
-          onlyIf: 'modified'
-        } ]
+        src: [require.resolve('e2e')],
+        dest: 'build/end-to-end.compiled.js',
+        onlyIf: 'modified'
       },
       dist: {
         src: ['build/*'],
@@ -52,6 +50,19 @@ module.exports = function(grunt) {
         flatten: true,
         filter: 'isFile',
         expand: true
+      }
+    },
+
+    browserify: {
+      hex2words: {
+        files: {
+          'build/hex2words.js': [require.resolve('hex2words')]
+        },
+        options: {
+          browserifyOptions: {
+            standalone: 'hex2words'
+          }
+        }
       }
     },
 
@@ -156,6 +167,7 @@ module.exports = function(grunt) {
     clean: ['build/', '.build/', 'dist/']
   });
 
+  grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-connect');
@@ -175,6 +187,7 @@ module.exports = function(grunt) {
     'copy:demo',
     'copy:playground',
     'copy:e2eCompiledJavaScript',
+    'browserify:hex2words',
     'copy:dist'
   ]);
   grunt.registerTask('test', [

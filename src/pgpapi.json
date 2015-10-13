@@ -5,6 +5,7 @@
     "script": [
       "end-to-end.compiled.js",
       "googstorage.js",
+      "hex2words.js",
       "e2e.js"
     ]
   },
@@ -63,7 +64,7 @@
       "getFingerprint": {
         "_comment": "Calculate and return 20-byte public key fingerprint",
         "type": "method",
-        "value": ["string"],
+        "value": ["string", "boolean"],
         "ret": "string",
         "err": { "errcode": "string", "message": "string" }
       },
