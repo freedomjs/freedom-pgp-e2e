@@ -22,11 +22,11 @@ describe('e2eImp', function () {
     '-----END PGP PUBLIC KEY BLOCK-----\r\n';
 
   var keyFingerprint = 'B734 A06E 3413 DD98 6774  3FB3 E9B8 201F 5B87 6D89';
-  var keyWordlist = ["seabird", "confidence", "ragtime", "headwaters",
-                     "choking", "barbecue", "swelter", "narrative", "freedom",
-                     "hydraulic", "cowbell", "pocketful", "treadmill",
-                     "provincial", "bison", "businessman", "erase", "liberty",
-                     "goggles", "matchmaker"];
+  var keyWords = ["seabird", "confidence", "ragtime", "headwaters",
+                  "choking", "barbecue", "swelter", "narrative", "freedom",
+                  "hydraulic", "cowbell", "pocketful", "treadmill",
+                  "provincial", "bison", "businessman", "erase", "liberty",
+                  "goggles", "matchmaker"];
 
   var privateKeyStr =
       '-----BEGIN PGP PRIVATE KEY BLOCK-----\r\n' +
@@ -97,24 +97,13 @@ describe('e2eImp', function () {
       }).then(done);
   });
 
-  it('test hex getFingerprint with public key', function(done) {
+  it('test getFingerprint with public key', function(done) {
     e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
         return e2eImp.getFingerprint(publicKeyStr);
-      }).then(function (fingerprint) {
-        expect(fingerprint).toEqual(keyFingerprint);
-      }).catch(function (e) {
-        console.log(e.toString());
-        expect(false).toBeTruthy();
-      }).then(done);
-  });
-
-  it('test wordlist getFingerprint with public key', function(done) {
-    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
-      function () {
-        return e2eImp.getFingerprint(publicKeyStr, true);
-      }).then(function (fingerprint) {
-        expect(fingerprint).toEqual(keyWordlist);
+      }).then(function (result) {
+        expect(result.fingerprint).toEqual(keyFingerprint);
+        expect(result.words).toEqual(keyWords);
       }).catch(function (e) {
         console.log(e.toString());
         expect(false).toBeTruthy();
@@ -150,6 +139,7 @@ describe('e2eImp', function () {
       }).then(function (publicKey) {
         expect(publicKey.key).toEqual(publicKeyStr);
         expect(publicKey.fingerprint).toEqual(keyFingerprint);
+        expect(publicKey.words).toEqual(keyWords);
       }).then(function () {
         return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
       }).then(function (keys) {
