@@ -194,8 +194,8 @@ module.exports = function(grunt) {
     'build',
     'karma:browsers',
     'karma:phantom',
-    'jasmine_node',
     'jasmine_chromeapp',
+    'jasmine_node',
     'jasmine_firefoxaddon'
   ]);
   grunt.registerTask('ci', [
