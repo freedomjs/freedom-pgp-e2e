@@ -20,10 +20,10 @@ var start = function(E2edemo) {
 
   var keyFingerprint = 'B734 A06E 3413 DD98 6774  3FB3 E9B8 201F 5B87 6D89';
   var keyWords = ["seabird", "confidence", "ragtime", "headwaters",
-                  "choking", "barbecue", "swelter", "narrative", "freedom",
-                  "hydraulic", "cowbell", "pocketful", "treadmill",
-                  "provincial", "bison", "businessman", "erase", "liberty",
-                  "goggles", "matchmaker"];
+                  "choking", "barbecue", "swelter", "narrative",
+                  "freedom", "hydraulic", "cowbell", "pocketful",
+                  "treadmill", "provincial", "bison", "businessman",
+                  "erase", "liberty", "goggles", "matchmaker"];
 
   var privateKeyStr =
       '-----BEGIN PGP PRIVATE KEY BLOCK-----\r\n' +
