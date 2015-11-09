@@ -52,7 +52,7 @@ var privateKeyStr =
     '=H/6h\r\n' +
     '-----END PGP PRIVATE KEY BLOCK-----\r\n';
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
 describe('PGP api integration', function() {
   'use strict';
