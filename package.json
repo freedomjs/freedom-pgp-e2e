@@ -9,6 +9,7 @@
     "type": "git",
     "url": "https://github.com/freedomjs/freedom-pgp-e2e"
   },
+  "license": "Apache-2.0",
   "devDependencies": {
     "e2e": "^0.0.6",
     "es6-promise": "^3.0.2",
@@ -21,7 +22,7 @@
     "grunt-bump": "^0.6.0",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-connect": "^0.11.2",
-    "grunt-contrib-copy": "^0.8.1",
+    "grunt-contrib-copy": "^0.8.2",
     "grunt-contrib-jshint": "^0.11.3",
     "grunt-jasmine-chromeapp": "^1.8.0",
     "grunt-jasmine-firefoxaddon": "^0.3.2",
@@ -30,14 +31,15 @@
     "grunt-npm": "^0.0.2",
     "grunt-prompt": "^1.3.0",
     "hex2words": "^1.1.3",
-    "karma": "^0.13.11",
+    "karma": "^0.13.15",
     "karma-chrome-launcher": "^0.2.1",
-    "karma-coverage": "^0.5.2",
+    "karma-coverage": "^0.5.3",
     "karma-firefox-launcher": "^0.1.6",
     "karma-jasmine": "^0.3.6",
     "karma-phantomjs-launcher": "^0.2.1",
     "karma-story-reporter": "^0.3.1",
-    "karma-unicorn-reporter": "^0.1.4"
+    "karma-unicorn-reporter": "^0.1.4",
+    "phantomjs": "^1.9.18"
   },
   "scripts": {
     "test": "grunt ci --verbose"
