@@ -9,6 +9,11 @@
  **/
 
 module.exports = function(grunt) {
+  require('time-grunt')(grunt);
+  require('jit-grunt')(grunt, {
+    jasmine_node: 'grunt-jasmine-node2'
+  });
+
   grunt.initConfig({
     copy: {
       build: {
@@ -111,7 +116,8 @@ module.exports = function(grunt) {
     jshint: {
       all: ['src/**/*.js', 'spec/**/*.js'],
       options: {
-        jshintrc: true
+        jshintrc: true,
+        reporter: require('jshint-stylish')
       }
     },
 
@@ -166,19 +172,6 @@ module.exports = function(grunt) {
 
     clean: ['build/', '.build/', 'dist/']
   });
-
-  grunt.loadNpmTasks('grunt-browserify');
-  grunt.loadNpmTasks('grunt-bump');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-connect');
-  grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-jasmine-chromeapp');
-  grunt.loadNpmTasks('grunt-jasmine-firefoxaddon');
-  grunt.loadNpmTasks('grunt-jasmine-node2');
-  grunt.loadNpmTasks('grunt-karma');
-  grunt.loadNpmTasks('grunt-npm');
-  grunt.loadNpmTasks('grunt-prompt');
 
   grunt.registerTask('build', [
     'jshint',
