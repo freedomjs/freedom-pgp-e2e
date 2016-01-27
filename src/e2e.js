@@ -135,12 +135,14 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
     if (typeof sign === 'undefined') {
       sign = true;
     }
-    var importResult = e2e.async.Result.getValue(
-      pgp.importKey(function(str, f) {
-        f('');
-      }, encryptKey));
-    var keys = e2e.async.Result.getValue(
-      pgp.searchPublicKey(importResult[0]));
+    var keys = [];
+    if (encryptKey) {
+      var importResult = e2e.async.Result.getValue(
+        pgp.importKey(function(str, f) {
+          throw new Error('No passphrase needed for a public key');
+        }, encryptKey));
+      keys = e2e.async.Result.getValue(pgp.searchPublicKey(importResult[0]));
+    }
     var signKey;
     if (sign) {
       signKey = e2e.async.Result.getValue(
@@ -159,18 +161,20 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
 };
 
 mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
+  var importedKey;
   if (typeof verifyKey === 'undefined') {
     verifyKey = '';
+    importedKey = Promise.resolve();
   } else {
-    this.importKey(verifyKey);
+    importedKey = this.importKey(verifyKey);
   }
   var byteView = new Uint8Array(data);
   var pgp = this.pgpContext;
-  return new Promise(
-    function(resolve, reject) {
+  return importedKey.then(function() {
+    return new Promise(function(resolve, reject) {
       pgp.verifyDecrypt(function () {
-        return '';
-      }, e2e.openpgp.asciiArmor.encode('MESSAGE', byteView)).addCallback(
+        throw new Error('Passphrase decryption is not supported');
+      }, buf2array(data)).addCallback(
         function (result) {
           var signed = null;
           if (verifyKey) {
@@ -182,6 +186,7 @@ mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
           });
         }).addErrback(reject);
     });
+  });
 };
 
 mye2e.prototype.armor = function(data, type) {
@@ -225,13 +230,10 @@ mye2e.prototype.importKey = function(keyStr, passphrase) {
     passphrase = '';
   }
   var pgp = this.pgpContext;
-  return new Promise(
-    function(resolve, reject) {
-      pgp.importKey(
-        function(str, continuation) {
-          continuation(passphrase);
-        }, keyStr).addCallback(resolve).addErrback(reject);
-    });
+  return pgp.importKey(
+      function(str) {
+        return e2e.async.Result.toResult(passphrase);
+      }, keyStr);
 };
 
 mye2e.prototype.searchPrivateKey = function(uid) {

@@ -167,6 +167,22 @@ describe('e2eImp', function () {
       }).then(done);
   });
 
+  it('sign and verify', function(done) {
+    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
+      function () {
+        return Promise.all([e2eImp.exportKey(), e2eImp.signEncrypt(buffer)]);
+      }).then(function (array) {
+        var key = array[0].key;
+        var signedData = array[1];
+        return e2eImp.verifyDecrypt(signedData, key);
+      }).then(function (result) {
+        expect(result.data).toEqual(buffer);
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
+  });
+
   it('encryptSign and verifyDecrypt', function(done) {
     e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
@@ -223,6 +239,29 @@ describe('e2eImp', function () {
         return e2eImp.dearmor(armored);
       }).then(function (dearmored) {
         expect(dearmored).toEqual(buffer);
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
+  });
+
+  it('sign and verify between two users', function(done) {
+    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(function() {
+      var otherUser = new mye2e();
+      return otherUser.setup('other user passphrase',
+          'Other User <other@example.com>').then(function() {
+        return otherUser;
+      });
+    }).then(
+      function (otherUser) {
+        return Promise.all([otherUser.exportKey(),
+            otherUser.signEncrypt(buffer)]);
+      }).then(function (array) {
+        var key = array[0].key;
+        var signedData = array[1];
+        return e2eImp.verifyDecrypt(signedData, key);
+      }).then(function (result) {
+        expect(result.data).toEqual(buffer);
       }).catch(function (e) {
         console.log(e.toString());
         expect(false).toBeTruthy();
