@@ -139,7 +139,7 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
     if (encryptKey) {
       var importResult = e2e.async.Result.getValue(
         pgp.importKey(function(str, f) {
-          throw new Error('No passphrase for a public key');
+          throw new Error('No passphrase needed for a public key');
         }, encryptKey));
       keys = e2e.async.Result.getValue(pgp.searchPublicKey(importResult[0]));
     }
