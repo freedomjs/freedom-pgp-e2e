@@ -79,8 +79,9 @@ describe('e2eImp', function () {
   it('test importKey and deleteKey with public key', function(done) {
     e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
       function () {
-        return e2eImp.importKey(publicKeyStr);
-      }).then(function () {
+        return e2eImp.importPubKey(publicKeyStr);
+      }).then(function (keyObj) {
+        expect(keyObj.key.fingerprintHex).toEqual(keyFingerprint);
         return e2eImp.searchPublicKey('<quantsword@gmail.com>');
       }).then(function (keys) {
         expect(keys.length).toEqual(1);
@@ -113,7 +114,7 @@ describe('e2eImp', function () {
   it('test importKey and deleteKey with private key', function(done) {
     e2eImp.setup('test passphrase', 'Test User <testuser@gmail.com>').then(
       function () {
-        return e2eImp.importKey(privateKeyStr);
+        return e2eImp.importPrivKey(privateKeyStr);
       }).then(function () {
         return e2eImp.searchPrivateKey('<quantsword@gmail.com>');
       }).then(function (keys) {
