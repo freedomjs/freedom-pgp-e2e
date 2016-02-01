@@ -11,7 +11,8 @@
 module.exports = function(grunt) {
   require('time-grunt')(grunt);
   require('jit-grunt')(grunt, {
-    jasmine_node: 'grunt-jasmine-node2'
+    jasmine_node: 'grunt-jasmine-node2',
+    'npm-publish': 'grunt-npm'
   });
 
   grunt.initConfig({
