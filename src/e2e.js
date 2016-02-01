@@ -124,10 +124,12 @@ mye2e.prototype.exportKey = function() {
 mye2e.prototype.getFingerprint = function(publicKey) {
   // Returns v4 fingerprint per RFC 4880 Section 12.2
   // http://tools.ietf.org/html/rfc4880#section-12.2
-  return this.importPubKey(publicKey).then(function(keyObj) {
+  return this.pgpContext.getKeyDescription(publicKey).then(
+      function(keyDescriptions) {
+    var fingerprint = keyDescriptions[0].key.fingerprintHex;
     return {
-      'fingerprint': keyObj.key.fingerprintHex,
-      'words': hex2words(keyObj.key.fingerprintHex)
+      'fingerprint': fingerprint,
+      'words': hex2words(fingerprint)
     };
   });
 };
@@ -170,21 +172,18 @@ mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
   var byteView = new Uint8Array(data);
   var pgp = this.pgpContext;
   return importedKey.then(function() {
-    return new Promise(function(resolve, reject) {
-      pgp.verifyDecrypt(function () {
+    return pgp.verifyDecrypt(function () {
         throw new Error('Passphrase decryption is not supported');
-      }, buf2array(data)).addCallback(
-        function (result) {
-          var signed = null;
-          if (verifyKey) {
-            signed = result.verify.success[0].uids;
-          }
-          resolve({
-            data: array2buf(result.decrypt.data),
-            signedBy: signed
-          });
-        }).addErrback(reject);
-    });
+    }, buf2array(data));
+  }).then(function (result) {
+    var signed = null;
+    if (verifyKey) {
+      signed = result.verify.success[0].uids;
+    }
+    return {
+      data: array2buf(result.decrypt.data),
+      signedBy: signed
+    };
   });
 };
 
@@ -205,18 +204,13 @@ mye2e.prototype.dearmor = function(data) {
 // but are not part of the API and should not be exposed to the client
 mye2e.prototype.generateKey = function(name, email) {
   var pgp = this.pgpContext;
-  return new Promise(
-    function(resolve, reject) {
-      var expiration = Date.now() / 1000 + (3600 * 24 * 365);
-      pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration).
-        addCallback(function (keys) {
-          if (keys.length == 2) {
-            resolve();
-          } else {
-            reject(new Error('Failed to generate key'));
-          }
-        });
-    });
+  var expiration = Date.now() / 1000 + (3600 * 24 * 365);
+  return pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration)
+      .then(function (keys) {
+    if (keys.length !== 2) {
+      throw new Error('Failed to generate key');
+    }
+  });
 };
 
 mye2e.prototype.deleteKey = function(uid) {
@@ -236,6 +230,12 @@ mye2e.prototype.importPrivKey = function(keyStr, passphrase) {
 };
 
 mye2e.prototype.importPubKey = function(keyStr) {
+  // Algorithm:
+  // 1. Compute the key description, which includes the fingerprint.
+  //    This action has no side effects (does not import the key).
+  // 2. Import the key.  This returns the "uid", i.e. e-mail address.
+  // 3. Search for all known public keys with this uid.
+  // 4. Find the key whose fingerprint matches the input.  Return this one.
   var pgp = this.pgpContext;
   return pgp.getKeyDescription(keyStr).then(function(keyDescriptions) {
     var keyDescription = keyDescriptions[0];
