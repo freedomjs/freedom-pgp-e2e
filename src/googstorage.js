@@ -67,10 +67,14 @@ store.prototype.deserialize = function(value) {
 };
 
 store.prototype.initialize = function() {
+  if (!store.isPrepared) {
+    throw new Error('store is not yet prepared');
+  }
   this.memStorage = store.preparedMem;
 };
 
 store.preparedMem = {};
+store.isPrepared = false;
 
 // IMPORTANT - this function must be called and resolved before instantiating
 // a store object, otherwise async nastiness w/freedom localStorage occurs
@@ -79,6 +83,7 @@ store.prepareFreedom = function() {
     if (value) {
       store.preparedMem.UserKeyRing = value;
     }
+    store.isPrepared = true;
   });
 };
 

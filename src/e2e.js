@@ -45,8 +45,7 @@ if (typeof crypto === 'undefined') {
  **/
 
 var mye2e = function(dispatchEvents) {
-  this.pgpContext = new e2e.openpgp.ContextImpl();
-  this.pgpContext.armorOutput = false;
+  this.pgpContext = null;
   this.pgpUser = null;
 };
 
@@ -60,7 +59,12 @@ mye2e.prototype.setup = function(passphrase, userid) {
   this.pgpUser = userid;
   var scope = this;  // jasmine tests fail w/bind approach
   return refreshBuffer(5000).then(store.prepareFreedom).then(function() {
-    scope.pgpContext.setKeyRingPassphrase(passphrase);
+    if (!scope.pgpContext) {
+      scope.pgpContext = new e2e.openpgp.ContextImpl();
+      scope.pgpContext.armorOutput = false;
+    }
+    return scope.pgpContext.initializeKeyRing(passphrase);
+  }).then(function() {
     if (e2e.async.Result.getValue(
       scope.pgpContext.searchPrivateKey(scope.pgpUser)).length === 0) {
       var username = scope.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
@@ -84,8 +88,12 @@ mye2e.prototype.clear = function() {
 mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
   var scope = this;  // jasmine tests fail w/bind approach
   return this.clear().then(function() {
+    if (!scope.pgpContext) {
+      scope.pgpContext = new e2e.openpgp.ContextImpl();
+      scope.pgpContext.armorOutput = false;
+    }
     scope.pgpContext.setKeyRingPassphrase(passphrase);
-    return scope.importKey(privateKey, passphrase);
+    return scope.importPrivKey(privateKey, passphrase);
   }).then(function() {
     if (e2e.async.Result.getValue(
       scope.pgpContext.searchPrivateKey(userid)).length === 0 ||
@@ -116,33 +124,32 @@ mye2e.prototype.exportKey = function() {
 mye2e.prototype.getFingerprint = function(publicKey) {
   // Returns v4 fingerprint per RFC 4880 Section 12.2
   // http://tools.ietf.org/html/rfc4880#section-12.2
-  var importResult = e2e.async.Result.getValue(
-    this.pgpContext.importKey(function(str, f) {
-      f('');
-    }, publicKey));
-  var keyResult = e2e.async.Result.getValue(
-    this.pgpContext.searchPublicKey(importResult[0]));
-  return Promise.resolve({
-    'fingerprint': keyResult[0].key.fingerprintHex,
-    'words': hex2words(keyResult[0].key.fingerprintHex)
+  return this.pgpContext.getKeyDescription(publicKey).then(
+      function(keyDescriptions) {
+    var fingerprint = keyDescriptions[0].key.fingerprintHex;
+    return {
+      'fingerprint': fingerprint,
+      'words': hex2words(fingerprint)
+    };
   });
 };
 
 mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
+  var scope = this;
   var pgp = this.pgpContext;
   var user = this.pgpUser;
   return refreshBuffer(5000).then(function () {
     if (typeof sign === 'undefined') {
       sign = true;
     }
-    var keys = [];
+    var keys = Promise.resolve([]);
     if (encryptKey) {
-      var importResult = e2e.async.Result.getValue(
-        pgp.importKey(function(str, f) {
-          throw new Error('No passphrase needed for a public key');
-        }, encryptKey));
-      keys = e2e.async.Result.getValue(pgp.searchPublicKey(importResult[0]));
+      keys = scope.importPubKey(encryptKey).then(function(key) {
+        return [key];
+      });
     }
+    return keys;
+  }).then(function(keys) {
     var signKey;
     if (sign) {
       signKey = e2e.async.Result.getValue(
@@ -150,14 +157,8 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
     } else {
       signKey = null;
     }
-    return new Promise(
-      function(resolve, reject) {
-        pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(
-          function (ciphertext) {
-            resolve(array2buf(ciphertext));
-          }).addErrback(reject);
-      });
-  });
+    return pgp.encryptSign(buf2array(data), [], keys, [], signKey);
+  }).then(array2buf);
 };
 
 mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
@@ -166,26 +167,23 @@ mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
     verifyKey = '';
     importedKey = Promise.resolve();
   } else {
-    importedKey = this.importKey(verifyKey);
+    importedKey = this.importPubKey(verifyKey);
   }
   var byteView = new Uint8Array(data);
   var pgp = this.pgpContext;
   return importedKey.then(function() {
-    return new Promise(function(resolve, reject) {
-      pgp.verifyDecrypt(function () {
+    return pgp.verifyDecrypt(function () {
         throw new Error('Passphrase decryption is not supported');
-      }, buf2array(data)).addCallback(
-        function (result) {
-          var signed = null;
-          if (verifyKey) {
-            signed = result.verify.success[0].uids;
-          }
-          resolve({
-            data: array2buf(result.decrypt.data),
-            signedBy: signed
-          });
-        }).addErrback(reject);
-    });
+    }, buf2array(data));
+  }).then(function (result) {
+    var signed = null;
+    if (verifyKey) {
+      signed = result.verify.success[0].uids;
+    }
+    return {
+      data: array2buf(result.decrypt.data),
+      signedBy: signed
+    };
   });
 };
 
@@ -206,18 +204,13 @@ mye2e.prototype.dearmor = function(data) {
 // but are not part of the API and should not be exposed to the client
 mye2e.prototype.generateKey = function(name, email) {
   var pgp = this.pgpContext;
-  return new Promise(
-    function(resolve, reject) {
-      var expiration = Date.now() / 1000 + (3600 * 24 * 365);
-      pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration).
-        addCallback(function (keys) {
-          if (keys.length == 2) {
-            resolve();
-          } else {
-            reject(new Error('Failed to generate key'));
-          }
-        });
-    });
+  var expiration = Date.now() / 1000 + (3600 * 24 * 365);
+  return pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration)
+      .then(function (keys) {
+    if (keys.length !== 2) {
+      throw new Error('Failed to generate key');
+    }
+  });
 };
 
 mye2e.prototype.deleteKey = function(uid) {
@@ -225,7 +218,7 @@ mye2e.prototype.deleteKey = function(uid) {
   return Promise.resolve();
 };
 
-mye2e.prototype.importKey = function(keyStr, passphrase) {
+mye2e.prototype.importPrivKey = function(keyStr, passphrase) {
   if (typeof passphrase === 'undefined') {
     passphrase = '';
   }
@@ -234,6 +227,35 @@ mye2e.prototype.importKey = function(keyStr, passphrase) {
       function(str) {
         return e2e.async.Result.toResult(passphrase);
       }, keyStr);
+};
+
+mye2e.prototype.importPubKey = function(keyStr) {
+  // Algorithm:
+  // 1. Compute the key description, which includes the fingerprint.
+  //    This action has no side effects (does not import the key).
+  // 2. Import the key.  This returns the "uid", i.e. e-mail address.
+  // 3. Search for all known public keys with this uid.
+  // 4. Find the key whose fingerprint matches the input.  Return this one.
+  var pgp = this.pgpContext;
+  return pgp.getKeyDescription(keyStr).then(function(keyDescriptions) {
+    var keyDescription = keyDescriptions[0];
+    return pgp.importKey(function(str) {
+        throw new Error('No passphrase needed for a public key');
+      }, keyStr).then(function(uids) {
+      if (uids.length !== 1) throw new Error('too many uids');
+      return pgp.searchPublicKey(uids[0]);
+    }).then(function(candidateKeydescriptions) {
+      var rightKey = null;
+      candidateKeydescriptions.forEach(function(candidateKeyDescription) {
+        if (candidateKeyDescription.key.fingerprintHex ===
+            keyDescription.key.fingerprintHex) {
+          rightKey = candidateKeyDescription;
+        }
+      });
+      if (!rightKey) throw new Error('could not import key');
+      return rightKey;
+    });
+  });
 };
 
 mye2e.prototype.searchPrivateKey = function(uid) {

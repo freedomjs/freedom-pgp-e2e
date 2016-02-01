@@ -1,5 +1,8 @@
 function store () {
   this.storage = {};
+  if (!store.isPrepared) {
+    throw new Error('store not yet prepared');
+  }
 }
 
 store.prototype.set = function(key, val) {
@@ -50,8 +53,11 @@ store.prototype.deserialize = function(value) {
   catch(e) { return value || undefined; }
 };
 
+store.isPrepared = false;
+
 store.prepareFreedom = function() {
   // mock doesn't actually use freedom localStorage
+  store.isPrepared = true;
   return Promise.resolve();
 };
 
