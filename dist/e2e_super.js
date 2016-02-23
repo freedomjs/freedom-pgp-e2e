@@ -4,6 +4,8 @@ var e2e = {};
 var Zlib = {};
 goog.global = this;
 goog.global.JSON = JSON;
+goog.global.setTimeout = setTimeout;
+goog.global.clearTimeout = clearTimeout;
 goog.global.CLOSURE_UNCOMPILED_DEFINES;
 goog.global.CLOSURE_DEFINES;
 goog.isDef = function(val) {
@@ -27150,42 +27152,45 @@ var Storage_node = function (cap, dispatch) {
 Storage_node.prototype.get = function (key, continuation) {
   'use strict';
   try {
+    // TODO: return promises insetad of using continuation.
     var val = this.store.get(key);
     if (typeof val !== 'undefined') {
-      continuation(val);
+      return Promise.resolve(val);
     } else {
-      continuation(null);
+      return Promise.reject();
+//      continuation(null);
     }
   } catch (e) {
-    continuation(null);
+    return Promise.reject();
+//    continuation(null);
   }
 };
 
 Storage_node.prototype.keys = function (continuation) {
   'use strict';
   var dict = this.store.get();
-  continuation(Object.keys(dict));
+  Promise.resolve(Object.keys(dict));
 };
 
 Storage_node.prototype.set = function (key, value, continuation) {
   'use strict';
   var old = this.store.get(key);
   this.store.set(key, value);
-  continuation(old);
+  Promise.resolve(old);
 };
 
 Storage_node.prototype.remove = function (key, continuation) {
   'use strict';
   var old = this.store.get(key);
   this.store.del(key);
-  continuation(old);
+  Promise.resolve(old);
 };
 
 Storage_node.prototype.clear = function (continuation) {
   'use strict';
   this.store.Store = {};
   this.store.save();
-  continuation();
+  Promise.resolve();
 };
 
 
