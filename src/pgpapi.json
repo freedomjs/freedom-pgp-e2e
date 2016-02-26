@@ -100,6 +100,14 @@
         "value": ["string"],
         "ret": "buffer",
         "err": { "errcode": "string", "message": "string" }
+      },
+
+      "ecdhBob": {
+        "_comment": "Full elliptical curve implementation in a single function",
+        "type": "method",
+        "value": ["string", "string"],
+        "ret": ["buffer"],
+        "err": { "errcode": "string", "message": "string" }
       }
     }
   },
@@ -109,4 +117,3 @@
     "core.storage"
   ]
 }
-
