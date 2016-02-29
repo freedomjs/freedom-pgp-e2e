@@ -197,24 +197,17 @@ mye2e.prototype.dearmor = function(data) {
 };
 
 mye2e.prototype.ecdhBob = function(curveName, peerPubKey) {
-  // this is actually pretty stupid.
   if (!(curveName in e2e.ecc.PrimeCurve)) {
     return Promise.reject(new Error('Invalid Prime Curve'));
   }
   var ecdh, pubkey;
   try {
-    console.log("ecdhBob: Creating curve.");
     // Base call in this c'tor throws.
-    //    var curveObj = e2e.ecc.DomainParam.fromCurve(e2e.ecc.PrimeCurve[curveName]);
     ecdh = new e2e.ecc.Ecdh(curveName);
     // peerPubKey is expected to be an armored key like "-----BEGIN PGP PUBLIC KEY BLOCK...".
-    console.log("ecdhBob: Creating key.");
-    // TODO: don't go through the ascii-armor parse directly.
-    // e2e.openpgp.block.factory.parseByteArrayTransferableKey(alicePubKey.data)
-    pubkey =
-        e2e.openpgp.block.factory.parseByteArrayTransferableKey(e2e.openpgp.asciiArmor.parse(peerPubKey).data).keyPacket.cipher.ecdsa_.getPublicKey();
-    console.log("ecdhBob: Getting our own private key");
-    //myPrivKeyResult = this.pgpContext.keyRing_.getSecretKey(this.pgpUser);
+    pubkey = e2e.openpgp.block.factory.parseByteArrayTransferableKey(
+        e2e.openpgp.asciiArmor.parse(peerPubKey).data).keyPacket.cipher.ecdsa_.getPublicKey();
+
     // TODO: use public APIs instead of just grabbing fields as desired.
     var cipher = this.pgpContext.keyRing_.privKeyRing_.map_[this.pgpUser][0].keyPacket.cipher;
     var wrap = cipher.getWrappedCipher();
