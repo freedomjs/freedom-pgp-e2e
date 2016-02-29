@@ -106,7 +106,7 @@
         "_comment": "Full elliptical curve implementation in a single function",
         "type": "method",
         "value": ["string", "string"],
-        "ret": ["buffer"],
+        "ret": "buffer",
         "err": { "errcode": "string", "message": "string" }
       }
     }

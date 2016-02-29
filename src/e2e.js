@@ -217,7 +217,7 @@ mye2e.prototype.ecdhBob = function(curveName, peerPubKey) {
     var cipher = this.pgpContext.keyRing_.privKeyRing_.map_[this.pgpUser][0].keyPacket.cipher;
     var wrap = cipher.getWrappedCipher();
     var bobResult = ecdh.bob(pubkey, wrap.key.privKey);
-    return Promise.Resolve(bobResult.secret);
+    return Promise.resolve(array2buf(bobResult.secret));
   } catch (e) {
     console.log("ERROR: " + JSON.stringify(e));
     console.log(e);
