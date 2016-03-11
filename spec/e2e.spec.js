@@ -56,6 +56,36 @@ describe('e2eImp', function () {
         '=H/6h\r\n' +
         '-----END PGP PRIVATE KEY BLOCK-----\r\n';
 
+  var secondPrivKeyStr =
+        '-----BEGIN PGP PRIVATE KEY BLOCK-----\r\n' +
+        'Charset: UTF-8\r\n' +
+        'Version: End-To-End v0.31337.1\r\n' +
+        '\r\n' +
+        'xf8AAAB3BAAAAAATCCqGSM49AwEHAgMEFBwMuJYcFZ8diyWqImSpcjIDVXvrvTqi\r\n' +
+        '3ZW6aP2Xa7hM1RzpXNEJWf0MmSXcYPDF10t1NYGyFObi9MRGoVI1uAABAIpkPlZ0\r\n' +
+        'ekouOO8LrzBQyBbeR8/E+BrC5/SVweBFSHeqEHPN/wAAABQ8dXNlci0xQGV4YW1w\r\n' +
+        'bGUuY29tPsL/AAAAjgQQEwgAQP8AAAAFglartIL/AAAAAosJ/wAAAAmQXj/bCxIp\r\n' +
+        'OcD/AAAABZUICQoL/wAAAASWAwEC/wAAAAKbA/8AAAACngEAALZtAP40gWxAFmWi\r\n' +
+        'QtX0NcwueplZ9NGDXRmiZ/nib0YUDLISUgD/QlSj7uQMeakFNjXxRz8V1BqzyMRC\r\n' +
+        'kxzgWJz+n5S8KuPH/wAAAHsEAAAAABIIKoZIzj0DAQcCAwS1SHoSCjjOKdpzbUN/\r\n' +
+        'eIFRG9YdMaUUzFmDQ7UhbKZP/MNcBdACy87jVwI2tNh5rSWLhqPiEegMqTXZsqxd\r\n' +
+        '2ki3AwEIBwAA/1iPkMsIvyzP2idPN2y+wFY/zmDG2xR8nzVNEcXnZCR9EEvC/wAA\r\n' +
+        'AG0EGBMIAB//AAAABYJWq7SC/wAAAAmQXj/bCxIpOcD/AAAAApsMAADG6AD/RDyt\r\n' +
+        'sJ4dQ7FNACg5kvuC8y4MhO6EsoStVZSHgFXx6z8A/3y62Mh4rdBtjstmZase21OV\r\n' +
+        'Bzyi7hW5y4rRJHRSg1bJxv8AAABSBAAAAAATCCqGSM49AwEHAgMEFBwMuJYcFZ8d\r\n' +
+        'iyWqImSpcjIDVXvrvTqi3ZW6aP2Xa7hM1RzpXNEJWf0MmSXcYPDF10t1NYGyFObi\r\n' +
+        '9MRGoVI1uM3/AAAAFDx1c2VyLTFAZXhhbXBsZS5jb20+wv8AAACOBBATCABA/wAA\r\n' +
+        'AAWCVqu0gv8AAAACiwn/AAAACZBeP9sLEik5wP8AAAAFlQgJCgv/AAAABJYDAQL/\r\n' +
+        'AAAAApsD/wAAAAKeAQAAtm0A/jSBbEAWZaJC1fQ1zC56mVn00YNdGaJn+eJvRhQM\r\n' +
+        'shJSAP9CVKPu5Ax5qQU2NfFHPxXUGrPIxEKTHOBYnP6flLwq487/AAAAVgQAAAAA\r\n' +
+        'EggqhkjOPQMBBwIDBLVIehIKOM4p2nNtQ394gVEb1h0xpRTMWYNDtSFspk/8w1wF\r\n' +
+        '0ALLzuNXAja02HmtJYuGo+IR6AypNdmyrF3aSLcDAQgHwv8AAABtBBgTCAAf/wAA\r\n' +
+        'AAWCVqu0gv8AAAAJkF4/2wsSKTnA/wAAAAKbDAAAxugBAMXSmje/LKMk1EyIrn4+\r\n' +
+        'xcwKRzUiuDeg1EKsUWGcIVwcAPoCJlH/uaVStEdVDaLRqgvhYzUJOMWZgBz1Vn7I\r\n' +
+        'JmFLrg==\r\n' +
+        '=UvKo\r\n' +
+        '-----END PGP PRIVATE KEY BLOCK-----\r\n';
+
   var e2eImp;
   var buffer = new ArrayBuffer(12);
   var byteView = new Uint8Array(buffer);
@@ -223,6 +253,21 @@ describe('e2eImp', function () {
         return e2eImp.dearmor(armored);
       }).then(function (dearmored) {
         expect(dearmored).toEqual(buffer);
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
+  });
+
+  it('generates a shared secret', function(done) {
+    e2eImp.setup('', '<user-0@example.com>').then(
+      function () {
+        return e2eImp.importKey(secondPrivKeyStr);
+      }).then(function() {
+        return e2eImp.ecdhBob('P_256', publicKeyStr);
+      }).then(function(secret) {
+        console.log("Got shared secret: " + secret.toString());
+        expect(false).toBeTruthy();
       }).catch(function (e) {
         console.log(e.toString());
         expect(false).toBeTruthy();

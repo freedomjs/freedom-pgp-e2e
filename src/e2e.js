@@ -196,22 +196,60 @@ mye2e.prototype.dearmor = function(data) {
   return Promise.resolve(array2buf(e2e.openpgp.asciiArmor.parse(data).data));
 };
 
+// Basic EC Diffie-Hellman shared secret calculation.
+//
+// 'curveName' is a simple string identifying the ECC curve.  "P_256" is
+//    a lovely value.
+// 'peerPubKey' is expected to be an armored key like "-----BEGIN PGP
+//    PUBLIC KEY BLOCK...".
 mye2e.prototype.ecdhBob = function(curveName, peerPubKey) {
   if (!(curveName in e2e.ecc.PrimeCurve)) {
     return Promise.reject(new Error('Invalid Prime Curve'));
   }
-  var ecdh, pubkey;
   try {
     // Base call in this c'tor throws.
-    ecdh = new e2e.ecc.Ecdh(curveName);
-    // peerPubKey is expected to be an armored key like "-----BEGIN PGP PUBLIC KEY BLOCK...".
-    pubkey = e2e.openpgp.block.factory.parseByteArrayTransferableKey(
-        e2e.openpgp.asciiArmor.parse(peerPubKey).data).keyPacket.cipher.ecdsa_.getPublicKey();
+    var ecdh = new e2e.ecc.Ecdh(curveName);
+    var parsedPubkey = e2e.openpgp.block.factory.parseByteArrayTransferableKey(
+        e2e.openpgp.asciiArmor.parse(peerPubKey).data);
+    var pubkey = parsedPubkey.keyPacket.cipher.ecdsa_.getPublicKey();
 
-    // TODO: use public APIs instead of just grabbing fields as desired.
-    var cipher = this.pgpContext.keyRing_.privKeyRing_.map_[this.pgpUser][0].keyPacket.cipher;
+    console.log("Running ecdh.bob with");
+    // TODO: Find public APIs to get this data.
+    var localPrivKey = this.pgpContext.keyRing_.privKeyRing_.map_[this.pgpUser][0];
+    console.log("> this.pgpUser:" + this.pgpUser);
+    console.log("> localPrivKey.keyPacket.cipher.cipher_.ecdsa_.params: " +
+        localPrivKey.keyPacket.cipher.cipher_.ecdsa_.params.toString());
+    console.log("> localPrivKey.keyPacket.cipher.algorithm: " +
+        localPrivKey.keyPacket.cipher.algorithm);
+    console.log("> localPrivKey.keyPacket.cipher.encryptedKeyData:" +
+        localPrivKey.keyPacket.cipher.encryptedKeyData.toString());
+    console.log("> localPrivKey.keyPacket.cipher.cipher_.key.curve: " +
+        localPrivKey.keyPacket.cipher.cipher_.key.curve.toString());
+    console.log("> localPrivKey.keyPacket.cipher.cipher_.key.privKey: " +
+        localPrivKey.keyPacket.cipher.cipher_.key.privKey.toString());
+    console.log("> localPrivKey.keyPacket.cipher.cipher_.key.pubKey: " +
+        localPrivKey.keyPacket.cipher.cipher_.key.pubKey.toString());
+
+    console.log("> localPrivKey.keyPacket.fingerprint: " +
+        localPrivKey.keyPacket.fingerprint.toString());
+    console.log("> localPrivKey.keyPacket.keyId: " +
+        localPrivKey.keyPacket.keyId.toString());
+    console.log("> localPrivKey.keyPacket.cipher:" + localPrivKey.keyPacket.cipher.toString());
+    var cipher = localPrivKey.keyPacket.cipher;
+
+    // The curve data in both cases are simple arrays of numbers, to
+    // this works pretty well.
+    if (cipher.cipher_.key.curve.toString() !=
+        parsedPubkey.keyPacket.cipher.key.curve.toString()) {
+      return Promise.reject(new Error('Keys have different curves.'));
+    }
+
+
     var wrap = cipher.getWrappedCipher();
+    console.log("> pubkey:" + pubkey.toString());
+    console.log("> privKey:" + wrap.key.privKey.toString());
     var bobResult = ecdh.bob(pubkey, wrap.key.privKey);
+    console.log("Returning bobResult.secret: " + bobResult.secret.toString());
     return Promise.resolve(array2buf(bobResult.secret));
   } catch (e) {
     console.log("ERROR: " + JSON.stringify(e));
