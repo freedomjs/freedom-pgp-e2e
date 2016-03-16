@@ -214,8 +214,14 @@ mye2e.prototype.ecdhBob = function(curveName, peerPubKey) {
     var pubkey = parsedPubkey.keyPacket.cipher.ecdsa_.getPublicKey();
 
     console.log("Running ecdh.bob with");
-    // TODO: Find public APIs to get this data.
-    var localPrivKey = this.pgpContext.keyRing_.privKeyRing_.map_[this.pgpUser][0];
+
+    var keyRing = this.pgpContext.keyRing_;
+    // returns {?Array.<!e2e.openpgp.block.TransferableKey>}, but
+    // doesn't seem to have the guts we want?
+    var privKey = keyRing.searchKey(this.pgpUser, e2e.openpgp.KeyRing.Type.PRIVATE);
+    var privkeyKey = privKey[0].toKeyObject();
+    var localPrivKey = keyRing.getKeyBlock(privkeyKey);
+
     console.log("> this.pgpUser:" + this.pgpUser);
     console.log("> localPrivKey.keyPacket.cipher.cipher_.ecdsa_.params: " +
         localPrivKey.keyPacket.cipher.cipher_.ecdsa_.params.toString());
