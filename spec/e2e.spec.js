@@ -226,6 +226,27 @@ describe('e2eImp', function () {
         expect(publicKey.key.length > 36);
         expect(publicKey.key.substring(0, 36)).toEqual(
           '-----BEGIN PGP PUBLIC KEY BLOCK-----');
+        expect(publicKey.key.substring(
+          publicKey.key.length - 36, publicKey.key.length)).toEqual(
+            '-----END PGP PUBLIC KEY BLOCK-----\r\n');
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
+  });
+
+  it('export public key *without* PGP headers', function(done) {
+    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
+      function () {
+        expect(true).toBeTruthy();
+        return e2eImp.exportKey(true);
+      }).then(function (publicKey) {
+        expect(publicKey.key.length > 36);
+        expect(publicKey.key.substring(0, 36)).not.toEqual(
+          '-----BEGIN PGP PUBLIC KEY BLOCK-----');
+        expect(publicKey.key.substring(
+          publicKey.key.length - 36, publicKey.key.length)).not.toEqual(
+            '-----END PGP PUBLIC KEY BLOCK-----\r\n');
       }).catch(function (e) {
         console.log(e.toString());
         expect(false).toBeTruthy();
@@ -233,137 +254,137 @@ describe('e2eImp', function () {
   });
 
   it('armor and dearmor', function(done) {
-    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
-      function () {
-        return e2eImp.armor(buffer);
-      }).then(function (armored) {
-        return e2eImp.dearmor(armored);
-      }).then(function (dearmored) {
-        expect(dearmored).toEqual(buffer);
-      }).catch(function (e) {
-        console.log(e.toString());
-        expect(false).toBeTruthy();
-      }).then(done);
-  });
+  e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
+    function () {
+      return e2eImp.armor(buffer);
+    }).then(function (armored) {
+      return e2eImp.dearmor(armored);
+    }).then(function (dearmored) {
+      expect(dearmored).toEqual(buffer);
+    }).catch(function (e) {
+      console.log(e.toString());
+      expect(false).toBeTruthy();
+    }).then(done);
+});
 
-  it('sign and verify between two users', function(done) {
-    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(function() {
-      var otherUser = new mye2e();
-      return otherUser.setup('other user passphrase',
-          'Other User <other@example.com>').then(function() {
-        return otherUser;
-      });
-    }).then(
-      function(otherUser) {
-        return Promise.all([otherUser.exportKey(),
-            otherUser.signEncrypt(buffer)]);
-      }).then(function (array) {
-        var key = array[0].key;
-        var signedData = array[1];
-        return e2eImp.verifyDecrypt(signedData, key);
-      }).then(function (result) {
-        expect(result.data).toEqual(buffer);
-      }).catch(function (e) {
-        console.log(e.toString());
-        expect(false).toBeTruthy();
-      }).then(done);
-  });
+it('sign and verify between two users', function(done) {
+  e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(function() {
+    var otherUser = new mye2e();
+    return otherUser.setup('other user passphrase',
+                           'Other User <other@example.com>').then(function() {
+                             return otherUser;
+                           });
+  }).then(
+    function(otherUser) {
+      return Promise.all([otherUser.exportKey(),
+                          otherUser.signEncrypt(buffer)]);
+    }).then(function (array) {
+      var key = array[0].key;
+      var signedData = array[1];
+      return e2eImp.verifyDecrypt(signedData, key);
+    }).then(function (result) {
+      expect(result.data).toEqual(buffer);
+    }).catch(function (e) {
+      console.log(e.toString());
+      expect(false).toBeTruthy();
+    }).then(done);
+});
 
-  it('getFingerprint of users with the same name', function(done) {
-    var otherUser0 = new mye2e();
-    var otherUser1 = new mye2e();
-    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
-        function () {
+it('getFingerprint of users with the same name', function(done) {
+  var otherUser0 = new mye2e();
+  var otherUser1 = new mye2e();
+  e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
+    function () {
       return Promise.all([
         otherUser0.setup('test passphrase', 'Test User <test@example.com>'),
         otherUser1.setup('test passphrase', 'Test User <test@example.com>')
       ]);
     }).then(function () {
-        return Promise.all([otherUser0.exportKey(), otherUser1.exportKey()]);
-      }).then(function (keys) {
-        // Check that the test is functioning correctly, generating new keys.
-        expect(keys[0].key).not.toEqual(keys[1].key);
-        expect(keys[0].fingerprint).not.toEqual(keys[1].fingerprint);
+      return Promise.all([otherUser0.exportKey(), otherUser1.exportKey()]);
+    }).then(function (keys) {
+      // Check that the test is functioning correctly, generating new keys.
+      expect(keys[0].key).not.toEqual(keys[1].key);
+      expect(keys[0].fingerprint).not.toEqual(keys[1].fingerprint);
 
-        // Check that the fingerprints are computed correctly
-        return Promise.all([
-          e2eImp.getFingerprint(keys[0].key).then(function(fp) {
-            expect(fp.fingerprint).toEqual(keys[0].fingerprint);
-          }),
-          e2eImp.getFingerprint(keys[1].key).then(function(fp) {
-            expect(fp.fingerprint).toEqual(keys[1].fingerprint);
-          })
-        ]);
-      }).catch(function (e) {
-        console.log(e.toString());
-        expect(false).toBeTruthy();
-      }).then(done);
-  });
-
-  it('verify messages from users with the same name', function(done) {
-    var otherUser0 = new mye2e();
-    var otherUser1 = new mye2e();
-    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(function() {
+      // Check that the fingerprints are computed correctly
       return Promise.all([
-        otherUser0.setup('test passphrase', 'Test User <test@example.com>'),
-        otherUser1.setup('test passphrase', 'Test User <test@example.com>')
+        e2eImp.getFingerprint(keys[0].key).then(function(fp) {
+          expect(fp.fingerprint).toEqual(keys[0].fingerprint);
+        }),
+        e2eImp.getFingerprint(keys[1].key).then(function(fp) {
+          expect(fp.fingerprint).toEqual(keys[1].fingerprint);
+        })
       ]);
-    }).then(function () {
-        // Sign a message from user0, and verify with e2eImp
-        return Promise.all([otherUser0.exportKey(),
-            otherUser0.signEncrypt(buffer)]);
-      }).then(function (array) {
-        var key = array[0].key;
-        var signedData = array[1];
-        return e2eImp.verifyDecrypt(signedData, key);
-      }).then(function (result) {
-        expect(result.data).toEqual(buffer);
+    }).catch(function (e) {
+      console.log(e.toString());
+      expect(false).toBeTruthy();
+    }).then(done);
+});
 
-        // Sign a message from user1, and verify with e2eImp
-        return Promise.all([otherUser1.exportKey(),
-            otherUser1.signEncrypt(buffer)]);
-      }).then(function (array) {
-        var key = array[0].key;
-        var signedData = array[1];
-        return e2eImp.verifyDecrypt(signedData, key);
-      }).then(function (result) {
-        expect(result.data).toEqual(buffer);
-      }).catch(function (e) {
-        console.log(e.toString());
-        expect(false).toBeTruthy();
-      }).then(done);
-  });
+it('verify messages from users with the same name', function(done) {
+  var otherUser0 = new mye2e();
+  var otherUser1 = new mye2e();
+  e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(function() {
+    return Promise.all([
+      otherUser0.setup('test passphrase', 'Test User <test@example.com>'),
+      otherUser1.setup('test passphrase', 'Test User <test@example.com>')
+    ]);
+  }).then(function () {
+    // Sign a message from user0, and verify with e2eImp
+    return Promise.all([otherUser0.exportKey(),
+                        otherUser0.signEncrypt(buffer)]);
+  }).then(function (array) {
+    var key = array[0].key;
+    var signedData = array[1];
+    return e2eImp.verifyDecrypt(signedData, key);
+  }).then(function (result) {
+    expect(result.data).toEqual(buffer);
 
-  it('encrypt messages to users with the same name', function(done) {
-    var otherUser0 = new mye2e();
-    var otherUser1 = new mye2e();
-    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(function() {
-      return Promise.all([
-        otherUser0.setup('test passphrase', 'Test User <test@example.com>'),
-        otherUser1.setup('test passphrase', 'Test User <test@example.com>')
-      ]);
-    }).then(function () {
-        return Promise.all([otherUser0.exportKey(), otherUser1.exportKey()]);
-      }).then(function (keys) {
-        // Check that the test is functioning correctly, generating new keys.
-        expect(keys[0].key).not.toEqual(keys[1].key);
+    // Sign a message from user1, and verify with e2eImp
+    return Promise.all([otherUser1.exportKey(),
+                        otherUser1.signEncrypt(buffer)]);
+  }).then(function (array) {
+    var key = array[0].key;
+    var signedData = array[1];
+    return e2eImp.verifyDecrypt(signedData, key);
+  }).then(function (result) {
+    expect(result.data).toEqual(buffer);
+  }).catch(function (e) {
+    console.log(e.toString());
+    expect(false).toBeTruthy();
+  }).then(done);
+});
 
-        // Encrypt a message to both users
-        return Promise.all([
-          e2eImp.signEncrypt(buffer, keys[0].key),
-          e2eImp.signEncrypt(buffer, keys[1].key)
-        ]);
-      }).then(function (cipherTexts) {
-        return Promise.all([
-          otherUser0.verifyDecrypt(cipherTexts[0]),
-          otherUser1.verifyDecrypt(cipherTexts[1])
-        ]);
-      }).then(function (results) {
-        expect(results[0].data).toEqual(buffer);
-        expect(results[1].data).toEqual(buffer);
-      }).catch(function (e) {
-        console.log(e.toString());
-        expect(false).toBeTruthy();
-      }).then(done);
-  });
+it('encrypt messages to users with the same name', function(done) {
+  var otherUser0 = new mye2e();
+  var otherUser1 = new mye2e();
+  e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(function() {
+    return Promise.all([
+      otherUser0.setup('test passphrase', 'Test User <test@example.com>'),
+      otherUser1.setup('test passphrase', 'Test User <test@example.com>')
+    ]);
+  }).then(function () {
+    return Promise.all([otherUser0.exportKey(), otherUser1.exportKey()]);
+  }).then(function (keys) {
+    // Check that the test is functioning correctly, generating new keys.
+    expect(keys[0].key).not.toEqual(keys[1].key);
+
+    // Encrypt a message to both users
+    return Promise.all([
+      e2eImp.signEncrypt(buffer, keys[0].key),
+      e2eImp.signEncrypt(buffer, keys[1].key)
+    ]);
+  }).then(function (cipherTexts) {
+    return Promise.all([
+      otherUser0.verifyDecrypt(cipherTexts[0]),
+      otherUser1.verifyDecrypt(cipherTexts[1])
+    ]);
+  }).then(function (results) {
+    expect(results[0].data).toEqual(buffer);
+    expect(results[1].data).toEqual(buffer);
+  }).catch(function (e) {
+    console.log(e.toString());
+    expect(false).toBeTruthy();
+  }).then(done);
+});
 });

@@ -109,13 +109,18 @@ mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
   });
 };
 
-mye2e.prototype.exportKey = function() {
+mye2e.prototype.exportKey = function(removeHeader) {
+  // removeHeader is an optional parameter that removes PGP header and newlines
   var keyResult = e2e.async.Result.getValue(
     this.pgpContext.searchPublicKey(this.pgpUser));
   var serialized = keyResult[0].serialized;
-
+  var key = e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized);
+  if (removeHeader) {
+    // If optional removeHeader is true, then remove the PGP head/foot lines
+    key = key.split('\r\n').slice(3, key.split('\r\n').length - 2).join('');
+  }
   return Promise.resolve({
-    'key': e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized),
+    'key': key,
     'fingerprint': keyResult[0].key.fingerprintHex,
     'words': hex2words(keyResult[0].key.fingerprintHex)
   });
@@ -125,13 +130,13 @@ mye2e.prototype.getFingerprint = function(publicKey) {
   // Returns v4 fingerprint per RFC 4880 Section 12.2
   // http://tools.ietf.org/html/rfc4880#section-12.2
   return this.pgpContext.getKeyDescription(publicKey).then(
-      function(keyDescriptions) {
-    var fingerprint = keyDescriptions[0].key.fingerprintHex;
-    return {
-      'fingerprint': fingerprint,
-      'words': hex2words(fingerprint)
-    };
-  });
+    function(keyDescriptions) {
+      var fingerprint = keyDescriptions[0].key.fingerprintHex;
+      return {
+        'fingerprint': fingerprint,
+        'words': hex2words(fingerprint)
+      };
+    });
 };
 
 mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
@@ -173,7 +178,7 @@ mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
   var pgp = this.pgpContext;
   return importedKey.then(function() {
     return pgp.verifyDecrypt(function () {
-        throw new Error('Passphrase decryption is not supported');
+      throw new Error('Passphrase decryption is not supported');
     }, buf2array(data));
   }).then(function (result) {
     var signed = null;
@@ -206,109 +211,109 @@ mye2e.prototype.generateKey = function(name, email) {
   var pgp = this.pgpContext;
   var expiration = Date.now() / 1000 + (3600 * 24 * 365);
   return pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration)
-      .then(function (keys) {
-    if (keys.length !== 2) {
-      throw new Error('Failed to generate key');
-    }
-  });
+    .then(function (keys) {
+      if (keys.length !== 2) {
+        throw new Error('Failed to generate key');
+      }
+    });
 };
 
 mye2e.prototype.deleteKey = function(uid) {
   this.pgpContext.deleteKey(uid);
-  return Promise.resolve();
-};
+    return Promise.resolve();
+  };
 
-mye2e.prototype.importPrivKey = function(keyStr, passphrase) {
-  if (typeof passphrase === 'undefined') {
-    passphrase = '';
-  }
-  var pgp = this.pgpContext;
-  return pgp.importKey(
+  mye2e.prototype.importPrivKey = function(keyStr, passphrase) {
+    if (typeof passphrase === 'undefined') {
+      passphrase = '';
+    }
+    var pgp = this.pgpContext;
+    return pgp.importKey(
       function(str) {
         return e2e.async.Result.toResult(passphrase);
       }, keyStr);
-};
+  };
 
-mye2e.prototype.importPubKey = function(keyStr) {
-  // Algorithm:
-  // 1. Compute the key description, which includes the fingerprint.
-  //    This action has no side effects (does not import the key).
-  // 2. Import the key.  This returns the "uid", i.e. e-mail address.
-  // 3. Search for all known public keys with this uid.
-  // 4. Find the key whose fingerprint matches the input.  Return this one.
-  var pgp = this.pgpContext;
-  return pgp.getKeyDescription(keyStr).then(function(keyDescriptions) {
-    var keyDescription = keyDescriptions[0];
-    return pgp.importKey(function(str) {
+  mye2e.prototype.importPubKey = function(keyStr) {
+    // Algorithm:
+    // 1. Compute the key description, which includes the fingerprint.
+    //    This action has no side effects (does not import the key).
+    // 2. Import the key.  This returns the "uid", i.e. e-mail address.
+    // 3. Search for all known public keys with this uid.
+    // 4. Find the key whose fingerprint matches the input.  Return this one.
+    var pgp = this.pgpContext;
+    return pgp.getKeyDescription(keyStr).then(function(keyDescriptions) {
+      var keyDescription = keyDescriptions[0];
+      return pgp.importKey(function(str) {
         throw new Error('No passphrase needed for a public key');
       }, keyStr).then(function(uids) {
-      if (uids.length !== 1) throw new Error('too many uids');
-      return pgp.searchPublicKey(uids[0]);
-    }).then(function(candidateKeydescriptions) {
-      var rightKey = null;
-      candidateKeydescriptions.forEach(function(candidateKeyDescription) {
-        if (candidateKeyDescription.key.fingerprintHex ===
-            keyDescription.key.fingerprintHex) {
-          rightKey = candidateKeyDescription;
-        }
+        if (uids.length !== 1) throw new Error('too many uids');
+        return pgp.searchPublicKey(uids[0]);
+      }).then(function(candidateKeydescriptions) {
+        var rightKey = null;
+        candidateKeydescriptions.forEach(function(candidateKeyDescription) {
+          if (candidateKeyDescription.key.fingerprintHex ===
+              keyDescription.key.fingerprintHex) {
+            rightKey = candidateKeyDescription;
+          }
+        });
+        if (!rightKey) throw new Error('could not import key');
+        return rightKey;
       });
-      if (!rightKey) throw new Error('could not import key');
-      return rightKey;
     });
-  });
-};
+  };
 
-mye2e.prototype.searchPrivateKey = function(uid) {
-  var pgp = this.pgpContext;
-  return new Promise(
-    function(resolve, reject) {
-      pgp.searchPrivateKey(uid).addCallback(resolve).addErrback(reject);
-    });
-};
+  mye2e.prototype.searchPrivateKey = function(uid) {
+    var pgp = this.pgpContext;
+    return new Promise(
+      function(resolve, reject) {
+        pgp.searchPrivateKey(uid).addCallback(resolve).addErrback(reject);
+      });
+  };
 
-mye2e.prototype.searchPublicKey = function(uid) {
-  var pgp = this.pgpContext;
-  return new Promise(
-    function(resolve, reject) {
-      pgp.searchPublicKey(uid).addCallback(resolve).addErrback(reject);
-    });
-};
+  mye2e.prototype.searchPublicKey = function(uid) {
+    var pgp = this.pgpContext;
+    return new Promise(
+      function(resolve, reject) {
+        pgp.searchPublicKey(uid).addCallback(resolve).addErrback(reject);
+      });
+  };
 
 
-// Helper methods (that don't need state and could be moved elsewhere)
-function array2str(a) {
-  var str = '';
-  for (var i = 0; i < a.length; i++) {
-    str += String.fromCharCode(a[i]);
+  // Helper methods (that don't need state and could be moved elsewhere)
+  function array2str(a) {
+    var str = '';
+    for (var i = 0; i < a.length; i++) {
+      str += String.fromCharCode(a[i]);
+    }
+    return str;
   }
-  return str;
-}
 
-function str2buf(s) {
-  var buf = new ArrayBuffer(s.length * 2);
-  var view = new Uint16Array(buf);
-  for (var i = 0; i < s.length; i++) {
-    view[i] = s.charCodeAt(i);
+  function str2buf(s) {
+    var buf = new ArrayBuffer(s.length * 2);
+    var view = new Uint16Array(buf);
+    for (var i = 0; i < s.length; i++) {
+      view[i] = s.charCodeAt(i);
+    }
+    return buf;
   }
-  return buf;
-}
 
-function array2buf(a) {
-  var buf = new ArrayBuffer(a.length);
-  var byteView = new Uint8Array(buf);
-  byteView.set(a);
-  return buf;
-}
-
-function buf2array(b) {
-  var dataView = new DataView(b);
-  var result = [];
-  for (var i = 0; i < dataView.byteLength; i++) {
-    result.push(dataView.getUint8(i));
+  function array2buf(a) {
+    var buf = new ArrayBuffer(a.length);
+    var byteView = new Uint8Array(buf);
+    byteView.set(a);
+    return buf;
   }
-  return result;
-}
 
-if (typeof freedom !== 'undefined') {
-  freedom().providePromises(mye2e);
-}
+  function buf2array(b) {
+    var dataView = new DataView(b);
+    var result = [];
+    for (var i = 0; i < dataView.byteLength; i++) {
+      result.push(dataView.getUint8(i));
+    }
+    return result;
+  }
+
+  if (typeof freedom !== 'undefined') {
+    freedom().providePromises(mye2e);
+  }
