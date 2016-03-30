@@ -57,34 +57,34 @@ describe('e2eImp', function () {
         '-----END PGP PRIVATE KEY BLOCK-----\r\n';
 
   var secondPrivKeyStr =
-        '-----BEGIN PGP PRIVATE KEY BLOCK-----\r\n' +
-        'Charset: UTF-8\r\n' +
-        'Version: End-To-End v0.31337.1\r\n' +
-        '\r\n' +
-        'xf8AAAB3BAAAAAATCCqGSM49AwEHAgMEFBwMuJYcFZ8diyWqImSpcjIDVXvrvTqi\r\n' +
-        '3ZW6aP2Xa7hM1RzpXNEJWf0MmSXcYPDF10t1NYGyFObi9MRGoVI1uAABAIpkPlZ0\r\n' +
-        'ekouOO8LrzBQyBbeR8/E+BrC5/SVweBFSHeqEHPN/wAAABQ8dXNlci0xQGV4YW1w\r\n' +
-        'bGUuY29tPsL/AAAAjgQQEwgAQP8AAAAFglartIL/AAAAAosJ/wAAAAmQXj/bCxIp\r\n' +
-        'OcD/AAAABZUICQoL/wAAAASWAwEC/wAAAAKbA/8AAAACngEAALZtAP40gWxAFmWi\r\n' +
-        'QtX0NcwueplZ9NGDXRmiZ/nib0YUDLISUgD/QlSj7uQMeakFNjXxRz8V1BqzyMRC\r\n' +
-        'kxzgWJz+n5S8KuPH/wAAAHsEAAAAABIIKoZIzj0DAQcCAwS1SHoSCjjOKdpzbUN/\r\n' +
-        'eIFRG9YdMaUUzFmDQ7UhbKZP/MNcBdACy87jVwI2tNh5rSWLhqPiEegMqTXZsqxd\r\n' +
-        '2ki3AwEIBwAA/1iPkMsIvyzP2idPN2y+wFY/zmDG2xR8nzVNEcXnZCR9EEvC/wAA\r\n' +
-        'AG0EGBMIAB//AAAABYJWq7SC/wAAAAmQXj/bCxIpOcD/AAAAApsMAADG6AD/RDyt\r\n' +
-        'sJ4dQ7FNACg5kvuC8y4MhO6EsoStVZSHgFXx6z8A/3y62Mh4rdBtjstmZase21OV\r\n' +
-        'Bzyi7hW5y4rRJHRSg1bJxv8AAABSBAAAAAATCCqGSM49AwEHAgMEFBwMuJYcFZ8d\r\n' +
-        'iyWqImSpcjIDVXvrvTqi3ZW6aP2Xa7hM1RzpXNEJWf0MmSXcYPDF10t1NYGyFObi\r\n' +
-        '9MRGoVI1uM3/AAAAFDx1c2VyLTFAZXhhbXBsZS5jb20+wv8AAACOBBATCABA/wAA\r\n' +
-        'AAWCVqu0gv8AAAACiwn/AAAACZBeP9sLEik5wP8AAAAFlQgJCgv/AAAABJYDAQL/\r\n' +
-        'AAAAApsD/wAAAAKeAQAAtm0A/jSBbEAWZaJC1fQ1zC56mVn00YNdGaJn+eJvRhQM\r\n' +
-        'shJSAP9CVKPu5Ax5qQU2NfFHPxXUGrPIxEKTHOBYnP6flLwq487/AAAAVgQAAAAA\r\n' +
-        'EggqhkjOPQMBBwIDBLVIehIKOM4p2nNtQ394gVEb1h0xpRTMWYNDtSFspk/8w1wF\r\n' +
-        '0ALLzuNXAja02HmtJYuGo+IR6AypNdmyrF3aSLcDAQgHwv8AAABtBBgTCAAf/wAA\r\n' +
-        'AAWCVqu0gv8AAAAJkF4/2wsSKTnA/wAAAAKbDAAAxugBAMXSmje/LKMk1EyIrn4+\r\n' +
-        'xcwKRzUiuDeg1EKsUWGcIVwcAPoCJlH/uaVStEdVDaLRqgvhYzUJOMWZgBz1Vn7I\r\n' +
-        'JmFLrg==\r\n' +
-        '=UvKo\r\n' +
-        '-----END PGP PRIVATE KEY BLOCK-----\r\n';
+      '-----BEGIN PGP PRIVATE KEY BLOCK-----\r\n' +
+      'Charset: UTF-8\r\n' +
+      'Version: End-To-End v0.31337.1\r\n' +
+      '\r\n' +
+      'xf8AAAB3BAAAAAATCCqGSM49AwEHAgMEFBwMuJYcFZ8diyWqImSpcjIDVXvrvTqi\r\n' +
+      '3ZW6aP2Xa7hM1RzpXNEJWf0MmSXcYPDF10t1NYGyFObi9MRGoVI1uAABAIpkPlZ0\r\n' +
+      'ekouOO8LrzBQyBbeR8/E+BrC5/SVweBFSHeqEHPN/wAAABQ8dXNlci0xQGV4YW1w\r\n' +
+      'bGUuY29tPsL/AAAAjgQQEwgAQP8AAAAFglartIL/AAAAAosJ/wAAAAmQXj/bCxIp\r\n' +
+      'OcD/AAAABZUICQoL/wAAAASWAwEC/wAAAAKbA/8AAAACngEAALZtAP40gWxAFmWi\r\n' +
+      'QtX0NcwueplZ9NGDXRmiZ/nib0YUDLISUgD/QlSj7uQMeakFNjXxRz8V1BqzyMRC\r\n' +
+      'kxzgWJz+n5S8KuPH/wAAAHsEAAAAABIIKoZIzj0DAQcCAwS1SHoSCjjOKdpzbUN/\r\n' +
+      'eIFRG9YdMaUUzFmDQ7UhbKZP/MNcBdACy87jVwI2tNh5rSWLhqPiEegMqTXZsqxd\r\n' +
+      '2ki3AwEIBwAA/1iPkMsIvyzP2idPN2y+wFY/zmDG2xR8nzVNEcXnZCR9EEvC/wAA\r\n' +
+      'AG0EGBMIAB//AAAABYJWq7SC/wAAAAmQXj/bCxIpOcD/AAAAApsMAADG6AD/RDyt\r\n' +
+      'sJ4dQ7FNACg5kvuC8y4MhO6EsoStVZSHgFXx6z8A/3y62Mh4rdBtjstmZase21OV\r\n' +
+      'Bzyi7hW5y4rRJHRSg1bJxv8AAABSBAAAAAATCCqGSM49AwEHAgMEFBwMuJYcFZ8d\r\n' +
+      'iyWqImSpcjIDVXvrvTqi3ZW6aP2Xa7hM1RzpXNEJWf0MmSXcYPDF10t1NYGyFObi\r\n' +
+      '9MRGoVI1uM3/AAAAFDx1c2VyLTFAZXhhbXBsZS5jb20+wv8AAACOBBATCABA/wAA\r\n' +
+      'AAWCVqu0gv8AAAACiwn/AAAACZBeP9sLEik5wP8AAAAFlQgJCgv/AAAABJYDAQL/\r\n' +
+      'AAAAApsD/wAAAAKeAQAAtm0A/jSBbEAWZaJC1fQ1zC56mVn00YNdGaJn+eJvRhQM\r\n' +
+      'shJSAP9CVKPu5Ax5qQU2NfFHPxXUGrPIxEKTHOBYnP6flLwq487/AAAAVgQAAAAA\r\n' +
+      'EggqhkjOPQMBBwIDBLVIehIKOM4p2nNtQ394gVEb1h0xpRTMWYNDtSFspk/8w1wF\r\n' +
+      '0ALLzuNXAja02HmtJYuGo+IR6AypNdmyrF3aSLcDAQgHwv8AAABtBBgTCAAf/wAA\r\n' +
+      'AAWCVqu0gv8AAAAJkF4/2wsSKTnA/wAAAAKbDAAAxugBAMXSmje/LKMk1EyIrn4+\r\n' +
+      'xcwKRzUiuDeg1EKsUWGcIVwcAPoCJlH/uaVStEdVDaLRqgvhYzUJOMWZgBz1Vn7I\r\n' +
+      'JmFLrg==\r\n' +
+      '=UvKo\r\n' +
+      '-----END PGP PRIVATE KEY BLOCK-----\r\n';
 
   var e2eImp;
   var buffer = new ArrayBuffer(12);
@@ -258,6 +258,27 @@ describe('e2eImp', function () {
         expect(publicKey.key.length > 36);
         expect(publicKey.key.substring(0, 36)).toEqual(
           '-----BEGIN PGP PUBLIC KEY BLOCK-----');
+        expect(publicKey.key.substring(
+          publicKey.key.length - 36, publicKey.key.length)).toEqual(
+            '-----END PGP PUBLIC KEY BLOCK-----\r\n');
+      }).catch(function (e) {
+        console.log(e.toString());
+        expect(false).toBeTruthy();
+      }).then(done);
+  });
+
+  it('export public key *without* PGP headers', function(done) {
+    e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
+      function () {
+        expect(true).toBeTruthy();
+        return e2eImp.exportKey(true);
+      }).then(function (publicKey) {
+        expect(publicKey.key.length > 36);
+        expect(publicKey.key.substring(0, 36)).not.toEqual(
+          '-----BEGIN PGP PUBLIC KEY BLOCK-----');
+        expect(publicKey.key.substring(
+          publicKey.key.length - 36, publicKey.key.length)).not.toEqual(
+            '-----END PGP PUBLIC KEY BLOCK-----\r\n');
       }).catch(function (e) {
         console.log(e.toString());
         expect(false).toBeTruthy();
@@ -282,13 +303,13 @@ describe('e2eImp', function () {
     e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(function() {
       var otherUser = new mye2e();
       return otherUser.setup('other user passphrase',
-          'Other User <other@example.com>').then(function() {
-        return otherUser;
-      });
+                             'Other User <other@example.com>').then(function() {
+                               return otherUser;
+                             });
     }).then(
       function(otherUser) {
         return Promise.all([otherUser.exportKey(),
-            otherUser.signEncrypt(buffer)]);
+                            otherUser.signEncrypt(buffer)]);
       }).then(function (array) {
         var key = array[0].key;
         var signedData = array[1];
@@ -305,12 +326,12 @@ describe('e2eImp', function () {
     var otherUser0 = new mye2e();
     var otherUser1 = new mye2e();
     e2eImp.setup('test passphrase', 'Test User <test@example.com>').then(
-        function () {
-      return Promise.all([
-        otherUser0.setup('test passphrase', 'Test User <test@example.com>'),
-        otherUser1.setup('test passphrase', 'Test User <test@example.com>')
-      ]);
-    }).then(function () {
+      function () {
+        return Promise.all([
+          otherUser0.setup('test passphrase', 'Test User <test@example.com>'),
+          otherUser1.setup('test passphrase', 'Test User <test@example.com>')
+        ]);
+      }).then(function () {
         return Promise.all([otherUser0.exportKey(), otherUser1.exportKey()]);
       }).then(function (keys) {
         // Check that the test is functioning correctly, generating new keys.
@@ -341,29 +362,29 @@ describe('e2eImp', function () {
         otherUser1.setup('test passphrase', 'Test User <test@example.com>')
       ]);
     }).then(function () {
-        // Sign a message from user0, and verify with e2eImp
-        return Promise.all([otherUser0.exportKey(),
-            otherUser0.signEncrypt(buffer)]);
-      }).then(function (array) {
-        var key = array[0].key;
-        var signedData = array[1];
-        return e2eImp.verifyDecrypt(signedData, key);
-      }).then(function (result) {
-        expect(result.data).toEqual(buffer);
+      // Sign a message from user0, and verify with e2eImp
+      return Promise.all([otherUser0.exportKey(),
+                          otherUser0.signEncrypt(buffer)]);
+    }).then(function (array) {
+      var key = array[0].key;
+      var signedData = array[1];
+      return e2eImp.verifyDecrypt(signedData, key);
+    }).then(function (result) {
+      expect(result.data).toEqual(buffer);
 
-        // Sign a message from user1, and verify with e2eImp
-        return Promise.all([otherUser1.exportKey(),
-            otherUser1.signEncrypt(buffer)]);
-      }).then(function (array) {
-        var key = array[0].key;
-        var signedData = array[1];
-        return e2eImp.verifyDecrypt(signedData, key);
-      }).then(function (result) {
-        expect(result.data).toEqual(buffer);
-      }).catch(function (e) {
-        console.log(e.toString());
-        expect(false).toBeTruthy();
-      }).then(done);
+      // Sign a message from user1, and verify with e2eImp
+      return Promise.all([otherUser1.exportKey(),
+                          otherUser1.signEncrypt(buffer)]);
+    }).then(function (array) {
+      var key = array[0].key;
+      var signedData = array[1];
+      return e2eImp.verifyDecrypt(signedData, key);
+    }).then(function (result) {
+      expect(result.data).toEqual(buffer);
+    }).catch(function (e) {
+      console.log(e.toString());
+      expect(false).toBeTruthy();
+    }).then(done);
   });
 
   it('encrypt messages to users with the same name', function(done) {
@@ -375,28 +396,28 @@ describe('e2eImp', function () {
         otherUser1.setup('test passphrase', 'Test User <test@example.com>')
       ]);
     }).then(function () {
-        return Promise.all([otherUser0.exportKey(), otherUser1.exportKey()]);
-      }).then(function (keys) {
-        // Check that the test is functioning correctly, generating new keys.
-        expect(keys[0].key).not.toEqual(keys[1].key);
+      return Promise.all([otherUser0.exportKey(), otherUser1.exportKey()]);
+    }).then(function (keys) {
+      // Check that the test is functioning correctly, generating new keys.
+      expect(keys[0].key).not.toEqual(keys[1].key);
 
-        // Encrypt a message to both users
-        return Promise.all([
-          e2eImp.signEncrypt(buffer, keys[0].key),
-          e2eImp.signEncrypt(buffer, keys[1].key)
-        ]);
-      }).then(function (cipherTexts) {
-        return Promise.all([
-          otherUser0.verifyDecrypt(cipherTexts[0]),
-          otherUser1.verifyDecrypt(cipherTexts[1])
-        ]);
-      }).then(function (results) {
-        expect(results[0].data).toEqual(buffer);
-        expect(results[1].data).toEqual(buffer);
-      }).catch(function (e) {
-        console.log(e.toString());
-        expect(false).toBeTruthy();
-      }).then(done);
+      // Encrypt a message to both users
+      return Promise.all([
+        e2eImp.signEncrypt(buffer, keys[0].key),
+        e2eImp.signEncrypt(buffer, keys[1].key)
+      ]);
+    }).then(function (cipherTexts) {
+      return Promise.all([
+        otherUser0.verifyDecrypt(cipherTexts[0]),
+        otherUser1.verifyDecrypt(cipherTexts[1])
+      ]);
+    }).then(function (results) {
+      expect(results[0].data).toEqual(buffer);
+      expect(results[1].data).toEqual(buffer);
+    }).catch(function (e) {
+      console.log(e.toString());
+      expect(false).toBeTruthy();
+    }).then(done);
   });
 
   it('generates a shared secret', function(done) {
@@ -433,5 +454,4 @@ describe('e2eImp', function () {
         expect(false).toBeTruthy();
       }).then(done);
   });
-
 });

@@ -56,7 +56,7 @@
       "exportKey": {
         "_comment": "Export your public key and fingerprint to share/check",
         "type": "method",
-        "value": [],
+        "value": ["boolean"],
         "ret": { "key": "string", "fingerprint": "string",
                  "words": ["array", "string"] },
         "err": { "errcode": "string", "message": "string" }
