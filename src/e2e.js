@@ -50,7 +50,8 @@ var mye2e = function(dispatchEvents) {
 };
 
 
-// These methods implement the actual freedom crypto API
+// These methods implement the actual freedom crypto API.
+// Note: This creates a new key if one isn't in storage.
 mye2e.prototype.setup = function(passphrase, userid) {
   // userid needs to be in format "name <email>"
   if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
@@ -69,6 +70,7 @@ mye2e.prototype.setup = function(passphrase, userid) {
       scope.pgpContext.searchPrivateKey(scope.pgpUser)).length === 0) {
       var username = scope.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
       var email = scope.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
+//      console.log("Generating key for " + scope.pgpUser);
       scope.generateKey(username, email);
     }
   });//.bind(this));  // TODO: switch back to using this once jasmine works
@@ -106,13 +108,16 @@ mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
       scope.pgpUser = userid;
       return Promise.resolve();
     }
+  }, function(err) {
+    console.log("Error: ",err);
+    return Promise.reject(err);
   });
 };
 
 mye2e.prototype.exportKey = function(removeHeader) {
   // removeHeader is an optional parameter that removes PGP header and newlines
   var keyResult = e2e.async.Result.getValue(
-    this.pgpContext.searchPublicKey(this.pgpUser));
+      this.pgpContext.searchPublicKey(this.pgpUser));
   var serialized = keyResult[0].serialized;
   var key = e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized);
   if (removeHeader) {
@@ -158,7 +163,7 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
     var signKey;
     if (sign) {
       signKey = e2e.async.Result.getValue(
-        pgp.searchPrivateKey(user))[0];
+          pgp.searchPrivateKey(user))[0];
     } else {
       signKey = null;
     }
@@ -204,6 +209,45 @@ mye2e.prototype.dearmor = function(data) {
   return Promise.resolve(array2buf(e2e.openpgp.asciiArmor.parse(data).data));
 };
 
+// Basic EC Diffie-Hellman shared secret calculation.
+//
+// 'curveName' is a simple string identifying the ECC curve.  "P_256" is
+//    a lovely value.
+// 'peerPubKey' is expected to be an armored key like "-----BEGIN PGP
+//    PUBLIC KEY BLOCK...".
+mye2e.prototype.ecdhBob = function(curveName, peerPubKey) {
+  if (!(curveName in e2e.ecc.PrimeCurve)) {
+    return Promise.reject(new Error('Invalid Prime Curve'));
+  }
+  try {
+    // Base call in this c'tor throws.
+    var ecdh = new e2e.ecc.Ecdh(curveName);
+    var parsedPubkey = e2e.openpgp.block.factory.parseByteArrayTransferableKey(
+        e2e.openpgp.asciiArmor.parse(peerPubKey).data);
+    var pubkey = parsedPubkey.keyPacket.cipher.ecdsa_.getPublicKey();
+
+    var keyRing = this.pgpContext.keyRing_;
+    var privKey = keyRing.searchKey(this.pgpUser, e2e.openpgp.KeyRing.Type.PRIVATE);
+    var localPrivKey = keyRing.getKeyBlock(privKey[0].toKeyObject());
+    var cipher = localPrivKey.keyPacket.cipher;
+
+    // The curve data in both cases are simple arrays of numbers, so
+    // this works pretty well.
+    if (cipher.cipher_.key.curve.toString() !=
+        parsedPubkey.keyPacket.cipher.key.curve.toString()) {
+      return Promise.reject(new Error('Keys have different curves.'));
+    }
+
+    var wrap = cipher.getWrappedCipher();
+    var bobResult = ecdh.bob(pubkey, wrap.key.privKey);
+    return Promise.resolve(array2buf(bobResult.secret));
+  } catch (e) {
+    console.log("ERROR: " + JSON.stringify(e));
+    console.log(e);
+    console.log(e.stack);
+    return Promise.reject(e);
+  }
+};
 
 // The following methods are part of the prototype to be able to access state
 // but are not part of the API and should not be exposed to the client
@@ -279,41 +323,43 @@ mye2e.prototype.deleteKey = function(uid) {
       });
   };
 
-
-  // Helper methods (that don't need state and could be moved elsewhere)
-  function array2str(a) {
-    var str = '';
-    for (var i = 0; i < a.length; i++) {
-      str += String.fromCharCode(a[i]);
-    }
-    return str;
+// Helper methods (that don't need state and could be moved elsewhere)
+function array2str(a) {
+  var str = '';
+  for (var i = 0; i < a.length; i++) {
+    str += String.fromCharCode(a[i]);
   }
+  return str;
+}
 
-  function str2buf(s) {
-    var buf = new ArrayBuffer(s.length * 2);
-    var view = new Uint16Array(buf);
-    for (var i = 0; i < s.length; i++) {
-      view[i] = s.charCodeAt(i);
-    }
-    return buf;
+function str2buf(s) {
+  var buf = new ArrayBuffer(s.length * 2);
+  var view = new Uint16Array(buf);
+  for (var i = 0; i < s.length; i++) {
+    view[i] = s.charCodeAt(i);
   }
+  return buf;
+}
 
-  function array2buf(a) {
-    var buf = new ArrayBuffer(a.length);
-    var byteView = new Uint8Array(buf);
-    byteView.set(a);
-    return buf;
-  }
+function array2buf(a) {
+  var buf = new ArrayBuffer(a.length);
+  var byteView = new Uint8Array(buf);
+  byteView.set(a);
+  return buf;
+}
 
-  function buf2array(b) {
-    var dataView = new DataView(b);
-    var result = [];
-    for (var i = 0; i < dataView.byteLength; i++) {
-      result.push(dataView.getUint8(i));
-    }
-    return result;
+function buf2array(b) {
+  var dataView = new DataView(b);
+  var result = [];
+  for (var i = 0; i < dataView.byteLength; i++) {
+    result.push(dataView.getUint8(i));
   }
+  return result;
+}
 
-  if (typeof freedom !== 'undefined') {
-    freedom().providePromises(mye2e);
-  }
+if (typeof freedom !== 'undefined') {
+  freedom().providePromises(mye2e);
+}
+if (typeof exports !== 'undefined') {
+  exports.mye2e = mye2e;
+}
