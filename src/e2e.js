@@ -51,7 +51,8 @@ var mye2e = function(dispatchEvents) {
 };
 
 
-// These methods implement the actual freedom crypto API
+// These methods implement the actual freedom crypto API.
+// Note: This creates a new key if one isn't in storage.
 mye2e.prototype.setup = function(passphrase, userid) {
   // userid needs to be in format "name <email>"
   if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
@@ -65,6 +66,7 @@ mye2e.prototype.setup = function(passphrase, userid) {
       scope.pgpContext.searchPrivateKey(scope.pgpUser)).length === 0) {
       var username = scope.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
       var email = scope.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
+//      console.log("Generating key for " + scope.pgpUser);
       scope.generateKey(username, email);
     }
   });//.bind(this));  // TODO: switch back to using this once jasmine works
@@ -98,12 +100,15 @@ mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
       scope.pgpUser = userid;
       return Promise.resolve();
     }
+  }, function(err) {
+    console.log("Error: ",err);
+    return Promise.reject(err);
   });
 };
 
 mye2e.prototype.exportKey = function() {
   var keyResult = e2e.async.Result.getValue(
-    this.pgpContext.searchPublicKey(this.pgpUser));
+      this.pgpContext.searchPublicKey(this.pgpUser));
   var serialized = keyResult[0].serialized;
 
   return Promise.resolve({
@@ -117,11 +122,11 @@ mye2e.prototype.getFingerprint = function(publicKey) {
   // Returns v4 fingerprint per RFC 4880 Section 12.2
   // http://tools.ietf.org/html/rfc4880#section-12.2
   var importResult = e2e.async.Result.getValue(
-    this.pgpContext.importKey(function(str, f) {
-      f('');
-    }, publicKey));
+      this.pgpContext.importKey(function(str, f) {
+        f('');
+      }, publicKey));
   var keyResult = e2e.async.Result.getValue(
-    this.pgpContext.searchPublicKey(importResult[0]));
+      this.pgpContext.searchPublicKey(importResult[0]));
   return Promise.resolve({
     'fingerprint': keyResult[0].key.fingerprintHex,
     'words': hex2words(keyResult[0].key.fingerprintHex)
@@ -136,25 +141,25 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
       sign = true;
     }
     var importResult = e2e.async.Result.getValue(
-      pgp.importKey(function(str, f) {
-        f('');
-      }, encryptKey));
+        pgp.importKey(function(str, f) {
+          f('');
+        }, encryptKey));
     var keys = e2e.async.Result.getValue(
-      pgp.searchPublicKey(importResult[0]));
+        pgp.searchPublicKey(importResult[0]));
     var signKey;
     if (sign) {
       signKey = e2e.async.Result.getValue(
-        pgp.searchPrivateKey(user))[0];
+          pgp.searchPrivateKey(user))[0];
     } else {
       signKey = null;
     }
     return new Promise(
-      function(resolve, reject) {
-        pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(
-          function (ciphertext) {
-            resolve(array2buf(ciphertext));
-          }).addErrback(reject);
-      });
+        function(resolve, reject) {
+          pgp.encryptSign(buf2array(data), [], keys, [], signKey).addCallback(
+              function (ciphertext) {
+                resolve(array2buf(ciphertext));
+              }).addErrback(reject);
+        });
   });
 };
 
@@ -167,21 +172,21 @@ mye2e.prototype.verifyDecrypt = function(data, verifyKey) {
   var byteView = new Uint8Array(data);
   var pgp = this.pgpContext;
   return new Promise(
-    function(resolve, reject) {
-      pgp.verifyDecrypt(function () {
-        return '';
-      }, e2e.openpgp.asciiArmor.encode('MESSAGE', byteView)).addCallback(
-        function (result) {
-          var signed = null;
-          if (verifyKey) {
-            signed = result.verify.success[0].uids;
-          }
-          resolve({
-            data: array2buf(result.decrypt.data),
-            signedBy: signed
-          });
-        }).addErrback(reject);
-    });
+      function(resolve, reject) {
+        pgp.verifyDecrypt(function () {
+          return '';
+        }, e2e.openpgp.asciiArmor.encode('MESSAGE', byteView)).addCallback(
+            function (result) {
+              var signed = null;
+              if (verifyKey) {
+                signed = result.verify.success[0].uids;
+              }
+              resolve({
+                data: array2buf(result.decrypt.data),
+                signedBy: signed
+              });
+            }).addErrback(reject);
+      });
 };
 
 mye2e.prototype.armor = function(data, type) {
@@ -213,49 +218,20 @@ mye2e.prototype.ecdhBob = function(curveName, peerPubKey) {
         e2e.openpgp.asciiArmor.parse(peerPubKey).data);
     var pubkey = parsedPubkey.keyPacket.cipher.ecdsa_.getPublicKey();
 
-    console.log("Running ecdh.bob with");
-
     var keyRing = this.pgpContext.keyRing_;
-    // returns {?Array.<!e2e.openpgp.block.TransferableKey>}, but
-    // doesn't seem to have the guts we want?
     var privKey = keyRing.searchKey(this.pgpUser, e2e.openpgp.KeyRing.Type.PRIVATE);
-    var privkeyKey = privKey[0].toKeyObject();
-    var localPrivKey = keyRing.getKeyBlock(privkeyKey);
-
-    console.log("> this.pgpUser:" + this.pgpUser);
-    console.log("> localPrivKey.keyPacket.cipher.cipher_.ecdsa_.params: " +
-        localPrivKey.keyPacket.cipher.cipher_.ecdsa_.params.toString());
-    console.log("> localPrivKey.keyPacket.cipher.algorithm: " +
-        localPrivKey.keyPacket.cipher.algorithm);
-    console.log("> localPrivKey.keyPacket.cipher.encryptedKeyData:" +
-        localPrivKey.keyPacket.cipher.encryptedKeyData.toString());
-    console.log("> localPrivKey.keyPacket.cipher.cipher_.key.curve: " +
-        localPrivKey.keyPacket.cipher.cipher_.key.curve.toString());
-    console.log("> localPrivKey.keyPacket.cipher.cipher_.key.privKey: " +
-        localPrivKey.keyPacket.cipher.cipher_.key.privKey.toString());
-    console.log("> localPrivKey.keyPacket.cipher.cipher_.key.pubKey: " +
-        localPrivKey.keyPacket.cipher.cipher_.key.pubKey.toString());
-
-    console.log("> localPrivKey.keyPacket.fingerprint: " +
-        localPrivKey.keyPacket.fingerprint.toString());
-    console.log("> localPrivKey.keyPacket.keyId: " +
-        localPrivKey.keyPacket.keyId.toString());
-    console.log("> localPrivKey.keyPacket.cipher:" + localPrivKey.keyPacket.cipher.toString());
+    var localPrivKey = keyRing.getKeyBlock(privKey[0].toKeyObject());
     var cipher = localPrivKey.keyPacket.cipher;
 
-    // The curve data in both cases are simple arrays of numbers, to
+    // The curve data in both cases are simple arrays of numbers, so
     // this works pretty well.
     if (cipher.cipher_.key.curve.toString() !=
         parsedPubkey.keyPacket.cipher.key.curve.toString()) {
       return Promise.reject(new Error('Keys have different curves.'));
     }
 
-
     var wrap = cipher.getWrappedCipher();
-    console.log("> pubkey:" + pubkey.toString());
-    console.log("> privKey:" + wrap.key.privKey.toString());
     var bobResult = ecdh.bob(pubkey, wrap.key.privKey);
-    console.log("Returning bobResult.secret: " + bobResult.secret.toString());
     return Promise.resolve(array2buf(bobResult.secret));
   } catch (e) {
     console.log("ERROR: " + JSON.stringify(e));

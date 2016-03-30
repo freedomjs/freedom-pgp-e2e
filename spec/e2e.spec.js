@@ -91,6 +91,8 @@ describe('e2eImp', function () {
   var byteView = new Uint8Array(buffer);
   // bytes for the string "abcd1234"
   byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
+  var sharedSecret = [216,221,208,16,30,17,41,250,204,28,94,208,188,132,206,121,
+                      155,132,218,70,135,211,34,169,49,149,244,96,43,111,12,224];
 
   beforeEach(function () {
     e2eImp = new mye2e();
@@ -260,14 +262,36 @@ describe('e2eImp', function () {
   });
 
   it('generates a shared secret', function(done) {
+    function array2str(buffer) {
+      var a = new DataView(buffer);
+      var str = '';
+      for (var i = 0; i < a.byteLength; i++) {
+        if (i > 0) {
+          str += ",";
+        }
+        str += a.getUint8(i).toString();
+      }
+      return str;
+    }
+
+    function compareBufferToArray(buffer, array) {
+      var buf = new DataView(buffer);
+      if (buf.byteLength != array.length) return false;
+      for (var i = 0; i < buf.byteLength; i++) {
+        if (buf.getUint8(i) != array[i]) return false;
+      }
+      return true;
+    }
+
     e2eImp.setup('', '<user-0@example.com>').then(
       function () {
-        return e2eImp.importKey(secondPrivKeyStr);
+        return e2eImp.importKeypair('', '<user-1@example.com>', secondPrivKeyStr);
       }).then(function() {
         return e2eImp.ecdhBob('P_256', publicKeyStr);
-      }).then(function(secret) {
-        console.log("Got shared secret: " + secret.toString());
-        expect(false).toBeTruthy();
+      }, function(err) {
+	    console.log("error: ", err);
+	  }).then(function(secret) {
+        expect(compareBufferToArray(secret, sharedSecret)).toBeTruthy();
       }).catch(function (e) {
         console.log(e.toString());
         expect(false).toBeTruthy();
