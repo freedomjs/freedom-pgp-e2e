@@ -1,7 +1,7 @@
 {
   "name": "freedom-pgp-e2e",
   "description": "Library to provide freedom API wrapper of end-to-end library",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "contributors": [
     "Aaron Gallant <ag@cs.washington.edu>"
   ],
@@ -33,6 +33,7 @@
     "hex2words": "^1.1.3",
     "jit-grunt": "^0.9.1",
     "jshint-stylish": "^2.1.0",
+    "json-store": "0.0.1",
     "karma": "^0.13.19",
     "karma-chrome-launcher": "^0.2.2",
     "karma-coverage": "^0.5.3",
