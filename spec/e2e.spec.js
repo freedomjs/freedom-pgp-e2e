@@ -426,9 +426,7 @@ describe('e2eImp', function () {
         return e2eImp.importKeypair('', '<user-1@example.com>', secondPrivKeyStr);
       }).then(function() {
         return e2eImp.ecdhBob('P_256', publicKeyStr);
-      }, function(err) {
-	    console.log("error: ", err);
-	  }).then(function(secret) {
+      }).then(function(secret) {
         expect(compareBufferToArray(secret, sharedSecret)).toBeTruthy();
       }).catch(function (e) {
         console.log(e.toString());
