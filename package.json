@@ -33,16 +33,16 @@
     "hex2words": "^1.1.3",
     "jit-grunt": "^0.10.0",
     "jshint-stylish": "^2.1.0",
+    "json-store": "0.0.1",
     "karma": "^0.13.22",
     "karma-chrome-launcher": "^0.2.3",
     "karma-coverage": "^0.5.5",
-    "json-store": "0.0.1",
     "karma-firefox-launcher": "^0.1.7",
     "karma-jasmine": "^0.3.8",
     "karma-phantomjs-launcher": "^1.0.0",
     "karma-story-reporter": "^0.3.1",
     "karma-unicorn-reporter": "^0.1.4",
-    "phantomjs": "^2.1.3",
+    "phantomjs-prebuilt": "^2.1.7",
     "time-grunt": "^1.3.0"
   },
   "scripts": {
