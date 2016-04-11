@@ -11,7 +11,6 @@
 module.exports = function(grunt) {
   require('time-grunt')(grunt);
   require('jit-grunt')(grunt, {
-    jasmine_node: 'grunt-jasmine-node2',
     'npm-publish': 'grunt-npm'
   });
 
@@ -110,8 +109,8 @@ module.exports = function(grunt) {
       helpers: ['node_modules/freedom-for-firefox/freedom-for-firefox.jsm']
     },
 
-    jasmine_node: {
-      integration: ['spec/integration/']
+    jasmine_nodejs: {
+      integration: { specs: ['spec/integration/**']}
     },
 
     jshint: {
@@ -189,12 +188,12 @@ module.exports = function(grunt) {
     'karma:browsers',
     'karma:phantom',
     'jasmine_chromeapp',
-    'jasmine_node',
+    'jasmine_nodejs',
     'jasmine_firefoxaddon'
   ]);
   grunt.registerTask('ci', [
     'build',
-    'jasmine_node'
+    'jasmine_nodejs'
   ]);
   grunt.registerTask('release', function(arg) {
     if (arguments.length === 0) {
