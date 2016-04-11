@@ -1,11 +1,6 @@
 /*globals freedom, console, e2e, exports, ArrayBuffer, Uint8Array, Uint16Array, DataView*/
 /*jslint indent:2*/
 
-if (typeof Promise === 'undefined' && typeof ES6Promise !== 'undefined') {
-  // Polyfill for karma unit tests
-  Promise = ES6Promise.Promise;
-}
-
 // getRandomValue polyfill, currently needed for Firefox webworkers
 var refreshBuffer = function (size) { return Promise.resolve(); };  // null-op
 if (typeof crypto === 'undefined') {
