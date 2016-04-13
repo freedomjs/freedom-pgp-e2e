@@ -15,7 +15,7 @@ e2edemo.prototype.runCryptoDemo = function() {
   byteView.set([49, 50, 51, 52, 49, 50, 51, 52, 49, 50, 51, 52]);
 
   this.dispatch('print', 'Starting encryption test! Clearing past key...');
-  e2e.clear().then(function() {
+  return e2e.clear().then(function() {
     return e2e.setup('secret passphrase', 'Joe Test <joetest@example.com>');
   }).then(
     function() {
@@ -53,7 +53,7 @@ e2edemo.prototype.runImportDemo = function(publicKeyStr, privateKeyStr,
   var e2e = new freedom.e2e();
   this.dispatch('print', '');  // blank line to separate from crypto test
   this.dispatch('print', 'Starting keypair import test!');
-  e2e.importKeypair('', '<quantsword@gmail.com>', privateKeyStr).then(
+  return e2e.importKeypair('', '<quantsword@gmail.com>', privateKeyStr).then(
     function() {
       this.dispatch('print', 'Imported keypair...');
       return e2e.getFingerprint(publicKeyStr);
@@ -96,4 +96,4 @@ var arrayEqual = function(array1, array2) {
     });
 };
 
-freedom().provideSynchronous(e2edemo);
+freedom().providePromises(e2edemo);

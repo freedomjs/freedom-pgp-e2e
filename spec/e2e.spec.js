@@ -442,10 +442,8 @@ describe('e2eImp', function () {
       return true;
     }
 
-    e2eImp.setup('', '<user-0@example.com>').then(
-      function () {
-        return e2eImp.importKeypair('', '<user-1@example.com>', secondPrivKeyStr);
-      }).then(function() {
+    e2eImp.importKeypair('', '<user-1@example.com>', secondPrivKeyStr)
+        .then(function() {
         return e2eImp.ecdhBob('P_256', publicKeyStr);
       }).then(function(secret) {
         expect(compareBufferToArray(secret, sharedSecret)).toBeTruthy();
