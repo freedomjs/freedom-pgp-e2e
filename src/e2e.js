@@ -1,6 +1,17 @@
 /*globals freedom, console, e2e, exports, ArrayBuffer, Uint8Array, Uint16Array, DataView*/
 /*jslint indent:2*/
 
+var useWebCrypto = false;
+if (typeof navigator !== 'undefined' && navigator && navigator.userAgent &&
+    navigator.userAgent.indexOf('Chrome') !== -1) {
+  // Enable WebCrypto acceleration, on Chrome platforms only.
+  // This should work on Firefox too, but it doesn't:
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1264771
+  e2e.scheme.EncryptionScheme.WEBCRYPTO_ALGORITHMS = 'ECDH';
+  e2e.scheme.SignatureScheme.WEBCRYPTO_ALGORITHMS = 'ECDSA';
+  useWebCrypto = true;
+}
+
 // getRandomValue polyfill, currently needed for Firefox webworkers
 var refreshBuffer = function (size) { return Promise.resolve(); };  // null-op
 if (typeof crypto === 'undefined') {
@@ -61,12 +72,13 @@ mye2e.prototype.setup = function(passphrase, userid) {
     }
     return scope.pgpContext.initializeKeyRing(passphrase);
   }).then(function() {
-    if (e2e.async.Result.getValue(
-      scope.pgpContext.searchPrivateKey(scope.pgpUser)).length === 0) {
+    return scope.pgpContext.searchPrivateKey(scope.pgpUser);
+  }).then(function(privateKeys) {
+    if (privateKeys.length === 0) {
       var username = scope.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
       var email = scope.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
 //      console.log("Generating key for " + scope.pgpUser);
-      scope.generateKey(username, email);
+      return scope.generateKey(username, email);
     }
   });//.bind(this));  // TODO: switch back to using this once jasmine works
 };
@@ -92,11 +104,16 @@ mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
     scope.pgpContext.setKeyRingPassphrase(passphrase);
     return scope.importPrivKey(privateKey, passphrase);
   }).then(function() {
-    if (e2e.async.Result.getValue(
-      scope.pgpContext.searchPrivateKey(userid)).length === 0 ||
-        e2e.async.Result.getValue(
-          scope.pgpContext.searchPublicKey(userid)).length === 0) {
-      return Promise.reject(Error('Keypair does not match provided userid'));
+    return scope.pgpContext.searchPrivateKey(userid);
+  }).then(function(privateKeys) {
+    if (privateKeys.length === 0) {
+      return Promise.reject(
+          Error('Private key does not match provided userid'));
+    }
+    return scope.pgpContext.searchPublicKey(userid);
+  }).then(function(publicKeys) {
+    if (publicKeys.length === 0) {
+      return Promise.reject(Error('Public key does not match provided userid'));
     } else if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
       return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
     } else {
@@ -111,18 +128,19 @@ mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
 
 mye2e.prototype.exportKey = function(removeHeader) {
   // removeHeader is an optional parameter that removes PGP header and newlines
-  var keyResult = e2e.async.Result.getValue(
-      this.pgpContext.searchPublicKey(this.pgpUser));
-  var serialized = keyResult[0].serialized;
-  var key = e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized);
-  if (removeHeader) {
-    // If optional removeHeader is true, then remove the PGP head/foot lines
-    key = key.split('\r\n').slice(3, key.split('\r\n').length - 2).join('');
-  }
-  return Promise.resolve({
-    'key': key,
-    'fingerprint': keyResult[0].key.fingerprintHex,
-    'words': hex2words(keyResult[0].key.fingerprintHex)
+  return this.pgpContext.searchPublicKey(this.pgpUser).then(
+      function(keyResult) {
+    var serialized = keyResult[0].serialized;
+    var key = e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized);
+    if (removeHeader) {
+      // If optional removeHeader is true, then remove the PGP head/foot lines
+      key = key.split('\r\n').slice(3, key.split('\r\n').length - 2).join('');
+    }
+    return {
+      'key': key,
+      'fingerprint': keyResult[0].key.fingerprintHex,
+      'words': hex2words(keyResult[0].key.fingerprintHex)
+    };
   });
 };
 
@@ -155,14 +173,13 @@ mye2e.prototype.signEncrypt = function(data, encryptKey, sign) {
     }
     return keys;
   }).then(function(keys) {
-    var signKey;
+    var signKeysPromise = Promise.resolve([null]);
     if (sign) {
-      signKey = e2e.async.Result.getValue(
-          pgp.searchPrivateKey(user))[0];
-    } else {
-      signKey = null;
+      signKeysPromise = pgp.searchPrivateKey(user);
     }
-    return pgp.encryptSign(buf2array(data), [], keys, [], signKey);
+    return signKeysPromise.then(function(signKeys) {
+      return pgp.encryptSign(buf2array(data), [], keys, [], signKeys[0]);
+    });
   }).then(array2buf);
 };
 
@@ -223,19 +240,20 @@ mye2e.prototype.ecdhBob = function(curveName, peerPubKey) {
 
     var keyRing = this.pgpContext.keyRing_;
     var privKey = keyRing.searchKey(this.pgpUser, e2e.openpgp.KeyRing.Type.PRIVATE);
-    var localPrivKey = keyRing.getKeyBlock(privKey[0].toKeyObject());
-    var cipher = localPrivKey.keyPacket.cipher;
+    return keyRing.getKeyBlock(privKey[0].toKeyObject())
+        .then(function(localPrivKey) {
+      var cipher = localPrivKey.keyPacket.cipher;
 
-    // The curve data in both cases are simple arrays of numbers, so
-    // this works pretty well.
-    if (cipher.cipher_.key.curve.toString() !=
-        parsedPubkey.keyPacket.cipher.key.curve.toString()) {
-      return Promise.reject(new Error('Keys have different curves.'));
-    }
-
-    var wrap = cipher.getWrappedCipher();
-    var bobResult = ecdh.bob(pubkey, wrap.key.privKey);
-    return Promise.resolve(array2buf(bobResult.secret));
+      // The curve data in both cases are simple arrays of numbers, so
+      // this works pretty well.
+      if (cipher.cipher_.key.curve.toString() !=
+          parsedPubkey.keyPacket.cipher.key.curve.toString()) {
+        throw new Error('Keys have different curves.');
+      }
+      var wrap = cipher.getWrappedCipher();
+      var bobResult = ecdh.bob(pubkey, wrap.key.privKey);
+      return array2buf(bobResult.secret);
+    });
   } catch (e) {
     console.log("ERROR: " + JSON.stringify(e));
     console.log(e);
@@ -249,7 +267,9 @@ mye2e.prototype.ecdhBob = function(curveName, peerPubKey) {
 mye2e.prototype.generateKey = function(name, email) {
   var pgp = this.pgpContext;
   var expiration = Date.now() / 1000 + (3600 * 24 * 365);
-  return pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration)
+  var location = useWebCrypto ? 'WEB_CRYPTO' : 'JAVASCRIPT';
+  return pgp.generateKey('ECDSA', 256, 'ECDH', 256, name, '', email, expiration,
+      location)
     .then(function (keys) {
       if (keys.length !== 2) {
         throw new Error('Failed to generate key');
