@@ -2,7 +2,7 @@
 /*jslint indent:2*/
 
 var useWebCrypto = false;
-if (navigator && navigator.userAgent &&
+if (typeof navigator !== 'undefined' && navigator && navigator.userAgent &&
     navigator.userAgent.indexOf('Chrome') !== -1) {
   // Enable WebCrypto acceleration, on Chrome platforms only.
   // This should work on Firefox too, but it doesn't:
