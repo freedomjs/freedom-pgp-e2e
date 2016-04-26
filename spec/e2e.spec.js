@@ -104,7 +104,7 @@ describe('e2eImp', function () {
         console.log(e2eImp);  // shouldn't see this, should go to error case
         expect(false).toBeTruthy();
       }).catch(function(e) {
-        expect(e).toEqual(Error('Invalid userid, expected: "name <email>"'));
+        expect(e).toEqual('Invalid userid, expected: "name <email>"');
       }).then(done);
   });
 

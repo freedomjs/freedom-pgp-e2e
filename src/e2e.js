@@ -61,7 +61,7 @@ var mye2e = function(dispatchEvents) {
 mye2e.prototype.setup = function(passphrase, userid) {
   // userid needs to be in format "name <email>"
   if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
-    return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
+    return Promise.reject('Invalid userid, expected: "name <email>"');
   }
   this.pgpUser = userid;
   var scope = this;  // jasmine tests fail w/bind approach
@@ -77,7 +77,6 @@ mye2e.prototype.setup = function(passphrase, userid) {
     if (privateKeys.length === 0) {
       var username = scope.pgpUser.slice(0, userid.lastIndexOf('<')).trim();
       var email = scope.pgpUser.slice(userid.lastIndexOf('<') + 1, -1);
-//      console.log("Generating key for " + scope.pgpUser);
       return scope.generateKey(username, email);
     }
   });//.bind(this));  // TODO: switch back to using this once jasmine works
@@ -107,41 +106,40 @@ mye2e.prototype.importKeypair = function(passphrase, userid, privateKey) {
     return scope.pgpContext.searchPrivateKey(userid);
   }).then(function(privateKeys) {
     if (privateKeys.length === 0) {
-      return Promise.reject(
-          Error('Private key does not match provided userid'));
+      return Promise.reject('Private key does not match provided userid');
     }
     return scope.pgpContext.searchPublicKey(userid);
   }).then(function(publicKeys) {
     if (publicKeys.length === 0) {
-      return Promise.reject(Error('Public key does not match provided userid'));
+      return Promise.reject('Public key does not match provided userid');
     } else if (!userid.match(/^[^<]*\s?<[^>]*>$/)) {
-      return Promise.reject(Error('Invalid userid, expected: "name <email>"'));
+      return Promise.reject('Invalid userid, expected: "name <email>"');
     } else {
       scope.pgpUser = userid;
       return Promise.resolve();
     }
   }, function(err) {
     console.log("Error: ",err);
-    return Promise.reject(err);
+    return Promise.reject(err.toString());
   });
 };
 
 mye2e.prototype.exportKey = function(removeHeader) {
   // removeHeader is an optional parameter that removes PGP header and newlines
   return this.pgpContext.searchPublicKey(this.pgpUser).then(
-      function(keyResult) {
-    var serialized = keyResult[0].serialized;
-    var key = e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized);
-    if (removeHeader) {
-      // If optional removeHeader is true, then remove the PGP head/foot lines
-      key = key.split('\r\n').slice(3, key.split('\r\n').length - 2).join('');
-    }
-    return {
-      'key': key,
-      'fingerprint': keyResult[0].key.fingerprintHex,
-      'words': hex2words(keyResult[0].key.fingerprintHex)
-    };
-  });
+    function(keyResult) {
+      var serialized = keyResult[0].serialized;
+      var key = e2e.openpgp.asciiArmor.encode('PUBLIC KEY BLOCK', serialized);
+      if (removeHeader) {
+        // If optional removeHeader is true, then remove the PGP head/foot lines
+        key = key.split('\r\n').slice(3, key.split('\r\n').length - 2).join('');
+      }
+      return {
+        'key': key,
+        'fingerprint': keyResult[0].key.fingerprintHex,
+        'words': hex2words(keyResult[0].key.fingerprintHex)
+      };
+    });
 };
 
 mye2e.prototype.getFingerprint = function(publicKey) {
@@ -229,31 +227,31 @@ mye2e.prototype.dearmor = function(data) {
 //    PUBLIC KEY BLOCK...".
 mye2e.prototype.ecdhBob = function(curveName, peerPubKey) {
   if (!(curveName in e2e.ecc.PrimeCurve)) {
-    return Promise.reject(new Error('Invalid Prime Curve'));
+    return Promise.reject('Invalid Prime Curve');
   }
   try {
     // Base call in this c'tor throws.
     var ecdh = new e2e.ecc.Ecdh(curveName);
     var parsedPubkey = e2e.openpgp.block.factory.parseByteArrayTransferableKey(
-        e2e.openpgp.asciiArmor.parse(peerPubKey).data);
+      e2e.openpgp.asciiArmor.parse(peerPubKey).data);
     var pubkey = parsedPubkey.keyPacket.cipher.ecdsa_.getPublicKey();
 
     var keyRing = this.pgpContext.keyRing_;
     var privKey = keyRing.searchKey(this.pgpUser, e2e.openpgp.KeyRing.Type.PRIVATE);
     return keyRing.getKeyBlock(privKey[0].toKeyObject())
-        .then(function(localPrivKey) {
-      var cipher = localPrivKey.keyPacket.cipher;
+      .then(function(localPrivKey) {
+        var cipher = localPrivKey.keyPacket.cipher;
 
-      // The curve data in both cases are simple arrays of numbers, so
-      // this works pretty well.
-      if (cipher.cipher_.key.curve.toString() !=
-          parsedPubkey.keyPacket.cipher.key.curve.toString()) {
-        throw new Error('Keys have different curves.');
-      }
-      var wrap = cipher.getWrappedCipher();
-      var bobResult = ecdh.bob(pubkey, wrap.key.privKey);
-      return array2buf(bobResult.secret);
-    });
+        // The curve data in both cases are simple arrays of numbers, so
+        // this works pretty well.
+        if (cipher.cipher_.key.curve.toString() !=
+            parsedPubkey.keyPacket.cipher.key.curve.toString()) {
+          throw new Error('Keys have different curves.');
+        }
+        var wrap = cipher.getWrappedCipher();
+        var bobResult = ecdh.bob(pubkey, wrap.key.privKey);
+        return array2buf(bobResult.secret);
+      });
   } catch (e) {
     console.log("ERROR: " + JSON.stringify(e));
     console.log(e);
